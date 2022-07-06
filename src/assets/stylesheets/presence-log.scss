@@ -5,8 +5,8 @@
   align-self: flex-start;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: flex-end;
   margin-bottom: 8px;
   margin-top: 90px;
   overflow: hidden;
@@ -150,7 +150,7 @@
 
 :local(.presence-log-in-room) {
   position: absolute;
-  left: 20px;
+  right: 20px;
   bottom: 20px;
 
   :local(.presence-log-entry) {

@@ -10,7 +10,7 @@
   
   grid-template-rows: 
     [viewport] auto
-    [toolbar] min-content;
+    [toolbar] 0;
 
   overflow: hidden;
   position: relative;

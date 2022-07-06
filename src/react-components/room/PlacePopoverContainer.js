@@ -16,6 +16,7 @@ import { FormattedMessage } from "react-intl";
 
 export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistoriedDialog, hubChannel }) {
   const [items, setItems] = useState([]);
+  const isTeacher = window.location.toString().includes("teacher");
 
   useEffect(
     () => {
@@ -62,14 +63,14 @@ export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistorie
               label: <FormattedMessage id="place-popover.item-type.model" defaultMessage="3D Model" />,
               onSelect: () => mediaSearchStore.sourceNavigate("sketchfab")
             },
-            {
+            isTeacher && {
               id: "avatar",
               icon: AvatarIcon,
               color: "accent1",
               label: <FormattedMessage id="place-popover.item-type.avatar" defaultMessage="Avatar" />,
               onSelect: () => mediaSearchStore.sourceNavigate("avatars")
             },
-            {
+            isTeacher && {
               id: "scene",
               icon: SceneIcon,
               color: "accent1",
@@ -77,7 +78,7 @@ export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistorie
               onSelect: () => mediaSearchStore.sourceNavigate("scenes")
             },
             // TODO: Launch system file prompt directly
-            {
+            isTeacher && {
               id: "upload",
               icon: UploadIcon,
               color: "accent3",
