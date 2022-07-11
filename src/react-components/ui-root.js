@@ -1350,10 +1350,7 @@ class UIRoot extends Component {
                 {entered && (
                   <>
 		    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
-                    <VoiceButtonContainer
-                      scene={this.props.scene}
-                      microphoneEnabled={this.mediaDevicesManager.isMicShared}
-                    />
+		    <AudioPopoverContainer scene={this.props.scene} />
                     <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
                     <PlacePopoverContainer
                       scene={this.props.scene}
@@ -1361,7 +1358,7 @@ class UIRoot extends Component {
                       mediaSearchStore={this.props.mediaSearchStore}
                       showNonHistoriedDialog={this.showNonHistoriedDialog}
                     />
-                    {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer />}
+                    {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
 									  {isTeacher && (<img
 											className="nonDragSel iconTopLeftMenu"
 											src="../assets/myAssets/globe.png"
