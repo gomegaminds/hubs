@@ -1349,7 +1349,7 @@ class UIRoot extends Component {
               <div className="topLeftMenu">
                 {entered && (
                   <>
-                   <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
+		    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
                     <VoiceButtonContainer
                       scene={this.props.scene}
                       microphoneEnabled={this.mediaDevicesManager.isMicShared}

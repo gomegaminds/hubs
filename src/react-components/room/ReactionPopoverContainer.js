@@ -35,6 +35,7 @@ function usePresence(scene, initialPresence) {
 export function ReactionPopoverContainer({ scene, initialPresence }) {
   const intl = useIntl();
   const presence = usePresence(scene, initialPresence);
+  console.log("Presence in popovercontainer", presence);
 
   const items = emojis.map(emoji => ({
     src: emoji.particleEmitterConfig.src,
