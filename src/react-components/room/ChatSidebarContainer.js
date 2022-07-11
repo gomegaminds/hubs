@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import {
   ChatSidebar,
@@ -160,11 +160,13 @@ ChatContextProvider.propTypes = {
   messageDispatch: PropTypes.object
 };
 
-export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occupantCount, onClose }) {
+export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occupantCount, inputEffect, onClose }) {
   const { messageGroups, sendMessage, setMessagesRead } = useContext(ChatContext);
   const [onScrollList, listRef, scrolledToBottom] = useMaintainScrollPosition(messageGroups);
   const [message, setMessage] = useState("");
+  const typingTimeoutRef = useRef();
   const intl = useIntl();
+  const inputRef = useRef();
 
   const onKeyDown = useCallback(
     e => {
@@ -173,10 +175,19 @@ export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occup
         if (e.target.value.length <= MAX_MESSAGE_LENGTH) {
           sendMessage(e.target.value);
           setMessage("");
+          // intentionally only doing this on "enter" press and not clicking of send button
+          if (e.target.value.startsWith("/")) {
+            onClose();
+          }
         }
+      } else if (e.key === "Escape") {
+        onClose();
       }
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => window.APP.hubChannel.endTyping(), 500);
+      window.APP.hubChannel.beginTyping();
     },
-    [sendMessage, setMessage]
+    [sendMessage, setMessage, onClose]
   );
 
   const onSendMessage = useCallback(
@@ -203,6 +214,18 @@ export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occup
     },
     [scene]
   );
+
+  const onSelectEmoji = useCallback(
+    ({ emoji, pickerRemainedOpen }) => {
+      setMessage(message => message + emoji.native);
+      // If the picker remained open, avoid selecting the input so that the
+      // user can keep picking emojis.
+      if (!pickerRemainedOpen) inputRef.current.select();
+    },
+    [setMessage, inputRef]
+  );
+
+  useEffect(() => inputEffect(inputRef.current), [inputEffect, inputRef]);
 
   useEffect(
     () => {
@@ -269,6 +292,7 @@ export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occup
       </ChatMessageList>
       <ChatInput
         id="chat-input"
+        ref={inputRef}
         onKeyDown={onKeyDown}
         onChange={e => setMessage(e.target.value)}
         placeholder={placeholder}
@@ -283,9 +307,7 @@ export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occup
         }
         afterInput={
           <>
-            {!isMobile && (
-              <EmojiPickerPopoverButton onSelectEmoji={emoji => setMessage(message => message + emoji.native)} />
-            )}
+            {!isMobile && <EmojiPickerPopoverButton onSelectEmoji={onSelectEmoji} />}
             {message.length === 0 && canSpawnMessages ? (
               <MessageAttachmentButton onChange={onUploadAttachments} />
             ) : (
@@ -306,7 +328,8 @@ ChatSidebarContainer.propTypes = {
   presences: PropTypes.object.isRequired,
   occupantCount: PropTypes.number.isRequired,
   scene: PropTypes.object.isRequired,
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
+  inputEffect: PropTypes.func.isRequired
 };
 
 export function ChatToolbarButtonContainer(props) {
