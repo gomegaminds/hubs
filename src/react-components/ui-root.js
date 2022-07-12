@@ -77,6 +77,7 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
+import { RaiseHandButton } from "./room/RaiseHandButton";
 import { ReactionPopoverContainer } from "./room/ReactionPopoverContainer";
 import { SafariMicModal } from "./room/SafariMicModal";
 import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
@@ -1359,22 +1360,16 @@ class UIRoot extends Component {
                       showNonHistoriedDialog={this.showNonHistoriedDialog}
                     />
                     {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
-									  {isTeacher && (<img
-											className="nonDragSel iconTopLeftMenu"
-											src="../assets/myAssets/globe.png"
-											onClick={() => this.setSidebar("room-info")}
-									  />)}
-									  {!isTeacher && (<img
-											id="imgHand"
-											className="nonDragSel iconTopLeftMenu"
-											src="../assets/myAssets/hand.png"
-	 
-											onClick={() => this.handUp()}
-									  />)}
+		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
+			  {isTeacher && (<img
+					className="nonDragSel iconTopLeftMenu"
+					src="../assets/myAssets/globe.png"
+					onClick={() => this.setSidebar("room-info")}
+			  />)}
                   	{isTeacher && (<InvitePopoverContainer
-                    	hub={this.props.hub}
-                    	hubChannel={this.props.hubChannel}
-                    	scene={this.props.scene}
+				hub={this.props.hub}
+				hubChannel={this.props.hubChannel}
+				scene={this.props.scene}
                   	/>)}
                   </>
                 )}

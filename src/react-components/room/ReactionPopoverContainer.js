@@ -35,7 +35,6 @@ function usePresence(scene, initialPresence) {
 export function ReactionPopoverContainer({ scene, initialPresence }) {
   const intl = useIntl();
   const presence = usePresence(scene, initialPresence);
-  console.log("Presence in popovercontainer", presence);
 
   const items = emojis.map(emoji => ({
     src: emoji.particleEmitterConfig.src,
@@ -44,18 +43,7 @@ export function ReactionPopoverContainer({ scene, initialPresence }) {
     ...emoji
   }));
 
-  const onToggleHandRaised = useCallback(
-    () => {
-      if (presence.hand_raised) {
-        window.APP.hubChannel.lowerHand();
-      } else {
-        window.APP.hubChannel.raiseHand();
-      }
-    },
-    [presence]
-  );
-
-  return <ReactionPopoverButton items={items} presence={presence} onToggleHandRaised={onToggleHandRaised} />;
+  return <ReactionPopoverButton items={items} presence={presence} />;
 }
 
 ReactionPopoverContainer.propTypes = {

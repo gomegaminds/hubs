@@ -54,23 +54,12 @@ export const AudioPopoverButton = ({
       {({ togglePopover, popoverVisible, triggerRef }) => (
         <div className={styles.buttonsContainer}>
           <ToolbarButton
-            ref={triggerRef}
-            icon={<ArrowIcon />}
-            preset="basic"
-            selected={popoverVisible}
-            onClick={togglePopover}
-            type={"left"}
-            className={popoverVisible ? styles.arrowButton : styles.arrowButtonSelected}
-            title={"Audio Settings"}
-          />
-          <ToolbarButton
             ref={micButtonRef}
             icon={isMicrophoneMuted || !isMicrophoneEnabled ? <MicrophoneMutedIcon /> : <MicrophoneIcon />}
             label={<FormattedMessage id="voice-button-container.label" defaultMessage="Voice" />}
             preset="basic"
             onClick={onChangeMicrophoneMuted}
             statusColor={isMicrophoneMuted || !isMicrophoneEnabled ? "disabled" : "enabled"}
-            type={"right"}
           />
         </div>
       )}
