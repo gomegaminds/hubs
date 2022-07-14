@@ -25,6 +25,7 @@ const HUB_CREATOR_PERMISSIONS = [
   "kick_users",
   "amplify_audio"
 ];
+
 const VALID_PERMISSIONS = HUB_CREATOR_PERMISSIONS.concat([
   "tweet",
   "spawn_camera",

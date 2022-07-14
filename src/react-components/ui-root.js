@@ -1142,6 +1142,13 @@ class UIRoot extends Component {
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
     const isTeacher = window.location.toString().includes("teacher");
 
+    const voiceEnabled = this.props.hub.user_data.toggle_voice
+
+    if(!voiceEnabled) {
+	    window.APP.dialog.enableMicrophone(false);
+    } else {
+	    window.APP.dialog.enableMicrophone(true);
+    }
 
     const moreMenu = [
       {
@@ -1339,8 +1346,6 @@ class UIRoot extends Component {
       }
     ];
 
-
-
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
@@ -1351,7 +1356,9 @@ class UIRoot extends Component {
                 {entered && (
                   <>
 		    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
-		    <AudioPopoverContainer scene={this.props.scene} />
+			{this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_voice &&
+			    <AudioPopoverContainer scene={this.props.scene} />
+			}
                     <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
                     <PlacePopoverContainer
                       scene={this.props.scene}
@@ -1471,10 +1478,12 @@ class UIRoot extends Component {
                           onClick={() => this.toggleSidebar("people")}
                           presencecount={this.state.presenceCount}
                         />
-                        <ChatMenuButton
-                          active={this.state.sidebarId === "chat"}
-                          onClick={() => this.toggleSidebar("chat")}
-                        />
+			{this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_chat &&
+				<ChatMenuButton
+				active={this.state.sidebarId === "chat"}
+				onClick={() => this.toggleSidebar("chat")}
+				/>
+			}
                       </ContentMenu>
                     )}
                     {!entered && !streaming && !isMobile && streamerName && <SpectatingLabel name={streamerName} />}

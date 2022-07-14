@@ -16,7 +16,7 @@
     "info": "npm-scripts-info",
     "start": "webpack-dev-server --mode=development --env.loadAppConfig",
     "dev": "webpack-dev-server --mode=development --env.remoteDev",
-    "local": "webpack-dev-server --mode=development --env.localDev",
+    "local": "webpack-dev-server --mode=development --env.localDev --https --cert certs/cert.pem --key certs/key.pem",
     "build": "rimraf ./dist && webpack --mode=production",
     "bundle-analyzer": "webpack-dev-server --mode=production --env.dev --env.bundleAnalyzer",
     "doc": "node ./scripts/doc/build.js",

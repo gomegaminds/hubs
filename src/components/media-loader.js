@@ -637,7 +637,8 @@ AFRAME.registerComponent("media-loader", {
 AFRAME.registerComponent("media-pager", {
   schema: {
     index: { default: 0 },
-    maxIndex: { default: 0 }
+    maxIndex: { default: 0 },
+    takeOwnership: { default: true }
   },
 
   init() {
@@ -700,14 +701,14 @@ AFRAME.registerComponent("media-pager", {
   },
 
   onNext() {
-    if (this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl)) return;
+    if (this.data.takeOwnership && this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl)) return;
     const newIndex = Math.min(this.data.index + 1, this.data.maxIndex);
     this.el.setAttribute("media-pdf", "index", newIndex);
     this.el.setAttribute("media-pager", "index", newIndex);
   },
 
   onPrev() {
-    if (this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl)) return;
+    if (this.data.takeOwnership && this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl)) return;
     const newIndex = Math.max(this.data.index - 1, 0);
     this.el.setAttribute("media-pdf", "index", newIndex);
     this.el.setAttribute("media-pager", "index", newIndex);

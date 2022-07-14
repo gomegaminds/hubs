@@ -96,6 +96,7 @@ import "./components/leave-room-button";
 import "./components/visible-if-permitted";
 import "./components/visibility-on-content-types";
 import "./components/hide-when-pinned-and-forbidden";
+import "./components/hide-when-protected-and-forbidden";
 import "./components/visibility-while-frozen";
 import "./components/stats-plus";
 import "./components/networked-avatar";
@@ -108,6 +109,8 @@ import "./components/pitch-yaw-rotator";
 import "./components/position-at-border";
 import "./components/pinnable";
 import "./components/pin-networked-object-button";
+import "./components/protectable";
+import "./components/protect-networked-object-button";
 import "./components/mirror-media-button";
 import "./components/close-mirrored-media-button";
 import "./components/drop-object-button";
@@ -193,6 +196,7 @@ import "./gltf-component-mappings";
 import { App } from "./App";
 import MediaDevicesManager from "./utils/media-devices-manager";
 import PinningHelper from "./utils/pinning-helper";
+import ProtectHelper from "./utils/protect-helper";
 import { sleep } from "./utils/async-utils";
 import { platformUnsupported } from "./support";
 
@@ -815,6 +819,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   window.APP.pinningHelper = new PinningHelper(hubChannel, authChannel, store, performConditionalSignIn);
+  window.APP.protectHelper = new ProtectHelper(hubChannel, authChannel, store, performConditionalSignIn);
 
   window.addEventListener("action_create_avatar", () => {
     performConditionalSignIn(

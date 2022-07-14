@@ -80,6 +80,7 @@ export default class SceneEntryManager {
 
     this._setupPlayerRig();
     this._setupKicking();
+    this._setupVoiceToggle();
     this._setupMedia();
     this._setupCamera();
 
@@ -194,6 +195,18 @@ export default class SceneEntryManager {
       }
     });
   };
+
+  _setupVoiceToggle = () => {
+    this.scene.addEventListener("toggle-voice-off", e => {
+	    // TODO: If not teacher
+	    window.APP.dialog.enableMicrophone(false);
+    });
+    this.scene.addEventListener("toggle-voice-on", e => {
+	    // TODO: If not teacher
+	    window.APP.dialog.enableMicrophone(true);
+    });
+
+  }
 
   _setupBlocking = () => {
     document.body.addEventListener("blocked", ev => {
