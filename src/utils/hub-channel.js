@@ -306,6 +306,12 @@ export default class HubChannel extends EventTarget {
     return new Promise(resolve => this.channel.push("unsubscribe", { subscription }).receive("ok", resolve));
   };
 
+  sendTeleportRequest = (body, type = "teleportRequest") => {
+	  console.log("Teleport request received");
+    if (!body) return;
+    this.channel.push("message", { body, type });
+  };
+
   sendMessage = (body, type = "chat") => {
     if (!body) return;
     this.channel.push("message", { body, type });

@@ -7,6 +7,7 @@ import ducky from "./assets/models/DuckyMesh.glb";
 import { EventTarget } from "event-target-shim";
 import { ExitReason } from "./react-components/room/ExitedRoomScreen";
 import { LogMessageType } from "./react-components/room/ChatSidebar";
+import { getLastWorldPosition } from "./utils/three-utils";
 
 let uiRoot;
 // Handles user-entered messages
@@ -43,6 +44,17 @@ export default class MessageDispatch extends EventTarget {
   }
 
   receive(message) {
+    console.log(message);
+    if(message.type == "teleportRequest") {
+	    // Do not teleport the person making the request
+	    if(NAF.clientId != message.sessionId) {
+		    let pos = message.body
+		    // Scatter players around the person making request TODO: Make better
+		    pos.x = pos.x + Math.random() * (0.3 - 1) + 1;
+		    pos.z = pos.z + Math.random() * (0.3 - 1) + 1;
+		    this.scene.systems["hubs-systems"].characterController.teleportTo(pos);
+	    }
+    }
     this.addToPresenceLog(message);
     this.dispatchEvent(new CustomEvent("message", { detail: message }));
   }

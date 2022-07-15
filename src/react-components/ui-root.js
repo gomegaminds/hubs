@@ -75,6 +75,7 @@ import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
+import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
 import { RaiseHandButton } from "./room/RaiseHandButton";
@@ -84,6 +85,7 @@ import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
 import { SignInStep } from "./auth/SignInModal";
 import { LeaveReason, LeaveRoomModal } from "./room/LeaveRoomModal";
 import { RoomSidebar } from "./room/RoomSidebar";
+import { TeleportSidebar } from "../mega-src/react-components/room/TeleportSidebar";
 import { RoomSettingsSidebarContainer } from "./room/RoomSettingsSidebarContainer";
 import { AutoExitWarningModal, AutoExitReason } from "./room/AutoExitWarningModal";
 import { ExitReason } from "./room/ExitedRoomScreen";
@@ -1375,11 +1377,16 @@ class UIRoot extends Component {
                     />
                     {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
 		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
-			  {isTeacher && (<img
-					className="nonDragSel iconTopLeftMenu"
-					src="../assets/myAssets/globe.png"
-					onClick={() => this.setSidebar("room-info")}
-			  />)}
+			  {isTeacher && (
+                    <TeacherPopoverContainer
+                      scene={this.props.scene}
+                      hubChannel={this.props.hubChannel}
+                      mediaSearchStore={this.props.mediaSearchStore}
+                      showNonHistoriedDialog={this.showNonHistoriedDialog}
+		      onViewRoomSettings={() => this.setSidebar("room-settings")}
+		      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+                    />
+			  )}
                   	{isTeacher && (<InvitePopoverContainer
 				hub={this.props.hub}
 				hubChannel={this.props.hubChannel}
@@ -1596,6 +1603,13 @@ class UIRoot extends Component {
                           showNonHistoriedDialog={this.showNonHistoriedDialog}
                         />
                       )}
+                      {this.state.sidebarId === "teleport-menu" && (
+			      <TeleportSidebar
+			        room={this.props.hub}
+                                onClose={() => this.setSidebar(null)}
+			        hubChannel={this.props.hubChannel}
+			      />
+		      )}
                       {this.state.sidebarId === "room-info" && (
                         <RoomSidebar
                           accountId={this.props.sessionId}

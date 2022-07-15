@@ -265,6 +265,9 @@ module.exports = async (env, argv) => {
   }
 
   return {
+    resolve: {
+        symlinks: false,
+    },
     node: {
       // need to specify this manually because some random lodash code will try to access
       // Buffer on the global object if it exists, so webpack will polyfill on its behalf
@@ -448,7 +451,7 @@ module.exports = async (env, argv) => {
         },
         {
           test: /\.svg$/,
-          include: [path.resolve(__dirname, "src", "react-components")],
+          include: [path.resolve(__dirname, "src", "react-components"), path.resolve(__dirname, "src", "mega-src")],
           use: [
             {
               loader: "@svgr/webpack",

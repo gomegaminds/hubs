@@ -715,6 +715,12 @@ AFRAME.registerComponent("media-video", {
   updateHoverMenu() {
     if (!this.hoverMenu) return;
 
+    // Rotate video if aspect ratio is vertically focused
+    if (((texture.image.videoHeight || texture.image.height) / (texture.image.videoWidth || texture.image.width)) < 1 ){
+	    this.playbackControls.object3D.rotation.z += 90;
+    }
+
+
     const mediaLoader = this.el.components["media-loader"].data;
     const pinnableElement = mediaLoader.linkedEl || this.el;
     const isPinned = pinnableElement.components.pinnable && pinnableElement.components.pinnable.data.pinned;
