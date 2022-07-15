@@ -614,6 +614,19 @@ class UIRoot extends Component {
     return (isMobile || AFRAME.utils.device.isMobileVR()) && !isIOS() && !this.state.enterInVR && screenfull.enabled;
   };
 
+  handleVoiceToggle = async () => {
+    const voiceEnabled = this.props.hub.user_data.toggle_voice
+    if(!voiceEnabled) {
+	    if(this.mediaDevicesManager.isMicShared) {
+		    await this.mediaDevicesManager.stopMicShare();
+	    }
+    } else {
+	    if(!this.mediaDevicesManager.isMicShared) {
+	    await this.mediaDevicesManager.startMicShare({});
+	    }
+    }
+  };
+
   onAudioReadyButton = async () => {
     if (!this.state.enterInVR) {
       await showFullScreenIfAvailable();
@@ -1142,13 +1155,7 @@ class UIRoot extends Component {
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
     const isTeacher = window.location.toString().includes("teacher");
 
-    const voiceEnabled = this.props.hub.user_data.toggle_voice
-
-    if(!voiceEnabled) {
-	    window.APP.dialog.enableMicrophone(false);
-    } else {
-	    window.APP.dialog.enableMicrophone(true);
-    }
+    this.handleVoiceToggle();
 
     const moreMenu = [
       {
