@@ -11,7 +11,21 @@ export function RoomSettingsSidebarContainer({ showBackButton, room, hubChannel,
 
   const applyChanges = useCallback(
     settings => {
+
+      // Going from voice to no voice 
+      if(settings.user_data && !settings.user_data.toggle_voice && window.APP.hub.user_data.toggle_voice) {
+	      console.log("Settings update triggered");
+	      window.APP.hubChannel.sendMuteRequest();
+      }
+
+      // Going from no voice to voice 
+      if(settings.user_data && settings.user_data.toggle_voice && !window.APP.hub.user_data.toggle_voice) {
+	      console.log("Settings update triggered");
+	      window.APP.hubChannel.sendUnMuteRequest();
+      }
+
       hubChannel.updateHub(settings);
+
       onClose();
     },
     [hubChannel, onClose]

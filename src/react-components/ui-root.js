@@ -616,8 +616,10 @@ class UIRoot extends Component {
     return (isMobile || AFRAME.utils.device.isMobileVR()) && !isIOS() && !this.state.enterInVR && screenfull.enabled;
   };
 
+
   handleVoiceToggle = async () => {
     const voiceEnabled = this.props.hub.user_data.toggle_voice
+
     if(!voiceEnabled) {
 	    if(this.mediaDevicesManager.isMicShared) {
 		    await this.mediaDevicesManager.stopMicShare();
@@ -637,8 +639,12 @@ class UIRoot extends Component {
     // Push the new history state before going into VR, otherwise menu button will take us back
     clearHistoryState(this.props.history);
 
-    const muteOnEntry = this.props.store.state.preferences.muteMicOnEntry;
+    const muteOnEntry = this.props.store.state.preferences.muteMicOnEntry || !this.props.hub.user_data.toggle_voice;
     await this.props.enterScene(this.state.enterInVR, muteOnEntry);
+
+    if(!this.props.hub.user_data.toggle_voice) {
+	    await this.mediaDevicesManager.stopMicShare();
+    }
 
     this.setState({ entered: true, entering: false, showShareDialog: false });
 
@@ -649,6 +655,8 @@ class UIRoot extends Component {
     if (this.mediaDevicesManager.isVideoShared) {
       console.log("Screen sharing enabled.");
     }
+
+
   };
 
   attemptLink = async () => {
@@ -1157,7 +1165,6 @@ class UIRoot extends Component {
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
     const isTeacher = window.location.toString().includes("teacher");
 
-    this.handleVoiceToggle();
 
     const moreMenu = [
       {
@@ -1355,6 +1362,7 @@ class UIRoot extends Component {
       }
     ];
 
+
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
@@ -1378,14 +1386,14 @@ class UIRoot extends Component {
                     {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
 		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
 			  {isTeacher && (
-                    <TeacherPopoverContainer
-                      scene={this.props.scene}
-                      hubChannel={this.props.hubChannel}
-                      mediaSearchStore={this.props.mediaSearchStore}
-                      showNonHistoriedDialog={this.showNonHistoriedDialog}
-		      onViewRoomSettings={() => this.setSidebar("room-settings")}
-		      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
-                    />
+			    <TeacherPopoverContainer
+			      scene={this.props.scene}
+			      hubChannel={this.props.hubChannel}
+			      mediaSearchStore={this.props.mediaSearchStore}
+			      showNonHistoriedDialog={this.showNonHistoriedDialog}
+			      onViewRoomSettings={() => this.setSidebar("room-settings")}
+			      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+			    />
 			  )}
                   	{isTeacher && (<InvitePopoverContainer
 				hub={this.props.hub}

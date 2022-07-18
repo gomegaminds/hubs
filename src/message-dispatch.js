@@ -44,7 +44,6 @@ export default class MessageDispatch extends EventTarget {
   }
 
   receive(message) {
-    console.log(message);
     if(message.type == "teleportRequest") {
 	    // Do not teleport the person making the request
 	    if(NAF.clientId != message.sessionId) {
@@ -55,6 +54,14 @@ export default class MessageDispatch extends EventTarget {
 		    this.scene.systems["hubs-systems"].characterController.teleportTo(pos);
 	    }
     }
+    if(message.type == "muteRequest") {
+	    console.log("Mute request received");
+	    window.APP.mediaDevicesManager.stopMicShare();
+    }
+    if(message.type == "unMuteRequest") {
+	    window.APP.mediaDevicesManager.startMicShare({});
+    }
+
     this.addToPresenceLog(message);
     this.dispatchEvent(new CustomEvent("message", { detail: message }));
   }
