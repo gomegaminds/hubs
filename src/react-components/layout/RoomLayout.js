@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import styles from "./RoomLayout.scss";
-import { Toolbar } from "./Toolbar";
+import { Toolbar, FakeToolbar } from "./Toolbar";
 
 export function RoomLayout({
   className,

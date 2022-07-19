@@ -57,7 +57,10 @@ export const AudioPopoverButton = ({
             ref={micButtonRef}
             icon={isMicrophoneMuted || !isMicrophoneEnabled ? <MicrophoneMutedIcon /> : <MicrophoneIcon />}
             label={<FormattedMessage id="voice-button-container.label" defaultMessage="Voice" />}
-            preset="basic"
+	    tipTitle={"Toggle Microphone"}
+	    tipBody={"Click to mute and unmute your microphone"}
+            preset={isMicrophoneMuted || !isMicrophoneEnabled ? "micoff" : "micon"}
+	    edge="start"
             onClick={onChangeMicrophoneMuted}
             statusColor={isMicrophoneMuted || !isMicrophoneEnabled ? "disabled" : "enabled"}
           />

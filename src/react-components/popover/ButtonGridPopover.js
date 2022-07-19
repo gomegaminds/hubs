@@ -13,6 +13,7 @@ export function ButtonGridPopover({ fullscreen, items, closePopover }) {
           <ToolbarButton
             key={item.id}
             icon={<Icon />}
+	    submenu={true}
             preset={item.color}
             onClick={() => {
               if (item.onSelect) {

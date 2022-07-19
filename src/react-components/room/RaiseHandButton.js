@@ -4,8 +4,8 @@ import { ImageGridPopover } from "../popover/ImageGridPopover";
 import { Popover } from "../popover/Popover";
 import { ToolbarButton } from "../input/ToolbarButton";
 import { ReactComponent as ReactionIcon } from "../icons/Reaction.svg";
-import { ReactComponent as HandRaisedIcon } from "../icons/MegaMinds/HandRaised.svg";
-import { ReactComponent as HandLoweredIcon } from "../icons/MegaMinds/HandLowered.svg";
+import { ReactComponent as HandRaisedIcon } from "../icons/MegaMinds/LowerHand.svg";
+import { ReactComponent as HandLoweredIcon } from "../icons/MegaMinds/RaiseHand.svg";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 import { Column } from "../layout/Column";
 import { Row } from "../layout/Row";
@@ -71,7 +71,10 @@ export function RaiseHandButton({ scene, initialPresence, ...rest }) {
 		  onToggleHandRaised();
 	  }}
           label={presence.hand_raised ? lowerTitle : raiseTitle}
-          preset="accent4"
+	  tipTitle={presence.hand_raised ? lowerTitle : raiseTitle}
+	  tipBody={presence.hand_raised ? "Cancel your hand raise action" : "Raise your hand to grab attention. A hand icon will appear above your head."}
+          preset={presence.hand_raised ? "handraised" : "accent1"}
+	  edge={window.APP.hubChannel.can("spawn_emoji") ? "middle" : "end"}
         />
   );
 }

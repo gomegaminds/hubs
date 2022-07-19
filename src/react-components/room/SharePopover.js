@@ -43,26 +43,27 @@ export function SharePopoverButton({ items }) {
     );
   }
 
-  return (
-    <Popover
-      title={title}
-      content={props => <ButtonGridPopover items={filteredItems} {...props} />}
-      placement="top"
-      offsetDistance={28}
-      disableFullscreen
-    >
-      {({ togglePopover, popoverVisible, triggerRef }) => (
-        <ToolbarButton
-          ref={triggerRef}
-          icon={<ShareIcon />}
-          selected={popoverVisible}
-          onClick={togglePopover}
-          label={title}
-          preset="accent5"
-        />
-      )}
-    </Popover>
-  );
+  const itemList = filteredItems.map((item, i) => {
+    console.log(i);
+    const Icon = item.icon;
+    return (
+      <ToolbarButton
+        icon={<Icon />}
+        onClick={e => {
+          if (item.onSelect) {
+            item.onSelect(item);
+	    e.target.blur();
+          }
+        }}
+        label={title}
+        preset="accent1"
+	edge={i == 0 ? "start" : "middle"}
+        statusColor={activeItem && "recording"}
+      />
+    );
+  })
+
+  return itemList;
 }
 
 SharePopoverButton.propTypes = {

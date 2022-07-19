@@ -52,6 +52,7 @@ import { MoreMenuPopoverButton, CompactMoreMenuButton, MoreMenuContextProvider }
 import { ChatSidebarContainer, ChatContextProvider, ChatToolbarButtonContainer } from "./room/ChatSidebarContainer";
 import { ContentMenu, ChatMenuButton, PeopleMenuButton, ObjectsMenuButton } from "./room/ContentMenu";
 import { ReactComponent as CameraIcon } from "./icons/Camera.svg";
+import { ReactComponent as PenIcon } from "./icons/MegaMinds/DrawPen.svg";
 import { ReactComponent as AvatarIcon } from "./icons/Avatar.svg";
 import { ReactComponent as AddIcon } from "./icons/Add.svg";
 import { ReactComponent as DeleteIcon } from "./icons/Delete.svg";
@@ -862,7 +863,7 @@ class UIRoot extends Component {
               this.handleForceEntry();
             }
           }}
-          showEnterOnDevice={!this.state.waitingOnAudio && !this.props.entryDisallowed && !isMobileVR}
+          showEnterOnDevice={false}
           onEnterOnDevice={() => this.attemptLink()}
           showSpectate={!this.state.waitingOnAudio}
           onSpectate={() => this.setState({ watching: true })}
@@ -1023,6 +1024,7 @@ class UIRoot extends Component {
       isGhost,
       hide
     };
+
     if (this.props.hide || this.state.hide) {
       return (
         <div className={classNames(rootStyles)}>
@@ -1361,60 +1363,12 @@ class UIRoot extends Component {
         ].filter(item => item)
       }
     ];
-
+    const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
 
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
           <div className={classNames(rootStyles)}>
-
-
-              <div className="topLeftMenu">
-                {entered && (
-                  <>
-		    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
-			{this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_voice &&
-			    <AudioPopoverContainer scene={this.props.scene} />
-			}
-                    <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-                    <PlacePopoverContainer
-                      scene={this.props.scene}
-                      hubChannel={this.props.hubChannel}
-                      mediaSearchStore={this.props.mediaSearchStore}
-                      showNonHistoriedDialog={this.showNonHistoriedDialog}
-                    />
-                    {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
-		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
-			  {isTeacher && (
-			    <TeacherPopoverContainer
-			      scene={this.props.scene}
-			      hubChannel={this.props.hubChannel}
-			      mediaSearchStore={this.props.mediaSearchStore}
-			      showNonHistoriedDialog={this.showNonHistoriedDialog}
-			      onViewRoomSettings={() => this.setSidebar("room-settings")}
-			      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
-			    />
-			  )}
-                  	{isTeacher && (<InvitePopoverContainer
-				hub={this.props.hub}
-				hubChannel={this.props.hubChannel}
-				scene={this.props.scene}
-                  	/>)}
-                  </>
-                )}
-                {entered && isMobileVR && (
-                    <ToolbarButton
-                      className={styleUtils.hideLg}
-                      icon={<VRIcon />}
-                      preset="accept"
-                      label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
-                      onClick={() => exit2DInterstitialAndEnterVR(true)}
-                    />
-                )}
-              </div>
-
-
-
             {preload &&
               this.props.hub && (
                 <PreloadOverlay
@@ -1669,13 +1623,15 @@ class UIRoot extends Component {
                         <ToolbarButton
                           icon={<EnterIcon />}
                           label={<FormattedMessage id="toolbar.join-room-button" defaultMessage="Join Room" />}
-                          preset="accept"
+                          preset="accent1"
+                          edge="start"
                           onClick={() => this.setState({ watching: false })}
                         />
                         {enableSpectateVRButton && (
                           <ToolbarButton
                             icon={<VRIcon />}
-                            preset="accent5"
+                            preset="accent1"
+			    edge="between"
                             label={
                               <FormattedMessage id="toolbar.spectate-in-vr-button" defaultMessage="Spectate in VR" />
                             }
@@ -1684,18 +1640,79 @@ class UIRoot extends Component {
                         )}
                       </>
                     )}
+			{entered && (
+				<>
+				<div className="toolbarGroup">
+		    {this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_voice && <AudioPopoverContainer scene={this.props.scene} /> }
+		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
+                    {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
+				</div>
+				<div className="toolbarGroup">
+                    <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
+				{this.props.hubChannel.can("spawn_drawing") && 
+			<ToolbarButton
+			  key={"pen"}
+			  icon={<PenIcon />}
+			  tipTitle={"Pen Tool"}
+			  tipBody={"Toggle a pen to draw on surfaces"}
+			  selected={hasActivePen}
+			  onClick={() => this.props.scene.emit("penButtonPressed")}
+			  label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+			  preset="accent1"
+			  edge="middle"
+			/>
+				}
+                    <PlacePopoverContainer
+                      scene={this.props.scene}
+                      hubChannel={this.props.hubChannel}
+                      mediaSearchStore={this.props.mediaSearchStore}
+                      showNonHistoriedDialog={this.showNonHistoriedDialog}
+                    />
+				</div>
+			  {isTeacher && (
+				<div className="toolbarGroup">
+			    <TeacherPopoverContainer
+			      scene={this.props.scene}
+			      hubChannel={this.props.hubChannel}
+			      mediaSearchStore={this.props.mediaSearchStore}
+			      showNonHistoriedDialog={this.showNonHistoriedDialog}
+			      onViewRoomSettings={() => this.setSidebar("room-settings")}
+			      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+			    />
+				  </div>
+			  )}
+                  </>
+                )}
+                {entered && isMobileVR && (
+                    <ToolbarButton
+                      className={styleUtils.hideLg}
+                      icon={<VRIcon />}
+                      preset="accept"
+                      label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
+                      onClick={() => exit2DInterstitialAndEnterVR(true)}
+                    />
+                )}
                   </>
                 }
                 toolbarRight={
                   <>
-                    {entered &&
-                      isMobileVR && (
+                    {entered && (
+			    <>
+				{isTeacher && (<InvitePopoverContainer
+					hub={this.props.hub}
+					hubChannel={this.props.hubChannel}
+					scene={this.props.scene}
+				/>)}
+			    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
+			    {isMobileVR && (
                         <ToolbarButton
                           icon={<VRIcon />}
                           preset="accept"
                           label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
                           onClick={() => exit2DInterstitialAndEnterVR(true)}
                         />
+			    )}
+			    </>
                       )}
                   </>
                 }

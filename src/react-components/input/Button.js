@@ -11,6 +11,7 @@ export const presets = [
   "primary",
   "accept",
   "cancel",
+  "megamindsPurple",
   "accent1",
   "accent2",
   "accent3",

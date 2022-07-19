@@ -1,10 +1,13 @@
 @use '../styles/theme';
 
 :local(.toolbar) {
-  height: 96px;
+  position: absolute;
+  bottom: 0px;
+  width: 100vw;
+  height: 74px;
   display: flex;
   padding: 12px;
-  background-color: theme.$background1-color;
+  background-color: rgba(255, 255, 255, 0.6);
   border-top: 1px solid theme.$border1-color;
 
   @media (min-width: theme.$breakpoint-lg) {
@@ -21,12 +24,5 @@
   @media (min-width: theme.$breakpoint-lg) {
     flex: 0;
 
-    & > * {
-      margin-right: 24px;
-    }
-
-    &:last-child {
-      margin-right: 0px;
-    }
   }
 }

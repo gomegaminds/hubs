@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { ImageGridPopover } from "../popover/ImageGridPopover";
 import { Popover } from "../popover/Popover";
 import { ToolbarButton } from "../input/ToolbarButton";
-import { ReactComponent as ReactionIcon } from "../icons/Reaction.svg";
+import { ReactComponent as ReactionIcon } from "../icons/MegaMinds/Smile.svg";
 import { ReactComponent as HandRaisedIcon } from "../icons/HandRaised.svg";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 import { Column } from "../layout/Column";
@@ -74,7 +74,10 @@ export function ReactionPopoverButton({ items, presence }) {
 		  togglePopover();
           }}
           label={title}
-          preset="accent2"
+          preset="accent1"
+	  edge="end"
+	  tipTitle={"Reactions"}
+	  tipBody={"Spawn emojis in front of your avatar"}
         />
       )}
     </Popover>

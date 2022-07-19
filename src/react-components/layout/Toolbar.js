@@ -3,10 +3,20 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import styles from "./Toolbar.scss";
 import styleUtils from "../styles/style-utils.scss";
+import ReactTooltip from 'react-tooltip';
+
+export function FakeToolbar({ className, left, center, right, ...rest }) {
+  return (
+    <div className={classNames(styles.faketoolbar, className)} {...rest}>
+    </div>
+  );
+}
 
 export function Toolbar({ className, left, center, right, ...rest }) {
+  ReactTooltip.rebuild();
   return (
     <div className={classNames(styles.toolbar, className)} {...rest}>
+      <ReactTooltip place="top" html={true} effect="solid" />
       <div className={classNames(styles.content, styles.leftContent, styleUtils.showLg)}>{left}</div>
       <div className={classNames(styles.content, styles.centerContent)}>{center}</div>
       <div className={classNames(styles.content, styles.rightContent, styleUtils.showLg)}>{right}</div>

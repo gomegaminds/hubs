@@ -39,10 +39,10 @@
   --cancel-color-hover: #{theme.$red-hover};
   --cancel-color-pressed: #{theme.$red-pressed};
 
-  --accent1-color: #{theme.$red};
+  --accent1-color: #{theme.$purple};
   --accent1-border-color: var(--accent1-color);
-  --accent1-color-hover: #{theme.$red-hover};
-  --accent1-color-pressed: #{theme.$red-pressed};
+  --accent1-color-hover: #{theme.$purple-hover};
+  --accent1-color-pressed: #{theme.$purple-pressed};
 
   --accent2-color: #{theme.$orange};
   --accent2-border-color: var(--accent2-color);
