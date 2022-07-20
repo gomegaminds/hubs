@@ -624,7 +624,7 @@ class UIRoot extends Component {
 
 
   handleVoiceToggle = async () => {
-    const voiceEnabled = this.props.hub.user_data.toggle_voice
+    const voiceEnabled = this.props.hub.user_data && this.props.hub.user_data.toggle_voice
 
     if(!voiceEnabled) {
 	    if(this.mediaDevicesManager.isMicShared) {
@@ -645,10 +645,10 @@ class UIRoot extends Component {
     // Push the new history state before going into VR, otherwise menu button will take us back
     clearHistoryState(this.props.history);
 
-    const muteOnEntry = this.props.store.state.preferences.muteMicOnEntry || !this.props.hub.user_data.toggle_voice;
+    const muteOnEntry = this.props.store.state.preferences.muteMicOnEntry || this.props.hub.user_data && !this.props.hub.user_data.toggle_voice;
     await this.props.enterScene(this.state.enterInVR, muteOnEntry);
 
-    if(!this.props.hub.user_data.toggle_voice) {
+    if(this.props.hub.user_data && !this.props.hub.user_data.toggle_voice) {
 	    await this.mediaDevicesManager.stopMicShare();
     }
 
