@@ -25,6 +25,7 @@ const HUB_CREATOR_PERMISSIONS = [
   "kick_users",
   "amplify_audio"
 ];
+
 const VALID_PERMISSIONS = HUB_CREATOR_PERMISSIONS.concat([
   "tweet",
   "spawn_camera",
@@ -213,6 +214,22 @@ export default class HubChannel extends EventTarget {
     this.channel.push("events:end_recording", {});
   }
 
+  raiseHand() {
+    this.channel.push("events:raise_hand", {});
+  }
+
+  lowerHand() {
+    this.channel.push("events:lower_hand", {});
+  }
+
+  beginTyping() {
+    this.channel.push("events:begin_typing", {});
+  }
+
+  endTyping() {
+    this.channel.push("events:end_typing", {});
+  }
+
   getEntryTimingFlags = () => {
     const entryTimingFlags = { isNewDaily: true, isNewMonthly: true, isNewDayWindow: true, isNewMonthWindow: true };
     const storedLastEnteredAt = this.store.state.activity.lastEnteredAt;
@@ -287,6 +304,27 @@ export default class HubChannel extends EventTarget {
 
   unsubscribe = subscription => {
     return new Promise(resolve => this.channel.push("unsubscribe", { subscription }).receive("ok", resolve));
+  };
+
+  sendMuteRequest = () => {
+	  console.log("Sendmuterequest triggered");
+	  let body = "asd"
+	  let type = "muteRequest"
+	  this.channel.push("message", { body, type });
+  };
+
+  sendUnMuteRequest = () => {
+	  console.log("SendUnMuterequest triggered");
+	  let body = "asd"
+	  let type = "unMuteRequest"
+	  this.channel.push("message", { body, type });
+  };
+	
+
+  sendTeleportRequest = (body, type = "teleportRequest") => {
+	  console.log("Teleport request received");
+    if (!body) return;
+    this.channel.push("message", { body, type });
   };
 
   sendMessage = (body, type = "chat") => {

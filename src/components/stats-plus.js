@@ -85,7 +85,7 @@ AFRAME.registerComponent("stats-plus", {
   },
   initVRStats() {
     this.vrPanel = document.createElement("a-entity");
-    this.vrPanel.setAttribute("text", { width: 0.5, whiteSpace: "pre", value: "_", baseline: "bottom" });
+    this.vrPanel.setAttribute("text", { maxWidth: 0.5, value: "_", anchorY: "bottom" });
     this.vrPanel.addEventListener(
       "loaded",
       () =>
@@ -142,14 +142,6 @@ AFRAME.registerComponent("stats-plus", {
       stats("rAF").tick();
       stats("FPS").frame();
       stats("physics").set(this.el.sceneEl.systems["hubs-systems"].physicsSystem.stepDuration);
-
-      const batchManagerSystem = this.el.sceneEl.systems["hubs-systems"].batchManagerSystem;
-      if (batchManagerSystem.batchingEnabled) {
-        const batchManager = batchManagerSystem.batchManager;
-        stats("batchdraws").set(batchManager.batches.length);
-        stats("batchinstances").set(batchManager.instanceCount);
-        stats("batchatlassize").set(batchManager.atlas.arrayDepth);
-      }
 
       stats().update();
     } else if (!this.inVR) {

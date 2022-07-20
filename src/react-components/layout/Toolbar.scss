@@ -1,16 +1,53 @@
 @use '../styles/theme';
 
-:local(.toolbar) {
-  height: 96px;
+:local(.toolbar-phone) {
+  position: absolute;
+  bottom: 0px;
+  width: 100vw;
+  height: 74px;
   display: flex;
   padding: 12px;
-  background-color: theme.$background1-color;
+  background-color: rgba(255, 255, 255, 0.6);
   border-top: 1px solid theme.$border1-color;
 
   @media (min-width: theme.$breakpoint-lg) {
     padding: 12px 24px;
     justify-content: space-between;
   }
+
+  @media (min-width: theme.$breakpoint-sm) {
+    // Make toolbar float on landscape mode phones
+    width: auto;
+    justify-self: center;
+    border-radius: 6px 6px 0px 0px;
+  }
+
+
+}
+
+:local(.toolbar) {
+  position: absolute;
+  bottom: 0px;
+  width: 100vw;
+  height: 74px;
+  display: flex;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-top: 1px solid theme.$border1-color;
+
+  @media (min-width: theme.$breakpoint-lg) {
+    padding: 12px 24px;
+    justify-content: space-between;
+  }
+
+  @media (min-width: 576px) and (max-width: 768px) {
+    // Make toolbar float on landscape mode phones
+    width: auto;
+    justify-self: center;
+    border-radius: 6px 6px 0px 0px;
+  }
+
+
 }
 
 :local(.content) {
@@ -21,12 +58,18 @@
   @media (min-width: theme.$breakpoint-lg) {
     flex: 0;
 
-    & > * {
-      margin-right: 24px;
-    }
-
-    &:last-child {
-      margin-right: 0px;
-    }
   }
+}
+
+
+:local(.right-content-mobile) {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+:local(.left-content-mobile) {
+  display: flex;
+  flex: 1;
+  justify-content: flex-start;
 }

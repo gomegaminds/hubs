@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { ReactComponent as PenIcon } from "../icons/Pen.svg";
+// import { ReactComponent as PenIcon } from "../icons/Pen.svg";
 import { ReactComponent as CameraIcon } from "../icons/Camera.svg";
 // import { ReactComponent as TextIcon } from "../icons/Text.svg";
 // import { ReactComponent as LinkIcon } from "../icons/Link.svg";
-import { ReactComponent as GIFIcon } from "../icons/GIF.svg";
-import { ReactComponent as ObjectIcon } from "../icons/Object.svg";
+import { ReactComponent as GIFIcon } from "../icons/MegaMinds/FindImages.svg";
+import { ReactComponent as ObjectIcon } from "../icons/MegaMinds/FindModels.svg";
 import { ReactComponent as AvatarIcon } from "../icons/Avatar.svg";
 import { ReactComponent as SceneIcon } from "../icons/Scene.svg";
-import { ReactComponent as UploadIcon } from "../icons/Upload.svg";
+import { ReactComponent as UploadIcon } from "../icons/MegaMinds/UploadOwn.svg";
 import { PlacePopoverButton } from "./PlacePopover";
 import { ObjectUrlModalContainer } from "./ObjectUrlModalContainer";
 import configs from "../../utils/configs";
@@ -24,24 +24,7 @@ export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistorie
         const hasActiveCamera = !!scene.systems["camera-tools"].getMyCamera();
         const hasActivePen = !!scene.systems["pen-tools"].getMyPen();
 
-        let nextItems = [
-          hubChannel.can("spawn_drawing") && {
-            id: "pen",
-            icon: PenIcon,
-            color: "accent5",
-            label: <FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />,
-            onSelect: () => scene.emit("penButtonPressed"),
-            selected: hasActivePen
-          },
-          hubChannel.can("spawn_camera") && {
-            id: "camera",
-            icon: CameraIcon,
-            color: "accent5",
-            label: <FormattedMessage id="place-popover.item-type.camera" defaultMessage="Camera" />,
-            onSelect: () => scene.emit("action_toggle_camera"),
-            selected: hasActiveCamera
-          }
-        ];
+	let nextItems = []
 
         if (hubChannel.can("spawn_and_move_media")) {
           nextItems = [
@@ -53,29 +36,15 @@ export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistorie
               id: "gif",
               icon: GIFIcon,
               color: "accent2",
-              label: <FormattedMessage id="place-popover.item-type.gif" defaultMessage="GIF" />,
+              label: <FormattedMessage id="place-popover.item-type.gif" defaultMessage="Find GIF" />,
               onSelect: () => mediaSearchStore.sourceNavigate("gifs")
             },
             configs.integration("sketchfab") && {
               id: "model",
               icon: ObjectIcon,
               color: "accent2",
-              label: <FormattedMessage id="place-popover.item-type.model" defaultMessage="3D Model" />,
+              label: <FormattedMessage id="place-popover.item-type.model" defaultMessage="Find Model" />,
               onSelect: () => mediaSearchStore.sourceNavigate("sketchfab")
-            },
-            isTeacher && {
-              id: "avatar",
-              icon: AvatarIcon,
-              color: "accent1",
-              label: <FormattedMessage id="place-popover.item-type.avatar" defaultMessage="Avatar" />,
-              onSelect: () => mediaSearchStore.sourceNavigate("avatars")
-            },
-            isTeacher && {
-              id: "scene",
-              icon: SceneIcon,
-              color: "accent1",
-              label: <FormattedMessage id="place-popover.item-type.scene" defaultMessage="Scene" />,
-              onSelect: () => mediaSearchStore.sourceNavigate("scenes")
             },
             // TODO: Launch system file prompt directly
             isTeacher && {

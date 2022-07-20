@@ -46,13 +46,18 @@ import { useAccessibleOutlineStyle } from "./input/useAccessibleOutlineStyle";
 import { ToolbarButton } from "./input/ToolbarButton";
 import { RoomEntryModal } from "./room/RoomEntryModal";
 import { EnterOnDeviceModal } from "./room/EnterOnDeviceModal";
-import { MicPermissionsModal } from "./room/MicPermissionsModal";
 import { MicSetupModalContainer } from "./room/MicSetupModalContainer";
 import { InvitePopoverContainer } from "./room/InvitePopoverContainer";
 import { MoreMenuPopoverButton, CompactMoreMenuButton, MoreMenuContextProvider } from "./room/MoreMenuPopover";
 import { ChatSidebarContainer, ChatContextProvider, ChatToolbarButtonContainer } from "./room/ChatSidebarContainer";
 import { ContentMenu, ChatMenuButton, PeopleMenuButton, ObjectsMenuButton } from "./room/ContentMenu";
 import { ReactComponent as CameraIcon } from "./icons/Camera.svg";
+import { ReactComponent as PenIcon } from "./icons/MegaMinds/DrawPen.svg";
+import { ReactComponent as PreferenceIcon } from "./icons/MegaMinds/PreferenceIcon.svg";
+import { ReactComponent as ChatIcon } from "./icons/MegaMinds/ChatIcon.svg";
+import { ReactComponent as EditAvatarIcon } from "./icons/MegaMinds/AvatarIcon.svg";
+import { ReactComponent as EditWorldIcon } from "./icons/MegaMinds/EditWorld.svg";
+import { ReactComponent as BackIcon } from "./icons/MegaMinds/Back.svg";
 import { ReactComponent as AvatarIcon } from "./icons/Avatar.svg";
 import { ReactComponent as AddIcon } from "./icons/Add.svg";
 import { ReactComponent as DeleteIcon } from "./icons/Delete.svg";
@@ -76,14 +81,17 @@ import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
+import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
-import { VoiceButtonContainer } from "./room/VoiceButtonContainer";
+import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
+import { RaiseHandButton } from "./room/RaiseHandButton";
 import { ReactionPopoverContainer } from "./room/ReactionPopoverContainer";
 import { SafariMicModal } from "./room/SafariMicModal";
 import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
 import { SignInStep } from "./auth/SignInModal";
 import { LeaveReason, LeaveRoomModal } from "./room/LeaveRoomModal";
 import { RoomSidebar } from "./room/RoomSidebar";
+import { TeleportSidebar } from "../mega-src/react-components/room/TeleportSidebar";
 import { RoomSettingsSidebarContainer } from "./room/RoomSettingsSidebarContainer";
 import { AutoExitWarningModal, AutoExitReason } from "./room/AutoExitWarningModal";
 import { ExitReason } from "./room/ExitedRoomScreen";
@@ -94,6 +102,7 @@ import { TweetModalContainer } from "./room/TweetModalContainer";
 import { TipContainer, FullscreenTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
+import { MediaDevicesEvents } from "../utils/media-devices-utils";
 
 import handImg from "../assets/myAssets/hand.png";
 import handDarkenImg from "../assets/myAssets/hand_darken.png";
@@ -181,7 +190,7 @@ class UIRoot extends Component {
     linkCode: null,
     linkCodeCancel: null,
     miniInviteActivated: false,
-
+    isWorldbuilding: false,
     didConnectToNetworkedScene: false,
     noMoreLoadingUpdates: false,
     hideLoader: false,
@@ -204,7 +213,8 @@ class UIRoot extends Component {
     objectInfo: null,
     objectSrc: "",
     sidebarId: null,
-    presenceCount: 0
+    presenceCount: 0,
+    chatInputEffect: () => {}
   };
 
   constructor(props) {
@@ -214,7 +224,7 @@ class UIRoot extends Component {
 
     // An exit handler that discards event arguments and can be cleaned up.
     this.exitEventHandler = () => this.props.exitScene();
-    this.mediaDevicesManager = window.APP.mediaDevicesManager;
+    this.mediaDevicesManager = APP.mediaDevicesManager;
   }
 
   componentDidUpdate(prevProps) {
@@ -283,7 +293,7 @@ class UIRoot extends Component {
   }
 
   onConcurrentLoad = () => {
-    if (qsTruthy("allow_multi") || this.props.store.state.preferences["allowMultipleHubsInstances"]) return;
+    if (qsTruthy("allow_multi") || this.props.store.state.preferences.allowMultipleHubsInstances) return;
     this.startAutoExitTimer(AutoExitReason.concurrentSession);
   };
 
@@ -291,7 +301,7 @@ class UIRoot extends Component {
     if (
       this.props.disableAutoExitOnIdle ||
       this.state.isStreaming ||
-      this.props.store.state.preferences["disableIdleDetection"]
+      this.props.store.state.preferences.disableIdleDetection
     )
       return;
     this.startAutoExitTimer(AutoExitReason.idle);
@@ -307,6 +317,7 @@ class UIRoot extends Component {
     window.addEventListener("concurrentload", this.onConcurrentLoad);
     window.addEventListener("idle_detected", this.onIdleDetected);
     window.addEventListener("activity_detected", this.onActivityDetected);
+    window.addEventListener("focus_chat", this.onFocusChat);
     document.querySelector(".a-canvas").addEventListener("mouseup", () => {
       if (this.state.showShareDialog) {
         this.setState({ showShareDialog: false });
@@ -397,6 +408,7 @@ class UIRoot extends Component {
     window.removeEventListener("concurrentload", this.onConcurrentLoad);
     window.removeEventListener("idle_detected", this.onIdleDetected);
     window.removeEventListener("activity_detected", this.onActivityDetected);
+    window.removeEventListener("focus_chat", this.onFocusChat);
   }
 
   storeUpdated = () => {
@@ -482,16 +494,12 @@ class UIRoot extends Component {
     this.setState({ showVideoShareFailed: true });
   };
 
-  toggleMute = () => {
-    APP.dialog.toggleMicrophone();
-  };
-
   shareVideo = mediaSource => {
     this.props.scene.emit(`action_share_${mediaSource}`);
   };
 
   endShareVideo = () => {
-    this.props.scene.emit("action_end_video_sharing");
+    this.props.scene.emit(MediaDevicesEvents.VIDEO_SHARE_ENDED);
   };
 
   spawnPen = () => {
@@ -564,12 +572,12 @@ class UIRoot extends Component {
 
     if (hasGrantedMic) {
       if (!this.mediaDevicesManager.isMicShared) {
-        await this.mediaDevicesManager.startLastUsedMicShare();
+        await this.mediaDevicesManager.startMicShare({});
       }
       this.beginOrSkipAudioSetup();
     } else {
       this.onRequestMicPermission();
-      this.pushHistoryState("entry_step", "mic_grant");
+      this.pushHistoryState("entry_step", "audio");
     }
 
     this.setState({ waitingOnAudio: false });
@@ -594,15 +602,8 @@ class UIRoot extends Component {
     await this.performDirectEntryFlow(true);
   };
 
-  micDeviceChanged = async deviceId => {
-    this.mediaDevicesManager.startMicShare(deviceId);
-  };
-
   onRequestMicPermission = async () => {
-    console.log("Microphone permission requested");
-    // TODO: Show an error state if getting the microphone permissions fails
-    await this.mediaDevicesManager.startLastUsedMicShare();
-    this.beginOrSkipAudioSetup();
+    await this.mediaDevicesManager.startMicShare({});
   };
 
   beginOrSkipAudioSetup = () => {
@@ -621,6 +622,21 @@ class UIRoot extends Component {
     return (isMobile || AFRAME.utils.device.isMobileVR()) && !isIOS() && !this.state.enterInVR && screenfull.enabled;
   };
 
+
+  handleVoiceToggle = async () => {
+    const voiceEnabled = this.props.hub.user_data.toggle_voice
+
+    if(!voiceEnabled) {
+	    if(this.mediaDevicesManager.isMicShared) {
+		    await this.mediaDevicesManager.stopMicShare();
+	    }
+    } else {
+	    if(!this.mediaDevicesManager.isMicShared) {
+	    await this.mediaDevicesManager.startMicShare({});
+	    }
+    }
+  };
+
   onAudioReadyButton = async () => {
     if (!this.state.enterInVR) {
       await showFullScreenIfAvailable();
@@ -629,8 +645,12 @@ class UIRoot extends Component {
     // Push the new history state before going into VR, otherwise menu button will take us back
     clearHistoryState(this.props.history);
 
-    const muteOnEntry = this.props.store.state.preferences["muteMicOnEntry"] || false;
+    const muteOnEntry = this.props.store.state.preferences.muteMicOnEntry || !this.props.hub.user_data.toggle_voice;
     await this.props.enterScene(this.state.enterInVR, muteOnEntry);
+
+    if(!this.props.hub.user_data.toggle_voice) {
+	    await this.mediaDevicesManager.stopMicShare();
+    }
 
     this.setState({ entered: true, entering: false, showShareDialog: false });
 
@@ -641,6 +661,8 @@ class UIRoot extends Component {
     if (this.mediaDevicesManager.isVideoShared) {
       console.log("Screen sharing enabled.");
     }
+
+
   };
 
   attemptLink = async () => {
@@ -770,7 +792,7 @@ class UIRoot extends Component {
   pushHistoryState = (k, v) => pushHistoryState(this.props.history, k, v);
 
   setSidebar(sidebarId, otherState) {
-    this.setState({ sidebarId, selectedUserId: null, ...otherState });
+    this.setState({ sidebarId, chatInputEffect: () => {}, selectedUserId: null, ...otherState });
   }
 
   toggleSidebar(sidebarId, otherState) {
@@ -784,6 +806,15 @@ class UIRoot extends Component {
       };
     });
   }
+
+  onFocusChat = e => {
+    this.setSidebar("chat", {
+      chatInputEffect: input => {
+        input.focus();
+        input.value = e.detail.prefix;
+      }
+    });
+  };
 
   renderInterstitialPrompt = () => {
     return (
@@ -831,13 +862,13 @@ class UIRoot extends Component {
                 this.pushHistoryState("entry_step", "profile");
               } else {
                 this.onRequestMicPermission();
-                this.pushHistoryState("entry_step", "mic_grant");
+                this.pushHistoryState("entry_step", "audio");
               }
             } else {
               this.handleForceEntry();
             }
           }}
-          showEnterOnDevice={!this.state.waitingOnAudio && !this.props.entryDisallowed && !isMobileVR}
+          showEnterOnDevice={false}
           onEnterOnDevice={() => this.attemptLink()}
           showSpectate={!this.state.waitingOnAudio}
           onSpectate={() => this.setState({ watching: true })}
@@ -896,17 +927,10 @@ class UIRoot extends Component {
   };
 
   renderAudioSetupPanel = () => {
-    const muteOnEntry = this.props.store.state.preferences["muteMicOnEntry"] || false;
     // TODO: Show HMD mic not chosen warning
     return (
       <MicSetupModalContainer
         scene={this.props.scene}
-        selectedMicrophone={this.mediaDevicesManager.selectedMicDeviceId}
-        microphoneOptions={this.mediaDevicesManager.micDevices}
-        onChangeMicrophone={this.micDeviceChanged}
-        microphoneEnabled={this.mediaDevicesManager.isMicShared}
-        microphoneMuted={muteOnEntry}
-        onChangeMicrophoneMuted={() => this.props.store.update({ preferences: { muteMicOnEntry: !muteOnEntry } })}
         onEnterRoom={this.onAudioReadyButton}
         onBack={() => this.props.history.goBack()}
       />
@@ -946,6 +970,11 @@ class UIRoot extends Component {
       this.state.dialog
     );
   };
+
+  enableWorldBuilding() {
+	  this.setState({isWorldBuilding: true})
+
+  }
 
   getSelectedUser() {
     const selectedUserId = this.state.selectedUserId;
@@ -1005,6 +1034,7 @@ class UIRoot extends Component {
       isGhost,
       hide
     };
+
     if (this.props.hide || this.state.hide) {
       return (
         <div className={classNames(rootStyles)}>
@@ -1064,8 +1094,8 @@ class UIRoot extends Component {
     const entered = this.state.entered;
     const watching = this.state.watching;
     const enteredOrWatching = entered || watching;
-    const showRtcDebugPanel = this.props.store.state.preferences["showRtcDebugPanel"];
-    const showAudioDebugPanel = this.props.store.state.preferences["showAudioDebugPanel"];
+    const showRtcDebugPanel = this.props.store.state.preferences.showRtcDebugPanel;
+    const showAudioDebugPanel = this.props.store.state.preferences.showAudioDebugPanel;
     const displayNameOverride = this.props.hubIsBound
       ? getPresenceProfileForSession(this.props.presences, this.props.sessionId).displayName
       : null;
@@ -1090,9 +1120,6 @@ class UIRoot extends Component {
           <StateRoute stateKey="entry_step" stateValue="device" history={this.props.history}>
             {this.renderDevicePanel()}
           </StateRoute>
-          <StateRoute stateKey="entry_step" stateValue="mic_grant" history={this.props.history}>
-            <MicPermissionsModal onBack={() => this.props.history.goBack()} />
-          </StateRoute>
           <StateRoute stateKey="entry_step" stateValue="audio" history={this.props.history}>
             {this.renderAudioSetupPanel()}
           </StateRoute>
@@ -1111,7 +1138,7 @@ class UIRoot extends Component {
                     this.handleForceEntry();
                   } else {
                     this.onRequestMicPermission();
-                    this.pushHistoryState("entry_step", "mic_grant");
+                    this.pushHistoryState("entry_step", "audio");
                   }
                 }}
                 showBackButton
@@ -1148,15 +1175,21 @@ class UIRoot extends Component {
     const canCreateRoom = !configs.feature("disable_room_creation") || configs.isAdmin();
     const canCloseRoom = this.props.hubChannel && !!this.props.hubChannel.canOrWillIfCreator("close_hub");
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
-    const isTeacher = window.location.toString().includes("teacher");
+    const isTeacher = this.props.hubChannel.canOrWillIfCreator("close_hub");
 
 
     const moreMenu = [
       {
         id: "user",
-        label:
-          "You" +
-          (this.state.signedIn ? ` (Signed in as: ${maskEmail(this.props.store.state.credentials.email)})` : ""),
+        label: !this.state.signedIn ? (
+          <FormattedMessage id="more-menu.not-signed-in" defaultMessage="You are not signed in" />
+        ) : (
+          <FormattedMessage
+            id="more-menu.you-signed-in-as"
+            defaultMessage="Signed in as: {email}"
+            values={{ email: maskEmail(this.props.store.state.credentials.email) }}
+          />
+        ),
         items: [
           this.state.signedIn
             ? {
@@ -1206,7 +1239,7 @@ class UIRoot extends Component {
           },
           {
             id: "preferences",
-            label: "Preferences",
+            label: <FormattedMessage id="more-menu.preferences" defaultMessage="Preferences" />,
             icon: SettingsIcon,
             onClick: () => this.setState({ showPrefs: true })
           }
@@ -1340,63 +1373,13 @@ class UIRoot extends Component {
         ].filter(item => item)
       }
     ];
-
-
+    const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
+    const isWorldbuildingButtonVisible = false;
 
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
           <div className={classNames(rootStyles)}>
-
-
-              <div className="topLeftMenu">
-                {entered && (
-                  <>
-                   <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
-                    <VoiceButtonContainer
-                      scene={this.props.scene}
-                      microphoneEnabled={this.mediaDevicesManager.isMicShared}
-                    />
-                    <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-                    <PlacePopoverContainer
-                      scene={this.props.scene}
-                      hubChannel={this.props.hubChannel}
-                      mediaSearchStore={this.props.mediaSearchStore}
-                      showNonHistoriedDialog={this.showNonHistoriedDialog}
-                    />
-                    {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer />}
-									  {isTeacher && (<img
-											className="nonDragSel iconTopLeftMenu"
-											src="../assets/myAssets/globe.png"
-											onClick={() => this.setSidebar("room-info")}
-									  />)}
-									  {!isTeacher && (<img
-											id="imgHand"
-											className="nonDragSel iconTopLeftMenu"
-											src="../assets/myAssets/hand.png"
-	 
-											onClick={() => this.handUp()}
-									  />)}
-                  	{isTeacher && (<InvitePopoverContainer
-                    	hub={this.props.hub}
-                    	hubChannel={this.props.hubChannel}
-                    	scene={this.props.scene}
-                  	/>)}
-                  </>
-                )}
-                {entered && isMobileVR && (
-                    <ToolbarButton
-                      className={styleUtils.hideLg}
-                      icon={<VRIcon />}
-                      preset="accept"
-                      label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
-                      onClick={() => exit2DInterstitialAndEnterVR(true)}
-                    />
-                )}
-              </div>
-
-
-
             {preload &&
               this.props.hub && (
                 <PreloadOverlay
@@ -1462,6 +1445,7 @@ class UIRoot extends Component {
               <RoomLayoutContainer
                 scene={this.props.scene}
                 store={this.props.store}
+		entered={entered}
                 objectFocused={!!this.props.selectedObject}
                 streaming={streaming}
                 viewport={
@@ -1469,7 +1453,7 @@ class UIRoot extends Component {
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                     {(!this.props.selectedObject ||
-                      (this.props.breakpoint !== "sm" && this.props.breakpoint !== "md")) && (
+                      (this.props.breakpoint !== "sm" && this.props.breakpoint !== "md")) && !isMobile && (
                       <ContentMenu>
                         {isTeacher && showObjectList && (
                           <ObjectsMenuButton
@@ -1482,10 +1466,12 @@ class UIRoot extends Component {
                           onClick={() => this.toggleSidebar("people")}
                           presencecount={this.state.presenceCount}
                         />
-                        <ChatMenuButton
-                          active={this.state.sidebarId === "chat"}
-                          onClick={() => this.toggleSidebar("chat")}
-                        />
+			{this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_chat &&
+				<ChatMenuButton
+				active={this.state.sidebarId === "chat"}
+				onClick={() => this.toggleSidebar("chat")}
+				/>
+			}
                       </ContentMenu>
                     )}
                     {!entered && !streaming && !isMobile && streamerName && <SpectatingLabel name={streamerName} />}
@@ -1546,6 +1532,7 @@ class UIRoot extends Component {
                           canSpawnMessages={entered && this.props.hubChannel.can("spawn_and_move_media")}
                           scene={this.props.scene}
                           onClose={() => this.setSidebar(null)}
+                          inputEffect={this.state.chatInputEffect}
                         />
                       )}
                       {this.state.sidebarId === "objects" && (
@@ -1590,6 +1577,13 @@ class UIRoot extends Component {
                           showNonHistoriedDialog={this.showNonHistoriedDialog}
                         />
                       )}
+                      {this.state.sidebarId === "teleport-menu" && (
+			      <TeleportSidebar
+			        room={this.props.hub}
+                                onClose={() => this.setSidebar(null)}
+			        hubChannel={this.props.hubChannel}
+			      />
+		      )}
                       {this.state.sidebarId === "room-info" && (
                         <RoomSidebar
                           accountId={this.props.sessionId}
@@ -1641,13 +1635,15 @@ class UIRoot extends Component {
                         <ToolbarButton
                           icon={<EnterIcon />}
                           label={<FormattedMessage id="toolbar.join-room-button" defaultMessage="Join Room" />}
-                          preset="accept"
+                          preset="accent1"
+                          edge="start"
                           onClick={() => this.setState({ watching: false })}
                         />
                         {enableSpectateVRButton && (
                           <ToolbarButton
                             icon={<VRIcon />}
-                            preset="accent5"
+                            preset="accent1"
+			    edge="between"
                             label={
                               <FormattedMessage id="toolbar.spectate-in-vr-button" defaultMessage="Spectate in VR" />
                             }
@@ -1656,18 +1652,142 @@ class UIRoot extends Component {
                         )}
                       </>
                     )}
+			{entered && this.state.isWorldBuilding && (
+				// TODO: Worldbuilding toolbar
+				<>
+				<div className="toolbarGroup">
+				<ToolbarButton
+					key={"back"}
+					icon={<BackIcon />}
+					tipTitle={"Exit worldbuilding"}
+					tipBody={"Finish editing and go back to the room as an avatar"}
+					onClick={() => this.setState({isWorldBuilding: false})}
+					label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+					preset="accent1"
+					edge="middle"
+				/>
+				</div>
+				</>
+			)}
+			{entered && !this.state.isWorldBuilding && (
+				<>
+				<div className="toolbarGroup">
+		    {this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_voice && <AudioPopoverContainer scene={this.props.scene} /> }
+		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
+                    {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
+
+				{isMobile && (
+					<ToolbarButton
+					key={"chat"}
+					icon={<ChatIcon />}
+					onClick={() => this.toggleSidebar("chat")}
+					label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+					preset="accent1"
+					edge="end"
+					/>
+				)}
+				</div>
+				{!isMobile && (
+					<div className="toolbarGroup">
+					<SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
+					{this.props.hubChannel.can("spawn_drawing") && 
+						<ToolbarButton
+						key={"pen"}
+						icon={<PenIcon />}
+						tipTitle={"Pen Tool"}
+						tipBody={"Toggle a pen to draw on surfaces"}
+						selected={hasActivePen}
+						onClick={() => this.props.scene.emit("penButtonPressed")}
+						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+						preset="accent1"
+						edge="middle"
+						/>
+					}
+					<PlacePopoverContainer
+					scene={this.props.scene}
+					hubChannel={this.props.hubChannel}
+					mediaSearchStore={this.props.mediaSearchStore}
+					showNonHistoriedDialog={this.showNonHistoriedDialog}
+					/>
+					</div>
+				)}
+			  {isTeacher && !isMobile && (
+				<div className="toolbarGroup">
+				    <TeacherPopoverContainer
+				      scene={this.props.scene}
+				      hubChannel={this.props.hubChannel}
+				      mediaSearchStore={this.props.mediaSearchStore}
+				      showNonHistoriedDialog={this.showNonHistoriedDialog}
+				      onViewRoomSettings={() => this.setSidebar("room-settings")}
+				      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+				      isSingleButton={!isWorldbuildingButtonVisible}
+				    />
+				  {isWorldbuildingButtonVisible && (
+					<ToolbarButton
+						key={"worldbuilding"}
+						icon={<EditWorldIcon />}
+						onClick={() => this.enableWorldBuilding()}
+						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+						preset="accent1"
+						edge="end"
+					/>
+				  )}
+				  </div>
+			  )}
+                  </>
+                )}
+                {entered && isMobileVR && (
+                    <ToolbarButton
+                      className={styleUtils.hideLg}
+                      icon={<VRIcon />}
+                      preset="accept"
+                      label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
+                      onClick={() => exit2DInterstitialAndEnterVR(true)}
+                    />
+                )}
                   </>
                 }
                 toolbarRight={
                   <>
-                    {entered &&
-                      isMobileVR && (
-                        <ToolbarButton
-                          icon={<VRIcon />}
-                          preset="accept"
-                          label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
-                          onClick={() => exit2DInterstitialAndEnterVR(true)}
-                        />
+                    {entered && (
+			    <>
+			    {!isTeacher && (
+				    <>
+				    <ToolbarButton
+				    icon={<EditAvatarIcon />}
+				    preset="white"
+				    edge={"start"}
+				    label={<FormattedMessage id="more-menu.profile" defaultMessage="Change Name & Avatar" />}
+				    onClick={() => this.setSidebar("profile")}
+				    />
+				    <ToolbarButton
+				    icon={<PreferenceIcon />}
+				    preset="white"
+				    label={<FormattedMessage id="more-menu.preferences" defaultMessage="Preferences" />}
+				    edge={"end"}
+				    onClick={() => this.setState({ showPrefs: true })}
+				    />
+				    </>
+			    )}
+			    {isTeacher && (
+				    <>
+				    <InvitePopoverContainer
+				    hub={this.props.hub}
+				    hubChannel={this.props.hubChannel}
+				    scene={this.props.scene}
+				    />
+				    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
+				    </>
+			    )}
+			    {isMobileVR && (
+				    <ToolbarButton
+				    icon={<VRIcon />}
+				    preset="accept"
+				    label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
+				    onClick={() => exit2DInterstitialAndEnterVR(true)}
+				    />
+			    )}
+			    </>
                       )}
                   </>
                 }

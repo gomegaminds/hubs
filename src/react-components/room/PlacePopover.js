@@ -3,12 +3,12 @@ import PropTypes from "prop-types";
 import { ButtonGridPopover } from "../popover/ButtonGridPopover";
 import { Popover } from "../popover/Popover";
 import { ToolbarButton } from "../input/ToolbarButton";
-import { ReactComponent as ObjectIcon } from "../icons/Object.svg";
+import { ReactComponent as ObjectIcon } from "../icons/MegaMinds/Media.svg";
 import { defineMessage, useIntl } from "react-intl";
 
 const placePopoverTitle = defineMessage({
   id: "place-popover.title",
-  defaultMessage: "Place"
+  defaultMessage: "Add Media"
 });
 
 export function PlacePopoverButton({ items }) {
@@ -36,7 +36,10 @@ export function PlacePopoverButton({ items }) {
           selected={popoverVisible}
           onClick={togglePopover}
           label={title}
-          preset="accent3"
+	  tipTitle={"Add media"}
+	  tipBody={"Add media such as images, documents, and much more. Remember to pin them if you want them to stay in the room after you leave."}
+          preset="accent1"
+	  edge="end"
         />
       )}
     </Popover>

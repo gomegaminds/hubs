@@ -30,6 +30,10 @@ $black: #000000;
 $black-hover: #404040;
 $black-pressed: #7A7A7A;
 
+$purple: #BDACF3;
+$purple-hover: #8F7FC1;
+$purple-pressed: #937DDA;
+
 $red: #F5325C;
 $red-hover: #F64B70;
 $red-pressed: #F41A49;
@@ -45,10 +49,6 @@ $green-pressed: #72BE1D;
 $blue: #007AB8;
 $blue-hover: #008BD1;
 $blue-pressed: #00699E;
-
-$purple: #7854F6;
-$purple-hover: #8C6EF7;
-$purple-pressed: #663DF5;
 
 $recessed-bg: #f9f9f9;
 
@@ -79,6 +79,7 @@ $font-weight-medium: 500;
 $font-weight-bold: 700;
 
 $border-radius-regular: 8px;
+$border-radius-small: 6px;
 
 $outline-width: 3px;
 
@@ -110,6 +111,7 @@ $text4-color-pressed: var(--text4-color-pressed);
 $text5-color: var(--text5-color);
 $text5-color-hover: var(--text5-color-hover);
 $text5-color-pressed: var(--text5-color-pressed);
+$text-inverted-color: var(--text-inverted-color);
 
 $link-color: var(--link-color);
 $link-color-hover: var(--link-color-hover);

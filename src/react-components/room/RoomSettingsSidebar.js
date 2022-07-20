@@ -186,6 +186,16 @@ export function RoomSettingsSidebar({
               ref={register}
             />
             <ToggleInput
+              name="user_data.toggle_chat"
+              label={<FormattedMessage id="room-settings-sidebar.toggle-chat" defaultMessage="Toggle chat" />}
+              ref={register}
+            />
+            <ToggleInput
+              name="user_data.toggle_voice"
+              label={<FormattedMessage id="room-settings-sidebar.toggle-voice" defaultMessage="Toggle voice" />}
+              ref={register}
+            />
+            <ToggleInput
               name="member_permissions.spawn_emoji"
               label={<FormattedMessage id="room-settings-sidebar.spawn-emoji" defaultMessage="Create emoji" />}
               ref={register}

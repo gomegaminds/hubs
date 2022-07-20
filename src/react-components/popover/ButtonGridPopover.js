@@ -13,6 +13,7 @@ export function ButtonGridPopover({ fullscreen, items, closePopover }) {
           <ToolbarButton
             key={item.id}
             icon={<Icon />}
+	    submenu={true}
             preset={item.color}
             onClick={() => {
               if (item.onSelect) {
@@ -37,7 +38,7 @@ ButtonGridPopover.propTypes = {
       id: PropTypes.string.isRequired,
       icon: PropTypes.elementType.isRequired,
       color: PropTypes.string,
-      name: PropTypes.string.isRequired,
+      label: PropTypes.element.isRequired,
       onSelect: PropTypes.func
     })
   ).isRequired,

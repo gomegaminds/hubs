@@ -7,6 +7,7 @@ import ducky from "./assets/models/DuckyMesh.glb";
 import { EventTarget } from "event-target-shim";
 import { ExitReason } from "./react-components/room/ExitedRoomScreen";
 import { LogMessageType } from "./react-components/room/ChatSidebar";
+import { getLastWorldPosition } from "./utils/three-utils";
 
 let uiRoot;
 // Handles user-entered messages
@@ -43,6 +44,24 @@ export default class MessageDispatch extends EventTarget {
   }
 
   receive(message) {
+    if(message.type == "teleportRequest") {
+	    // Do not teleport the person making the request
+	    if(NAF.clientId != message.sessionId) {
+		    let pos = message.body
+		    // Scatter players around the person making request TODO: Make better
+		    pos.x = pos.x + Math.random() * (0.3 - 1) + 1;
+		    pos.z = pos.z + Math.random() * (0.3 - 1) + 1;
+		    this.scene.systems["hubs-systems"].characterController.teleportTo(pos);
+	    }
+    }
+    if(message.type == "muteRequest") {
+	    console.log("Mute request received");
+	    window.APP.mediaDevicesManager.stopMicShare();
+    }
+    if(message.type == "unMuteRequest") {
+	    window.APP.mediaDevicesManager.startMicShare({});
+    }
+
     this.addToPresenceLog(message);
     this.dispatchEvent(new CustomEvent("message", { detail: message }));
   }
@@ -66,8 +85,7 @@ export default class MessageDispatch extends EventTarget {
     uiRoot = uiRoot || document.getElementById("ui-root");
     const isGhost = !entered && uiRoot && uiRoot.firstChild && uiRoot.firstChild.classList.contains("isGhost");
 
-    // TODO: Some of the commands below should be available without requiring
-    //       room entry. For example, audiomode should not require room entry.
+    // TODO: Some of the commands below should be available without requiring room entry.
     if (!entered && (!isGhost || command === "duck")) {
       this.log(LogMessageType.roomEntryRequired);
       return;
@@ -170,24 +188,6 @@ export default class MessageDispatch extends EventTarget {
             captureSystem.start();
             this.log(LogMessageType.captureStarted);
           }
-        }
-        break;
-      case "audiomode":
-        {
-          const shouldEnablePositionalAudio = window.APP.store.state.preferences.audioOutputMode === "audio";
-          window.APP.store.update({
-            // TODO: This should probably just be a boolean to disable panner node settings
-            // and even if it's not, "audio" is a weird name for the "audioOutputMode" that means
-            // "stereo" / "not panner".
-            preferences: { audioOutputMode: shouldEnablePositionalAudio ? "panner" : "audio" }
-          });
-          // TODO: The user message here is a little suspicious. We might be ignoring the
-          // user preference (e.g. if panner nodes are broken in safari, then we never create
-          // panner nodes, regardless of user preference.)
-          // Warning: This comment may be out of date when you read it.
-          this.log(
-            shouldEnablePositionalAudio ? LogMessageType.positionalAudioEnabled : LogMessageType.positionalAudioDisabled
-          );
         }
         break;
       case "audioNormalization":

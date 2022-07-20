@@ -10,7 +10,7 @@
   
   grid-template-rows: 
     [viewport] auto
-    [toolbar] 0;
+    [toolbar] min-content;
 
   overflow: hidden;
   position: relative;
@@ -26,6 +26,7 @@
   height: 100%;
   overflow: hidden;
   width: 450px;
+  z-index: 9; // because of the transparent bottom bar, need to pull sidebar over it to cover the blank spot
 
   @media(max-width: theme.$breakpoint-lg - 1), (max-height: theme.$breakpoint-vr - 1) {
     position: fixed;

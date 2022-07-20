@@ -151,7 +151,7 @@
 :local(.presence-log-in-room) {
   position: absolute;
   right: 20px;
-  bottom: 20px;
+  bottom: 84px;
 
   :local(.presence-log-entry) {
     background-color: theme.$overlay-bg-color;
@@ -173,7 +173,7 @@
 
 :local(.presence-log-spawn) {
   position: absolute;
-  top: 0;
+  bottom: 0;
   z-index: -10;
   width: auto;
   margin: 0;
