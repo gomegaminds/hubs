@@ -316,7 +316,7 @@
   }  
 
   &:hover :local(.icon-container) {
-    background-color: #8AFF96;
+    background-color: #6ADD76;
   }
 
   &:active :local(.icon-container) {
@@ -803,17 +803,17 @@
   }
 
   &:hover :local(.icon-container) {
-    background-color: theme.$accent5-color-hover;
+    background-color: #ccc;
   }
 
   &:active :local(.icon-container) {
-    background-color: theme.$accent5-color-pressed;
+    background-color: #ccc;
   }
 
   &:local(.selected) {
     :local(.icon-container) {
       border-color: theme.$accent5-color;
-      background-color: theme.$toolbar-icon-selected-bg;
+      background-color: #ccc;
 
       svg {
         *[stroke=\#000] {
@@ -848,7 +848,7 @@
   
     &:active {
       :local(.icon-container) {
-        border-color: theme.$accent5-color-pressed;
+        border-color: #ccc;
         svg {
           *[stroke=\#000] {
             stroke: theme.$accent5-color-pressed;

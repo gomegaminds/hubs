@@ -75,7 +75,7 @@ export function ReactionPopoverButton({ items, presence }) {
           }}
           label={title}
           preset="accent1"
-	  edge="end"
+	  edge={!!AFRAME.utils.device.isMobile() ? "middle" : "end"}
 	  tipTitle={"Reactions"}
 	  tipBody={"Spawn emojis in front of your avatar"}
         />

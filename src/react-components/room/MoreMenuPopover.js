@@ -112,6 +112,8 @@ export function MoreMenuPopoverButton({ menu }) {
           selected={popoverVisible}
 	  preset="white"
 	  edge="end"
+	  tipTitle="More Menu"
+	  tipBody="This menu contains menu items that are not on the main toolbar."
           onClick={togglePopover}
           label={title}
         />

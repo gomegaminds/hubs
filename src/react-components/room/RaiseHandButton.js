@@ -13,6 +13,8 @@ import { HandRaisedButton } from "./ReactionButton";
 import styles from "./ReactionPopover.scss";
 import { Button } from "../input/Button";
 
+const isMobile = AFRAME.utils.device.isMobile();
+
 function usePresence(scene, initialPresence) {
   const [presence, setPresence] = useState(initialPresence);
 
@@ -74,7 +76,7 @@ export function RaiseHandButton({ scene, initialPresence, ...rest }) {
 	  tipTitle={presence.hand_raised ? lowerTitle : raiseTitle}
 	  tipBody={presence.hand_raised ? "Cancel your hand raise action" : "Raise your hand to grab attention. A hand icon will appear above your head."}
           preset={presence.hand_raised ? "handraised" : "accent1"}
-	  edge={window.APP.hubChannel.can("spawn_emoji") ? "middle" : "end"}
+	  edge={(window.APP.hubChannel.can("spawn_emoji") || isMobile) ? "middle" : "end"}
         />
   );
 }

@@ -37,17 +37,18 @@ export function SharePopoverButton({ items }) {
           }
         }}
         label={title}
-        preset="accent5"
+        preset="accent1"
+	edge="start"
         statusColor={activeItem && "recording"}
       />
     );
   }
 
   const itemList = filteredItems.map((item, i) => {
-    console.log(i);
     const Icon = item.icon;
     return (
       <ToolbarButton
+	key={item.id}
         icon={<Icon />}
         onClick={e => {
           if (item.onSelect) {
@@ -56,6 +57,8 @@ export function SharePopoverButton({ items }) {
           }
         }}
         label={title}
+        tipTitle={item.tipTitle}
+        tipBody={item.tipBody}
         preset="accent1"
 	edge={i == 0 ? "start" : "middle"}
         statusColor={activeItem && "recording"}

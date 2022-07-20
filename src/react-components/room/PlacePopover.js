@@ -36,6 +36,8 @@ export function PlacePopoverButton({ items }) {
           selected={popoverVisible}
           onClick={togglePopover}
           label={title}
+	  tipTitle={"Add media"}
+	  tipBody={"Add media such as images, documents, and much more. Remember to pin them if you want them to stay in the room after you leave."}
           preset="accent1"
 	  edge="end"
         />

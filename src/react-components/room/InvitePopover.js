@@ -81,6 +81,8 @@ export function InvitePopoverButton({
           icon={<InviteIcon />}
 	  preset="white"
 	  edge="start"
+	  tipTitle="Invite Users"
+	  tipBody="Let other users join you by copying and sending the room link to others"
           selected={popoverVisible}
           onClick={togglePopover}
           label={title}

@@ -53,6 +53,11 @@ import { ChatSidebarContainer, ChatContextProvider, ChatToolbarButtonContainer }
 import { ContentMenu, ChatMenuButton, PeopleMenuButton, ObjectsMenuButton } from "./room/ContentMenu";
 import { ReactComponent as CameraIcon } from "./icons/Camera.svg";
 import { ReactComponent as PenIcon } from "./icons/MegaMinds/DrawPen.svg";
+import { ReactComponent as PreferenceIcon } from "./icons/MegaMinds/PreferenceIcon.svg";
+import { ReactComponent as ChatIcon } from "./icons/MegaMinds/ChatIcon.svg";
+import { ReactComponent as EditAvatarIcon } from "./icons/MegaMinds/AvatarIcon.svg";
+import { ReactComponent as EditWorldIcon } from "./icons/MegaMinds/EditWorld.svg";
+import { ReactComponent as BackIcon } from "./icons/MegaMinds/Back.svg";
 import { ReactComponent as AvatarIcon } from "./icons/Avatar.svg";
 import { ReactComponent as AddIcon } from "./icons/Add.svg";
 import { ReactComponent as DeleteIcon } from "./icons/Delete.svg";
@@ -185,7 +190,7 @@ class UIRoot extends Component {
     linkCode: null,
     linkCodeCancel: null,
     miniInviteActivated: false,
-
+    isWorldbuilding: false,
     didConnectToNetworkedScene: false,
     noMoreLoadingUpdates: false,
     hideLoader: false,
@@ -966,6 +971,11 @@ class UIRoot extends Component {
     );
   };
 
+  enableWorldBuilding() {
+	  this.setState({isWorldBuilding: true})
+
+  }
+
   getSelectedUser() {
     const selectedUserId = this.state.selectedUserId;
     const presence = this.props.presences[selectedUserId];
@@ -1165,7 +1175,7 @@ class UIRoot extends Component {
     const canCreateRoom = !configs.feature("disable_room_creation") || configs.isAdmin();
     const canCloseRoom = this.props.hubChannel && !!this.props.hubChannel.canOrWillIfCreator("close_hub");
     const isModerator = this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
-    const isTeacher = window.location.toString().includes("teacher");
+    const isTeacher = this.props.hubChannel.canOrWillIfCreator("close_hub");
 
 
     const moreMenu = [
@@ -1364,6 +1374,7 @@ class UIRoot extends Component {
       }
     ];
     const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
+    const isWorldbuildingButtonVisible = false;
 
     return (
       <MoreMenuContextProvider>
@@ -1434,6 +1445,7 @@ class UIRoot extends Component {
               <RoomLayoutContainer
                 scene={this.props.scene}
                 store={this.props.store}
+		entered={entered}
                 objectFocused={!!this.props.selectedObject}
                 streaming={streaming}
                 viewport={
@@ -1441,7 +1453,7 @@ class UIRoot extends Component {
                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                     {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                     {(!this.props.selectedObject ||
-                      (this.props.breakpoint !== "sm" && this.props.breakpoint !== "md")) && (
+                      (this.props.breakpoint !== "sm" && this.props.breakpoint !== "md")) && !isMobile && (
                       <ContentMenu>
                         {isTeacher && showObjectList && (
                           <ObjectsMenuButton
@@ -1640,45 +1652,86 @@ class UIRoot extends Component {
                         )}
                       </>
                     )}
-			{entered && (
+			{entered && this.state.isWorldBuilding && (
+				// TODO: Worldbuilding toolbar
+				<>
+				<div className="toolbarGroup">
+				<ToolbarButton
+					key={"back"}
+					icon={<BackIcon />}
+					tipTitle={"Exit worldbuilding"}
+					tipBody={"Finish editing and go back to the room as an avatar"}
+					onClick={() => this.setState({isWorldBuilding: false})}
+					label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+					preset="accent1"
+					edge="middle"
+				/>
+				</div>
+				</>
+			)}
+			{entered && !this.state.isWorldBuilding && (
 				<>
 				<div className="toolbarGroup">
 		    {this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_voice && <AudioPopoverContainer scene={this.props.scene} /> }
 		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
                     {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
+
+				{isMobile && (
+					<ToolbarButton
+					key={"chat"}
+					icon={<ChatIcon />}
+					onClick={() => this.toggleSidebar("chat")}
+					label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+					preset="accent1"
+					edge="end"
+					/>
+				)}
 				</div>
+				{!isMobile && (
+					<div className="toolbarGroup">
+					<SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
+					{this.props.hubChannel.can("spawn_drawing") && 
+						<ToolbarButton
+						key={"pen"}
+						icon={<PenIcon />}
+						tipTitle={"Pen Tool"}
+						tipBody={"Toggle a pen to draw on surfaces"}
+						selected={hasActivePen}
+						onClick={() => this.props.scene.emit("penButtonPressed")}
+						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+						preset="accent1"
+						edge="middle"
+						/>
+					}
+					<PlacePopoverContainer
+					scene={this.props.scene}
+					hubChannel={this.props.hubChannel}
+					mediaSearchStore={this.props.mediaSearchStore}
+					showNonHistoriedDialog={this.showNonHistoriedDialog}
+					/>
+					</div>
+				)}
+			  {isTeacher && !isMobile && (
 				<div className="toolbarGroup">
-                    <SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-				{this.props.hubChannel.can("spawn_drawing") && 
-			<ToolbarButton
-			  key={"pen"}
-			  icon={<PenIcon />}
-			  tipTitle={"Pen Tool"}
-			  tipBody={"Toggle a pen to draw on surfaces"}
-			  selected={hasActivePen}
-			  onClick={() => this.props.scene.emit("penButtonPressed")}
-			  label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
-			  preset="accent1"
-			  edge="middle"
-			/>
-				}
-                    <PlacePopoverContainer
-                      scene={this.props.scene}
-                      hubChannel={this.props.hubChannel}
-                      mediaSearchStore={this.props.mediaSearchStore}
-                      showNonHistoriedDialog={this.showNonHistoriedDialog}
-                    />
-				</div>
-			  {isTeacher && (
-				<div className="toolbarGroup">
-			    <TeacherPopoverContainer
-			      scene={this.props.scene}
-			      hubChannel={this.props.hubChannel}
-			      mediaSearchStore={this.props.mediaSearchStore}
-			      showNonHistoriedDialog={this.showNonHistoriedDialog}
-			      onViewRoomSettings={() => this.setSidebar("room-settings")}
-			      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
-			    />
+				    <TeacherPopoverContainer
+				      scene={this.props.scene}
+				      hubChannel={this.props.hubChannel}
+				      mediaSearchStore={this.props.mediaSearchStore}
+				      showNonHistoriedDialog={this.showNonHistoriedDialog}
+				      onViewRoomSettings={() => this.setSidebar("room-settings")}
+				      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+				      isSingleButton={!isWorldbuildingButtonVisible}
+				    />
+				  {isWorldbuildingButtonVisible && (
+					<ToolbarButton
+						key={"worldbuilding"}
+						icon={<EditWorldIcon />}
+						onClick={() => this.enableWorldBuilding()}
+						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+						preset="accent1"
+						edge="end"
+					/>
+				  )}
 				  </div>
 			  )}
                   </>
@@ -1698,19 +1751,41 @@ class UIRoot extends Component {
                   <>
                     {entered && (
 			    <>
-				{isTeacher && (<InvitePopoverContainer
-					hub={this.props.hub}
-					hubChannel={this.props.hubChannel}
-					scene={this.props.scene}
-				/>)}
-			    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
+			    {!isTeacher && (
+				    <>
+				    <ToolbarButton
+				    icon={<EditAvatarIcon />}
+				    preset="white"
+				    edge={"start"}
+				    label={<FormattedMessage id="more-menu.profile" defaultMessage="Change Name & Avatar" />}
+				    onClick={() => this.setSidebar("profile")}
+				    />
+				    <ToolbarButton
+				    icon={<PreferenceIcon />}
+				    preset="white"
+				    label={<FormattedMessage id="more-menu.preferences" defaultMessage="Preferences" />}
+				    edge={"end"}
+				    onClick={() => this.setState({ showPrefs: true })}
+				    />
+				    </>
+			    )}
+			    {isTeacher && (
+				    <>
+				    <InvitePopoverContainer
+				    hub={this.props.hub}
+				    hubChannel={this.props.hubChannel}
+				    scene={this.props.scene}
+				    />
+				    <MoreMenuPopoverButton style={{marginLeft: "10px"}} menu={moreMenu} />
+				    </>
+			    )}
 			    {isMobileVR && (
-                        <ToolbarButton
-                          icon={<VRIcon />}
-                          preset="accept"
-                          label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
-                          onClick={() => exit2DInterstitialAndEnterVR(true)}
-                        />
+				    <ToolbarButton
+				    icon={<VRIcon />}
+				    preset="accept"
+				    label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
+				    onClick={() => exit2DInterstitialAndEnterVR(true)}
+				    />
 			    )}
 			    </>
                       )}
