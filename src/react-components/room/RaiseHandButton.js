@@ -43,7 +43,7 @@ const lowerHandTitle = defineMessage({
   defaultMessage: "Lower"
 });
 
-export function RaiseHandButton({ scene, initialPresence, ...rest }) {
+export function RaiseHandButton({ scene, initialPresence, isEdge, ...rest }) {
   const presence = usePresence(scene, initialPresence);
   const intl = useIntl();
   const raiseTitle = intl.formatMessage(raiseHandTitle);
@@ -76,7 +76,7 @@ export function RaiseHandButton({ scene, initialPresence, ...rest }) {
 	  tipTitle={presence.hand_raised ? lowerTitle : raiseTitle}
 	  tipBody={presence.hand_raised ? "Cancel your hand raise action" : "Raise your hand to grab attention. A hand icon will appear above your head."}
           preset={presence.hand_raised ? "handraised" : "accent1"}
-	  edge={(window.APP.hubChannel.can("spawn_emoji") || isMobile) ? "middle" : "end"}
+	  edge={isEdge ? "start" : (window.APP.hubChannel.can("spawn_emoji") || isMobile) ? "middle" : "end" }
         />
   );
 }

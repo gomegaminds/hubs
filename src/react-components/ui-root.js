@@ -808,12 +808,15 @@ class UIRoot extends Component {
   }
 
   onFocusChat = e => {
-    this.setSidebar("chat", {
-      chatInputEffect: input => {
-        input.focus();
-        input.value = e.detail.prefix;
-      }
-    });
+    if(!this.props.hub.user_data || (this.props.hub.user_data && this.props.hub.user_data.toggle_chat)) {
+	    // User data has not been set yet, default is enabled so we toggle chat
+	    this.setSidebar("chat", {
+	      chatInputEffect: input => {
+		input.focus();
+		input.value = e.detail.prefix;
+	      }
+	    });
+    }
   };
 
   renderInterstitialPrompt = () => {
@@ -1673,7 +1676,7 @@ class UIRoot extends Component {
 				<>
 				<div className="toolbarGroup">
 		    {this.props.hub && this.props.hub.user_data && this.props.hub.user_data.toggle_voice && <AudioPopoverContainer scene={this.props.scene} /> }
-		    <RaiseHandButton scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
+		    <RaiseHandButton scene={this.props.scene} isEdge={!this.props.hub.user_data || (this.props.hub.user_data && !this.props.hub.user_data.toggle_voice)} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />
                     {this.props.hubChannel.can("spawn_emoji") && <ReactionPopoverContainer scene={this.props.scene} initialPresence={getPresenceProfileForSession(this.props.presences, this.props.sessionId)} />}
 
 				{isMobile && (
