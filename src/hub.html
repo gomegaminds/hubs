@@ -331,20 +331,6 @@
                                 </a-entity>
                             </a-entity>
                             <a-entity
-                                mixin="rounded-text-action-button"
-                                is-remote-hover-target
-                                tags="singleActionButton:true"
-                                pin-networked-object-button="tipSelector:.pin-button-tip; labelSelector:.protect-button-label;"
-                                position="0 0.125 0.001">
-                                <a-entity
-                                    class="protect-button-label"
-                                    visible="false"
-                                    text="value:protect; textAlign:center;"
-                                    text-raycast-hack
-                                    position="0 0 0.001">
-                                </a-entity>
-                            </a-entity>
-                            <a-entity
                                 class="protect-button-tip"
                                 text="value:Protecting will broadcast this object to Discord.; textAlign:center; color:#fff; depthOffset: -1;"
                                 visible="false"
@@ -362,6 +348,20 @@
                                 position="0 0.6 0.001">
                             </a-entity>
 			    -->
+                            <a-entity
+                                mixin="rounded-text-action-button"
+                                is-remote-hover-target
+                                tags="singleActionButton:true"
+                                pin-networked-object-button="tipSelector:.pin-button-tip; labelSelector:.pin-button-label;"
+                                position="0 0.275 0.001">
+                                <a-entity
+                                    class="pin-button-label"
+                                    visible="false"
+                                    text="value:protect; textAlign:center;"
+                                    text-raycast-hack
+                                    position="0 0 0.001">
+                                </a-entity>
+                            </a-entity>
                             <a-entity
                                 class="pin-button-tip"
                                 text="value:Pinning will broadcast this object to Discord.; textAlign:center; color:#fff; depthOffset: -1;"

@@ -1,4 +1,4 @@
-import Raven from "raven-js";
+// import Raven from "raven-js";
 import configs from "./utils/configs";
 
 const ga = window.ga;
@@ -9,7 +9,7 @@ export default function registerTelemetry(trackedPage, trackedTitle) {
 
   if (sentryDsn) {
     console.log("Tracking: Sentry DSN: " + sentryDsn);
-    Raven.config(sentryDsn).install();
+    // Raven.config(sentryDsn).install();
   }
 
   if (ga && gaTrackingId) {

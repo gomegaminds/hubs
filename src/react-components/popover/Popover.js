@@ -5,9 +5,11 @@ import { usePopper } from "react-popper-2";
 import styles from "./Popover.scss";
 import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
-import { useCssBreakpoints } from "react-use-css-breakpoints";
 import classNames from "classnames";
 import { CloseButton } from "../input/CloseButton";
+
+const isMobile = AFRAME.utils.device.isMobile();
+const isMobileVR = AFRAME.utils.device.isMobileVR();
 
 function PopoverArrow({ arrowClass }) {
   return (
@@ -62,8 +64,7 @@ export function Popover({
       { name: "offset", options: { offset: [offsetSkidding, offsetDistance] } } // https://popper.js.org/docs/v2/modifiers/offset/
     ]
   });
-  const breakpoint = useCssBreakpoints();
-  const fullscreen = !disableFullscreen && (breakpoint === "sm" || breakpoint === "md");
+  const fullscreen = !disableFullscreen && isMobile;
   const openPopover = useCallback(() => setVisible(true), [setVisible]);
   const closePopover = useCallback(() => setVisible(false), [setVisible]);
   const togglePopover = useCallback(() => setVisible(visible => !visible), [setVisible]);

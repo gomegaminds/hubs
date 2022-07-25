@@ -1,4 +1,4 @@
-import { GUI } from "three/examples/jsm/libs/dat.gui.module.js";
+import { GUI } from "dat.gui";
 import qsTruthy from "../utils/qs_truthy";
 
 import { LUTCubeLoader } from "three/examples/jsm/loaders/LUTCubeLoader";

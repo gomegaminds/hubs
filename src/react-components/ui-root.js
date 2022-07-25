@@ -79,7 +79,6 @@ import { PeopleSidebarContainer, userFromPresence } from "./room/PeopleSidebarCo
 import { ObjectListProvider } from "./room/useObjectList";
 import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
-import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
@@ -98,7 +97,6 @@ import { ExitReason } from "./room/ExitedRoomScreen";
 import { UserProfileSidebarContainer } from "./room/UserProfileSidebarContainer";
 import { CloseRoomModal } from "./room/CloseRoomModal";
 import { WebVRUnsupportedModal } from "./room/WebVRUnsupportedModal";
-import { TweetModalContainer } from "./room/TweetModalContainer";
 import { TipContainer, FullscreenTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
@@ -390,7 +388,7 @@ class UIRoot extends Component {
 
     this.playerRig = scene.querySelector("#avatar-rig");
 
-    scene.addEventListener("action_media_tweet", this.onTweet);
+    // scene.addEventListener("action_media_tweet", this.onTweet);
   }
 
   UNSAFE_componentWillMount() {
@@ -403,7 +401,7 @@ class UIRoot extends Component {
     this.props.scene.removeEventListener("share_video_enabled", this.onShareVideoEnabled);
     this.props.scene.removeEventListener("share_video_disabled", this.onShareVideoDisabled);
     this.props.scene.removeEventListener("share_video_failed", this.onShareVideoFailed);
-    this.props.scene.removeEventListener("action_media_tweet", this.onTweet);
+    // this.props.scene.removeEventListener("action_media_tweet", this.onTweet);
     this.props.store.removeEventListener("statechanged", this.storeUpdated);
     window.removeEventListener("concurrentload", this.onConcurrentLoad);
     window.removeEventListener("idle_detected", this.onIdleDetected);
@@ -762,6 +760,7 @@ class UIRoot extends Component {
     return false;
   };
 
+	/*
   onTweet = ({ detail }) => {
     handleExitTo2DInterstitial(true, () => {}).then(() => {
       this.props.performConditionalSignIn(
@@ -777,6 +776,7 @@ class UIRoot extends Component {
       );
     });
   };
+  */
 
   onChangeScene = () => {
     this.props.performConditionalSignIn(
@@ -1805,7 +1805,6 @@ class UIRoot extends Component {
 
 function UIRootHooksWrapper(props) {
   useAccessibleOutlineStyle();
-  const breakpoint = useCssBreakpoints();
 
   useEffect(
     () => {
@@ -1832,7 +1831,7 @@ function UIRootHooksWrapper(props) {
   return (
     <ChatContextProvider messageDispatch={props.messageDispatch}>
       <ObjectListProvider scene={props.scene}>
-        <UIRoot breakpoint={breakpoint} {...props} />
+        <UIRoot breakpoint={"lg"} {...props} />
       </ObjectListProvider>
     </ChatContextProvider>
   );

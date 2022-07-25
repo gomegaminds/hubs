@@ -9,10 +9,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const TOML = require("@iarna/toml");
-const fetch = require("node-fetch");
+const fetch = import("node-fetch");
 const packageLock = require("./package-lock.json");
 const request = require("request");
-const internalIp = require("internal-ip");
+const internalIp = import("internal-ip");
 
 function createHTTPSConfig() {
   // Generate certs for the local webpack-dev-server.
@@ -243,9 +243,11 @@ module.exports = async (env, argv) => {
   const liveReload = !!process.env.LIVE_RELOAD || false;
 
   const legacyBabelConfig = {
-    presets: ["@babel/react", ["@babel/env", { targets: { ie: 11 } }]],
+    presets: ["@babel/preset-react", ["@babel/preset-env", { targets: { ie: 11 } }]],
     plugins: [
       "@babel/proposal-class-properties",
+      "@babel/plugin-proposal-private-methods",
+      "@babel/plugin-proposal-class-static-block",
       "@babel/proposal-object-rest-spread",
       "@babel/plugin-transform-async-to-generator",
       "@babel/plugin-proposal-optional-chaining"
@@ -371,16 +373,15 @@ module.exports = async (env, argv) => {
           loader: "html-loader",
           options: {
             // <a-asset-item>'s src property is overwritten with the correct transformed asset url.
-            attrs: ["img:src", "a-asset-item:src", "audio:src", "source:src"]
           }
         },
         {
           test: /\.worker\.js$/,
           loader: "worker-loader",
           options: {
-            name: "assets/js/[name]-[hash].js",
+            filename: "assets/js/[name]-[hash].js",
             publicPath: "/",
-            inline: true
+            inline: "fallback"
           }
         },
         {
@@ -390,8 +391,11 @@ module.exports = async (env, argv) => {
             path.resolve(__dirname, "src", "support.js")
           ],
           loader: "babel-loader",
-          options: legacyBabelConfig
         },
+        {
+          test: /\.ts$/,
+	  loader: 'ts-loader' 
+	},
         // Some JS assets are loaded at runtime and should be coppied unmodified and loaded using file-loader
         {
           test: [
@@ -426,11 +430,11 @@ module.exports = async (env, argv) => {
           }
         },
         {
-          test: /\.js$/,
+          test: /\.m?js$/,
           include: [path.resolve(__dirname, "src")],
           // Exclude JS assets in node_modules because they are already transformed and often big.
           exclude: [path.resolve(__dirname, "node_modules")],
-          loader: "babel-loader"
+          loader: "babel-loader",
         },
         {
           test: /\.(scss|css)$/,
@@ -441,9 +445,10 @@ module.exports = async (env, argv) => {
             {
               loader: "css-loader",
               options: {
-                name: "[path][name]-[hash].[ext]",
-                localIdentName: "[name]__[local]__[hash:base64:5]",
-                camelCase: true
+		      modules: {
+			localIdentName: "[name]__[local]__[hash:base64:5]",
+			exportLocalsConvention: "camelCase"
+		      }
               }
             },
             "sass-loader"
@@ -661,10 +666,7 @@ module.exports = async (env, argv) => {
         }
       ]),
       // Extract required css and add a content hash.
-      new MiniCssExtractPlugin({
-        filename: "assets/stylesheets/[name]-[contenthash].css",
-        disable: argv.mode !== "production"
-      }),
+      argv.mode === "production" ? false : new MiniCssExtractPlugin({ filename: "assets/stylesheets/[name]-[contenthash].css" }),
       // Define process.env variables in the browser context.
       new webpack.DefinePlugin({
         "process.env": JSON.stringify({
