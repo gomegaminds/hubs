@@ -157,15 +157,27 @@ AFRAME.registerComponent("media-video", {
         this.updatePlaybackState();
       });
 
-    let disableLeftRightPanningPref = APP.store.state.preferences.disableLeftRightPanning;
+    let { disableLeftRightPanning, audioPanningQuality } = APP.store.state.preferences;
     this.onPreferenceChanged = () => {
-      const newPref = APP.store.state.preferences.disableLeftRightPanning;
-      const shouldRecreateAudio = disableLeftRightPanningPref !== newPref && this.audio && this.mediaElementAudioSource;
-      disableLeftRightPanningPref = newPref;
+      const newDisableLeftRightPanning = APP.store.state.preferences.disableLeftRightPanning;
+      const newAudioPanningQuality = APP.store.state.preferences.audioPanningQuality;
+
+      const shouldRecreateAudio =
+        disableLeftRightPanning !== newDisableLeftRightPanning && this.audio && this.mediaElementAudioSource;
+      const shouldUpdateAudioSettings = audioPanningQuality !== newAudioPanningQuality;
+
+      disableLeftRightPanning = newDisableLeftRightPanning;
+      audioPanningQuality = newAudioPanningQuality;
+
       if (shouldRecreateAudio) {
         this.setupAudio();
+      } else if (shouldUpdateAudioSettings) {
+        // updateAudioSettings() is called in this.setupAudio()
+        // so no need to call it if shouldRecreateAudio is true.
+        updateAudioSettings(this.el, this.audio);
       }
     };
+
     APP.store.addEventListener("statechanged", this.onPreferenceChanged);
     this.el.addEventListener("audio_type_changed", this.setupAudio);
   },
@@ -201,7 +213,7 @@ AFRAME.registerComponent("media-video", {
 
   changeVolumeBy(v) {
     let gainMultiplier = APP.gainMultipliers.get(this.el);
-    gainMultiplier = THREE.Math.clamp(gainMultiplier + v, 0, MAX_GAIN_MULTIPLIER);
+    gainMultiplier = THREE.MathUtils.clamp(gainMultiplier + v, 0, MAX_GAIN_MULTIPLIER);
     APP.gainMultipliers.set(this.el, gainMultiplier);
     this.updateVolumeLabel();
     const audio = APP.audios.get(this.el);
@@ -346,6 +358,8 @@ AFRAME.registerComponent("media-video", {
     } else {
       this.audio = new THREE.Audio(audioListener);
     }
+    // Default to being quiet so it fades in when volume is set by audio systems
+    this.audio.gain.gain.value = 0;
     this.audioSystem.addAudio({ sourceType: SourceType.MEDIA_VIDEO, node: this.audio });
 
     this.audio.setNodeSource(this.mediaElementAudioSource);
@@ -358,6 +372,8 @@ AFRAME.registerComponent("media-video", {
 
     APP.audios.set(this.el, this.audio);
     updateAudioSettings(this.el, this.audio);
+    // Original audio source volume can now be restored as audio systems will take over
+    this.mediaElementAudioSource.mediaElement.volume = 1;
   },
 
   async updateSrc(oldData) {

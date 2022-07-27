@@ -8,6 +8,7 @@ import { EventTarget } from "event-target-shim";
 import { ExitReason } from "./react-components/room/ExitedRoomScreen";
 import { LogMessageType } from "./react-components/room/ChatSidebar";
 import { getLastWorldPosition } from "./utils/three-utils";
+import { createNetworkedEntity } from "./systems/netcode";
 
 let uiRoot;
 // Handles user-entered messages
@@ -141,6 +142,14 @@ export default class MessageDispatch extends EventTarget {
           this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_QUACK);
         }
         break;
+      case "cube": {
+        const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+        const eid = createNetworkedEntity(APP.world, "cube");
+        const obj = APP.world.eid2obj.get(eid);
+        obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+        obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+        break;
+      }
       case "debug":
         physicsSystem = document.querySelector("a-scene").systems["hubs-systems"].physicsSystem;
         physicsSystem.setDebug(!physicsSystem.debugEnabled);

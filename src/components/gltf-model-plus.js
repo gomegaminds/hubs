@@ -11,6 +11,11 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { BasisTextureLoader } from "three/examples/jsm/loaders/BasisTextureLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
+// It seems we need to use require to import modules
+// under the three/examples/js to avoid tree shaking
+// in webpack production mode.
+require("three/examples/js/loaders/GLTFLoader");
+
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 class GLTFCache {
@@ -53,7 +58,7 @@ class GLTFCache {
     }
   }
 }
-const gltfCache = new GLTFCache();
+export const gltfCache = new GLTFCache();
 const inflightGltfs = new Map();
 
 const extractZipFile = promisifyWorker(new SketchfabZipWorker());
@@ -210,7 +215,7 @@ const inflateEntities = function(indexToEntityMap, node, templates, isRoot, mode
   // the group. See `PropertyBinding.findNode`:
   // https://github.com/mrdoob/three.js/blob/dev/src/animation/PropertyBinding.js#L211
   el.object3D.uuid = node.uuid;
-  node.uuid = THREE.Math.generateUUID();
+  node.uuid = THREE.MathUtils.generateUUID();
 
   if (node.animations) {
     // Pass animations up to the group object so that when we can pass the group as
@@ -562,6 +567,12 @@ class GLTFHubsLightMapExtension {
       const lightMap = results[1];
       material.lightMap = lightMap;
       material.lightMapIntensity = extensionDef.intensity !== undefined ? extensionDef.intensity : 1;
+
+      // See https://github.com/mrdoob/three.js/pull/23613
+      if (material.isMeshBasicMaterial) {
+        material.lightMapIntensity *= Math.PI;
+      }
+
       return material;
     });
   }
@@ -595,7 +606,7 @@ class GLTFHubsTextureBasisExtension {
     console.warn(`The ${this.name} extension is deprecated, you should use KHR_texture_basisu instead.`);
 
     const extensionDef = textureDef.extensions[this.name];
-    const source = json.images[extensionDef.source];
+    const source = extensionDef.source;
 
     return parser.loadTextureImage(textureIndex, source, this.basisLoader);
   }
@@ -618,7 +629,7 @@ class GLTFMozTextureRGBE {
     }
 
     const extensionDef = textureDef.extensions[this.name];
-    const source = json.images[extensionDef.source];
+    const source = extensionDef.source;
     return parser.loadTextureImage(textureIndex, source, this.loader).then(t => {
       // TODO pretty severe artifacting when using mipmaps, disable for now
       if (t.minFilter == THREE.NearestMipmapNearestFilter || t.minFilter == THREE.NearestMipmapLinearFilter) {
