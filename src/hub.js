@@ -1,3 +1,4 @@
+
 import {
   getCurrentHubId,
   updateVRHudPresenceCount,
@@ -71,6 +72,7 @@ import "./components/in-world-hud";
 import "./components/emoji";
 import "./components/emoji-hud";
 import "./components/virtual-gamepad-controls";
+import "./components/screenshot";
 import "./components/ik-controller";
 import "./components/hand-controls2";
 import "./components/hoverable-visuals";

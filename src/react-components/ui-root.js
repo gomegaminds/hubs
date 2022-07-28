@@ -82,6 +82,7 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
+import { StudentPopoverContainer } from "../mega-src/react-components/room/StudentPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
 import { RaiseHandButton } from "./room/RaiseHandButton";
@@ -1368,6 +1369,7 @@ class UIRoot extends Component {
     const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
     const isWorldbuildingButtonVisible = false;
 
+
     return (
       <MoreMenuContextProvider>
         <ReactAudioContext.Provider value={this.state.audioContext}>
@@ -1701,6 +1703,14 @@ class UIRoot extends Component {
 					mediaSearchStore={this.props.mediaSearchStore}
 					showNonHistoriedDialog={this.showNonHistoriedDialog}
 					/>
+				    <StudentPopoverContainer
+				      scene={this.props.scene}
+				      hubChannel={this.props.hubChannel}
+				      mediaSearchStore={this.props.mediaSearchStore}
+				      showNonHistoriedDialog={this.showNonHistoriedDialog}
+				      closeDialog={this.closeDialog}
+				      isSingleButton={!isWorldbuildingButtonVisible}
+				    />
 					</div>
 				)}
 			  {isTeacher && !isMobile && (
