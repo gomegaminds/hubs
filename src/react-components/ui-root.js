@@ -1703,6 +1703,8 @@ class UIRoot extends Component {
 					mediaSearchStore={this.props.mediaSearchStore}
 					showNonHistoriedDialog={this.showNonHistoriedDialog}
 					/>
+					{/*
+					Removed until dashboard is up
 				    <StudentPopoverContainer
 				      scene={this.props.scene}
 				      hubChannel={this.props.hubChannel}
@@ -1711,6 +1713,7 @@ class UIRoot extends Component {
 				      closeDialog={this.closeDialog}
 				      isSingleButton={!isWorldbuildingButtonVisible}
 				    />
+				    */}
 					</div>
 				)}
 			  {isTeacher && !isMobile && (
