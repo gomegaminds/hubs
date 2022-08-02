@@ -1683,62 +1683,53 @@ class UIRoot extends Component {
 				</div>
 				{!isMobile && (
 					<div className="toolbarGroup">
-					<SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-					{this.props.hubChannel.can("spawn_drawing") && 
-						<ToolbarButton
-						key={"pen"}
-						icon={<PenIcon />}
-						tipTitle={"Pen Tool"}
-						tipBody={"Toggle a pen to draw on surfaces"}
-						selected={hasActivePen}
-						onClick={() => this.props.scene.emit("penButtonPressed")}
-						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
-						preset="accent1"
-						edge="middle"
-						/>
-					}
-					<PlacePopoverContainer
-					scene={this.props.scene}
-					hubChannel={this.props.hubChannel}
-					mediaSearchStore={this.props.mediaSearchStore}
-					showNonHistoriedDialog={this.showNonHistoriedDialog}
-					/>
-					{/*
-					Removed until dashboard is up
-				    <StudentPopoverContainer
-				      scene={this.props.scene}
-				      hubChannel={this.props.hubChannel}
-				      mediaSearchStore={this.props.mediaSearchStore}
-				      showNonHistoriedDialog={this.showNonHistoriedDialog}
-				      closeDialog={this.closeDialog}
-				      isSingleButton={!isWorldbuildingButtonVisible}
-				    />
-				    */}
+						<SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
+						{(isTeacher || this.props.hubChannel.can("spawn_drawing")) && (
+							<ToolbarButton
+							key={"pen"}
+							icon={<PenIcon />}
+							tipTitle={"Pen Tool"}
+							tipBody={"Toggle a pen to draw on surfaces"}
+							selected={hasActivePen}
+							onClick={() => this.props.scene.emit("penButtonPressed")}
+							label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+							preset="accent1"
+							edge="middle"
+							/>
+						)}
+						{(isTeacher || this.props.hubChannel.can("spawn_and_move_media")) &&  (
+							<PlacePopoverContainer
+							scene={this.props.scene}
+							hubChannel={this.props.hubChannel}
+							mediaSearchStore={this.props.mediaSearchStore}
+							showNonHistoriedDialog={this.showNonHistoriedDialog}
+							/>
+						)}
 					</div>
 				)}
-			  {isTeacher && !isMobile && (
-				<div className="toolbarGroup">
-				    <TeacherPopoverContainer
-				      scene={this.props.scene}
-				      hubChannel={this.props.hubChannel}
-				      mediaSearchStore={this.props.mediaSearchStore}
-				      showNonHistoriedDialog={this.showNonHistoriedDialog}
-				      onViewRoomSettings={() => this.setSidebar("room-settings")}
-				      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
-				      isSingleButton={!isWorldbuildingButtonVisible}
-				    />
-				  {isWorldbuildingButtonVisible && (
-					<ToolbarButton
-						key={"worldbuilding"}
-						icon={<EditWorldIcon />}
-						onClick={() => this.enableWorldBuilding()}
-						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
-						preset="accent1"
-						edge="end"
-					/>
+				{isTeacher && !isMobile && (
+					<div className="toolbarGroup">
+					    <TeacherPopoverContainer
+					      scene={this.props.scene}
+					      hubChannel={this.props.hubChannel}
+					      mediaSearchStore={this.props.mediaSearchStore}
+					      showNonHistoriedDialog={this.showNonHistoriedDialog}
+					      onViewRoomSettings={() => this.setSidebar("room-settings")}
+					      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+					      isSingleButton={!isWorldbuildingButtonVisible}
+					    />
+					  {isWorldbuildingButtonVisible && (
+						<ToolbarButton
+							key={"worldbuilding"}
+							icon={<EditWorldIcon />}
+							onClick={() => this.enableWorldBuilding()}
+							label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+							preset="accent1"
+							edge="end"
+						/>
+					  )}
+					  </div>
 				  )}
-				  </div>
-			  )}
                   </>
                 )}
                 {entered && isMobileVR && (
