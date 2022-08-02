@@ -82,6 +82,7 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
+import { StudentPopoverContainer } from "../mega-src/react-components/room/StudentPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
 import { RaiseHandButton } from "./room/RaiseHandButton";
@@ -103,6 +104,7 @@ import { TipContainer, FullscreenTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
 import { MediaDevicesEvents } from "../utils/media-devices-utils";
+import { TERMS, PRIVACY } from "../constants";
 
 import handImg from "../assets/myAssets/hand.png";
 import handDarkenImg from "../assets/myAssets/hand_darken.png";
@@ -157,9 +159,8 @@ class UIRoot extends Component {
     subscriptions: PropTypes.object,
     initialIsFavorited: PropTypes.bool,
     showSignInDialog: PropTypes.bool,
-    signInMessage: PropTypes.string,
+    signInMessage: PropTypes.object,
     onContinueAfterSignIn: PropTypes.func,
-    onSignInDialogVisibilityChanged: PropTypes.func,
     showSafariMicDialog: PropTypes.bool,
     onMediaSearchResultEntrySelected: PropTypes.func,
     onAvatarSaved: PropTypes.func,
@@ -416,11 +417,7 @@ class UIRoot extends Component {
   };
 
   showContextualSignInDialog = () => {
-    const { signInMessage, authChannel } = this.props;
-    const onCallback = () => {
-      const { onContinueAfterSignIn } = this.props;
-      (onContinueAfterSignIn && onContinueAfterSignIn()) || this.closeDialog();
-    };
+    const { signInMessage, authChannel, onContinueAfterSignIn } = this.props;
     this.showNonHistoriedDialog(RoomSignInModalContainer, {
       step: SignInStep.submit,
       message: signInMessage,
@@ -429,7 +426,7 @@ class UIRoot extends Component {
 
         this.showNonHistoriedDialog(RoomSignInModalContainer, {
           step: SignInStep.waitForVerification,
-          onClose: onCallback
+          onClose: onContinueAfterSignIn || this.closeDialog
         });
 
         await authComplete;
@@ -437,11 +434,11 @@ class UIRoot extends Component {
         this.setState({ signedIn: true });
         this.showNonHistoriedDialog(RoomSignInModalContainer, {
           step: SignInStep.complete,
-          onClose: onCallback,
-          onContinue: onCallback
+          onClose: onContinueAfterSignIn || this.closeDialog,
+          onContinue: onContinueAfterSignIn || this.closeDialog
         });
       },
-      onClose: onCallback
+      onClose: onContinueAfterSignIn || this.closeDialog
     });
   };
 
@@ -685,9 +682,6 @@ class UIRoot extends Component {
       this.setState({ dialog: null });
     }
 
-    const { onSignInDialogVisibilityChanged } = this.props;
-    onSignInDialogVisibilityChanged && onSignInDialogVisibilityChanged(false);
-
     if (isIn2DInterstitial()) {
       exit2DInterstitialAndEnterVR();
     } else {
@@ -696,8 +690,6 @@ class UIRoot extends Component {
   };
 
   showNonHistoriedDialog = (DialogClass, props = {}) => {
-    const { onSignInDialogVisibilityChanged } = this.props;
-    onSignInDialogVisibilityChanged && onSignInDialogVisibilityChanged(true);
     this.setState({
       dialog: <DialogClass {...{ onClose: this.closeDialog, ...props }} />
     });
@@ -852,8 +844,6 @@ class UIRoot extends Component {
     return (
       <>
         <RoomEntryModal
-          appName={configs.translation("app-name")}
-          logoSrc={configs.image("logo")}
           roomName={this.props.hub.name}
           showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
           onJoinRoom={() => {
@@ -1365,19 +1355,20 @@ class UIRoot extends Component {
             id: "tos",
             label: <FormattedMessage id="more-menu.tos" defaultMessage="Terms of Service" />,
             icon: TextDocumentIcon,
-            href: configs.link("terms_of_use", "https://github.com/mozilla/hubs/blob/master/TERMS.md")
+            href: configs.link("terms_of_use", TERMS)
           },
           configs.feature("show_privacy") && {
             id: "privacy",
             label: <FormattedMessage id="more-menu.privacy" defaultMessage="Privacy Notice" />,
             icon: ShieldIcon,
-            href: configs.link("privacy_notice", "https://github.com/mozilla/hubs/blob/master/PRIVACY.md")
+            href: configs.link("privacy_notice", PRIVACY)
           }
         ].filter(item => item)
       }
     ];
     const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
     const isWorldbuildingButtonVisible = false;
+
 
     return (
       <MoreMenuContextProvider>
@@ -1692,51 +1683,53 @@ class UIRoot extends Component {
 				</div>
 				{!isMobile && (
 					<div className="toolbarGroup">
-					<SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
-					{this.props.hubChannel.can("spawn_drawing") && 
-						<ToolbarButton
-						key={"pen"}
-						icon={<PenIcon />}
-						tipTitle={"Pen Tool"}
-						tipBody={"Toggle a pen to draw on surfaces"}
-						selected={hasActivePen}
-						onClick={() => this.props.scene.emit("penButtonPressed")}
-						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
-						preset="accent1"
-						edge="middle"
-						/>
-					}
-					<PlacePopoverContainer
-					scene={this.props.scene}
-					hubChannel={this.props.hubChannel}
-					mediaSearchStore={this.props.mediaSearchStore}
-					showNonHistoriedDialog={this.showNonHistoriedDialog}
-					/>
+						<SharePopoverContainer scene={this.props.scene} hubChannel={this.props.hubChannel} />
+						{(isTeacher || this.props.hubChannel.can("spawn_drawing")) && (
+							<ToolbarButton
+							key={"pen"}
+							icon={<PenIcon />}
+							tipTitle={"Pen Tool"}
+							tipBody={"Toggle a pen to draw on surfaces"}
+							selected={hasActivePen}
+							onClick={() => this.props.scene.emit("penButtonPressed")}
+							label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+							preset="accent1"
+							edge="middle"
+							/>
+						)}
+						{(isTeacher || this.props.hubChannel.can("spawn_and_move_media")) &&  (
+							<PlacePopoverContainer
+							scene={this.props.scene}
+							hubChannel={this.props.hubChannel}
+							mediaSearchStore={this.props.mediaSearchStore}
+							showNonHistoriedDialog={this.showNonHistoriedDialog}
+							/>
+						)}
 					</div>
 				)}
-			  {isTeacher && !isMobile && (
-				<div className="toolbarGroup">
-				    <TeacherPopoverContainer
-				      scene={this.props.scene}
-				      hubChannel={this.props.hubChannel}
-				      mediaSearchStore={this.props.mediaSearchStore}
-				      showNonHistoriedDialog={this.showNonHistoriedDialog}
-				      onViewRoomSettings={() => this.setSidebar("room-settings")}
-				      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
-				      isSingleButton={!isWorldbuildingButtonVisible}
-				    />
-				  {isWorldbuildingButtonVisible && (
-					<ToolbarButton
-						key={"worldbuilding"}
-						icon={<EditWorldIcon />}
-						onClick={() => this.enableWorldBuilding()}
-						label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
-						preset="accent1"
-						edge="end"
-					/>
+				{isTeacher && !isMobile && (
+					<div className="toolbarGroup">
+					    <TeacherPopoverContainer
+					      scene={this.props.scene}
+					      hubChannel={this.props.hubChannel}
+					      mediaSearchStore={this.props.mediaSearchStore}
+					      showNonHistoriedDialog={this.showNonHistoriedDialog}
+					      onViewRoomSettings={() => this.setSidebar("room-settings")}
+					      onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
+					      isSingleButton={!isWorldbuildingButtonVisible}
+					    />
+					  {isWorldbuildingButtonVisible && (
+						<ToolbarButton
+							key={"worldbuilding"}
+							icon={<EditWorldIcon />}
+							onClick={() => this.enableWorldBuilding()}
+							label={<FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />}
+							preset="accent1"
+							edge="end"
+						/>
+					  )}
+					  </div>
 				  )}
-				  </div>
-			  )}
                   </>
                 )}
                 {entered && isMobileVR && (

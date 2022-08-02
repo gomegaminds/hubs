@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import styles from "./AudioPopover.scss";
 import { Popover } from "../popover/Popover";
@@ -6,41 +6,30 @@ import { ToolbarButton } from "../input/ToolbarButton";
 import { ReactComponent as ArrowIcon } from "../icons/Arrow.svg";
 import { ReactComponent as MicrophoneIcon } from "../icons/Microphone.svg";
 import { ReactComponent as MicrophoneMutedIcon } from "../icons/MicrophoneMuted.svg";
-import { defineMessage, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
+
+
+
+import { useMicrophoneStatus } from "./useMicrophoneStatus";
+import { useMicrophone } from "./useMicrophone";
+import { useSpeakers } from "./useSpeakers";
+import { useSound } from "./useSound";
+
+import { FormattedMessage } from "react-intl";
 
 const invitePopoverTitle = defineMessage({
   id: "audio-toolbar-popover.title",
   defaultMessage: "Audio Settings"
 });
 
-export const AudioPopoverButton = ({
-  initiallyVisible,
-  content,
-  isMicrophoneMuted,
-  isMicrophoneEnabled,
-  micLevel,
-  onChangeMicrophoneMuted
-}) => {
+export const AudioPopoverButton = ({ initiallyVisible, content, micButton, scene }) => {
   const intl = useIntl();
   const title = intl.formatMessage(invitePopoverTitle);
   const popoverApiRef = useRef();
-  const micButtonRef = useCallback(
-    node => {
-      if (node !== null) {
-        const rect = node.querySelector("rect");
-        if (micLevel <= 0.1) {
-          rect.setAttribute("height", 0);
-        } else if (micLevel < 0.3) {
-          rect.setAttribute("y", 8);
-          rect.setAttribute("height", 4);
-        } else {
-          rect.setAttribute("y", 4);
-          rect.setAttribute("height", 8);
-        }
-      }
-    },
-    [micLevel]
-  );
+
+	
+  const { isMicMuted, toggleMute, isMicEnabled } = useMicrophoneStatus(scene);
+  const { micDeviceChanged, micDevices } = useMicrophone(scene);
 
   return (
     <Popover
@@ -54,15 +43,15 @@ export const AudioPopoverButton = ({
       {({ togglePopover, popoverVisible, triggerRef }) => (
         <div className={styles.buttonsContainer}>
           <ToolbarButton
-            ref={micButtonRef}
-            icon={isMicrophoneMuted || !isMicrophoneEnabled ? <MicrophoneMutedIcon /> : <MicrophoneIcon />}
+            ref={triggerRef}
+            icon={isMicMuted || isMicEnabled ? <MicrophoneMutedIcon /> : <MicrophoneIcon />}
             label={<FormattedMessage id="voice-button-container.label" defaultMessage="Voice" />}
 	    tipTitle={"Toggle Microphone"}
 	    tipBody={"Click to mute and unmute your microphone"}
-            preset={isMicrophoneMuted || !isMicrophoneEnabled ? "micoff" : "micon"}
+            preset={isMicMuted || !isMicEnabled ? "micoff" : "micon"}
 	    edge="start"
-            onClick={onChangeMicrophoneMuted}
-            statusColor={isMicrophoneMuted || !isMicrophoneEnabled ? "disabled" : "enabled"}
+            onClick={toggleMute}
+            statusColor={isMicMuted || !isMicEnabled ? "disabled" : "enabled"}
           />
         </div>
       )}
@@ -72,9 +61,6 @@ export const AudioPopoverButton = ({
 
 AudioPopoverButton.propTypes = {
   initiallyVisible: PropTypes.bool,
-  isMicrophoneMuted: PropTypes.bool,
-  isMicrophoneEnabled: PropTypes.bool,
-  micLevel: PropTypes.number,
-  onChangeMicrophoneMuted: PropTypes.func,
-  content: PropTypes.element
+  content: PropTypes.element,
+  micButton: PropTypes.element
 };

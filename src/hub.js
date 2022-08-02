@@ -1,3 +1,4 @@
+
 import {
   getCurrentHubId,
   updateVRHudPresenceCount,
@@ -41,9 +42,7 @@ patchWebGLRenderingContext();
 require("three/examples/js/loaders/GLTFLoader");
 
 import "networked-aframe/src/index";
-import "aframe-rounded";
 import "webrtc-adapter";
-import "aframe-slice9-component";
 import { detectOS, detect } from "detect-browser";
 import {
   getReticulumFetchUrl,
@@ -65,7 +64,6 @@ import { DialogAdapter, DIALOG_CONNECTION_ERROR_FATAL, DIALOG_CONNECTION_CONNECT
 import "./change-hub";
 
 import "./components/scene-components";
-import "./components/scale-in-screen-space";
 import "./components/mute-mic";
 import "./components/bone-mute-state-indicator";
 import "./components/bone-visibility";
@@ -74,6 +72,7 @@ import "./components/in-world-hud";
 import "./components/emoji";
 import "./components/emoji-hud";
 import "./components/virtual-gamepad-controls";
+import "./components/screenshot";
 import "./components/ik-controller";
 import "./components/hand-controls2";
 import "./components/hoverable-visuals";
@@ -113,12 +112,9 @@ import "./components/pin-networked-object-button";
 import "./components/mirror-media-button";
 import "./components/close-mirrored-media-button";
 import "./components/drop-object-button";
-import "./components/remove-networked-object-button";
 import "./components/camera-focus-button";
 import "./components/unmute-video-button";
-import "./components/destroy-at-extreme-distances";
 import "./components/visible-to-owner";
-import "./components/camera-tool";
 import "./components/emit-state-change";
 import "./components/action-to-event";
 import "./components/action-to-remove";
@@ -176,7 +172,6 @@ import "./systems/permissions";
 import "./systems/exit-on-blur";
 import "./systems/auto-pixel-ratio";
 import "./systems/idle-detector";
-import "./systems/camera-tools";
 import "./systems/pen-tools";
 import "./systems/userinput/userinput";
 import "./systems/userinput/userinput-debug";
@@ -740,7 +735,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const scene = document.querySelector("a-scene");
   window.APP.scene = scene;
-  scene.renderer.debug.checkShaderErrors = false;
 
   const onSceneLoaded = () => {
     const physicsSystem = scene.systems["hubs-systems"].physicsSystem;
@@ -787,7 +781,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       showSignInDialog: true,
       signInMessage,
       onContinueAfterSignIn: async () => {
-        remountUI({ showSignInDialog: false });
+        remountUI({ showSignInDialog: false, onContinueAfterSignIn: null });
         let actionError = null;
         if (predicate()) {
           try {
@@ -801,13 +795,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (actionError && onFailure) onFailure(actionError);
         exit2DInterstitialAndEnterVR();
-      },
-      onSignInDialogVisibilityChanged: visible => {
-        if (visible) {
-          remountUI({ showSignInDialog: true });
-        } else {
-          remountUI({ showSignInDialog: false, onContinueAfterSignIn: null });
-        }
       }
     });
   };

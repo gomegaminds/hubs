@@ -8,6 +8,7 @@ import classNames from "classnames";
 // under the three/examples/js to avoid tree shaking
 // in webpack production mode.
 require("three/examples/js/controls/OrbitControls");
+require("three/examples/js/loaders/GLTFLoader");
 
 import { createDefaultEnvironmentMap } from "../components/environment-map";
 import { loadGLTF } from "../components/gltf-model-plus";
@@ -52,12 +53,12 @@ const createImageBitmapFromURL = url =>
     .then(r => r.blob())
     .then(createImageBitmap);
 
-const ORBIT_ANGLE = new THREE.Euler(-30 * THREE.Math.DEG2RAD, 30 * THREE.Math.DEG2RAD, 0);
+const ORBIT_ANGLE = new THREE.Euler(-30 * THREE.MathUtils.DEG2RAD, 30 * THREE.MathUtils.DEG2RAD, 0);
 const DEFAULT_MARGIN = 1;
 
 function fitBoxInFrustum(camera, box, center, margin = DEFAULT_MARGIN) {
   const halfYExtents = Math.max(box.max.y - center.y, center.y - box.min.y);
-  const halfVertFOV = THREE.Math.degToRad(camera.fov / 2);
+  const halfVertFOV = THREE.MathUtils.degToRad(camera.fov / 2);
   camera.position.set(0, 0, (halfYExtents / Math.tan(halfVertFOV) + box.max.z) * margin);
   camera.position.applyEuler(ORBIT_ANGLE);
   camera.position.add(center);

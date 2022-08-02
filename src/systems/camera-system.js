@@ -60,23 +60,25 @@ const orbit = (function() {
   const rwq = new THREE.Quaternion();
   const UP = new THREE.Vector3();
   const RIGHT = new THREE.Vector3();
-  const target = new THREE.Object3D();
+  const dPos = new THREE.Vector3();
+  const targetPos = new THREE.Vector3();
+  const targetQuat = new THREE.Quaternion();
+  const targetScale = new THREE.Vector3(1, 1, 1);
+  const targetMatrix = new THREE.Matrix4();
   const dhQ = new THREE.Quaternion();
   const dvQ = new THREE.Quaternion();
   return function orbit(pivot, rig, camera, dh, dv, dz, dt, panY) {
-    if (!target.parent) {
-      // add dummy object to the scene, if this is the first time we call this function
-      AFRAME.scenes[0].object3D.add(target);
-      target.applyMatrix4(IDENTITY); // make sure target gets updated at least once for our matrix optimizations
-    }
     pivot.updateMatrices();
     decompose(pivot.matrixWorld, owp, owq);
+
+    camera.updateMatrices();
     decompose(camera.matrixWorld, cwp, cwq);
+
     rig.getWorldQuaternion(rwq);
 
     dhQ.setFromAxisAngle(UP.set(0, 1, 0).applyQuaternion(owq), 0.1 * dh * dt);
-    target.quaternion.copy(cwq).premultiply(dhQ);
-    const dPos = new THREE.Vector3().subVectors(cwp, owp);
+    targetQuat.copy(cwq).premultiply(dhQ);
+    dPos.subVectors(cwp, owp);
     const zoom = 1 - dz * dt;
     const newLength = dPos.length() * zoom;
     // TODO: These limits should be calculated based on the calculated view distance.
@@ -84,16 +86,21 @@ const orbit = (function() {
       dPos.multiplyScalar(zoom);
     }
 
-    dvQ.setFromAxisAngle(RIGHT.set(1, 0, 0).applyQuaternion(target.quaternion), 0.1 * dv * dt);
-    target.quaternion.premultiply(dvQ);
-    target.position.addVectors(owp, dPos.applyQuaternion(dhQ).applyQuaternion(dvQ)).add(
+    dvQ.setFromAxisAngle(RIGHT.set(1, 0, 0).applyQuaternion(targetQuat), 0.1 * dv * dt);
+    targetQuat.premultiply(dvQ);
+    targetPos.addVectors(owp, dPos.applyQuaternion(dhQ).applyQuaternion(dvQ)).add(
       UP.set(0, 1, 0)
         .multiplyScalar(panY * newLength)
-        .applyQuaternion(target.quaternion)
+        .applyQuaternion(targetQuat)
     );
-    target.matrixNeedsUpdate = true;
-    target.updateMatrices();
-    childMatch(rig, camera, target.matrixWorld);
+
+    targetMatrix.compose(
+      targetPos,
+      targetQuat,
+      targetScale
+    );
+
+    childMatch(rig, camera, targetMatrix);
   };
 })();
 
@@ -173,13 +180,11 @@ firstPersonOnlyLayer.set(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
 const enableInspectLayer = function(o) {
   // Ignore first person only meshes
   if (o.layers.test(firstPersonOnlyLayer)) return;
-
-   o.layers.enable(Layers.CAMERA_LAYER_INSPECT);
+  o.layers.enable(Layers.CAMERA_LAYER_INSPECT);
 };
 const disableInspectLayer = function(o) {
   // Ignore first person only meshes
   if (o.layers.test(firstPersonOnlyLayer)) return;
-
   o.layers.disable(Layers.CAMERA_LAYER_INSPECT);
 };
 
@@ -211,6 +216,7 @@ export class CameraSystem {
     }
     this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_VIDEO_TEXTURE_TARGET);
     this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
+    this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_UI);
 
     // xr.updateCamera gets called every render to copy the active cameras properties to the XR cameras. We also want to copy layers.
     // TODO this logic should either be moved into THREE or removed when we ditch aframe camera system

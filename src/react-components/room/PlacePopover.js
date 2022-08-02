@@ -15,11 +15,6 @@ export function PlacePopoverButton({ items }) {
   const intl = useIntl();
   const filteredItems = items.filter(item => !!item);
 
-  // The button is removed if you can't place anything.
-  if (filteredItems.length === 0) {
-    return null;
-  }
-
   const title = intl.formatMessage(placePopoverTitle);
 
   return (

@@ -13,25 +13,19 @@ import { PlacePopoverButton } from "./PlacePopover";
 import { ObjectUrlModalContainer } from "./ObjectUrlModalContainer";
 import configs from "../../utils/configs";
 import { FormattedMessage } from "react-intl";
+import { anyEntityWith } from "../../utils/bit-utils";
+import { MyCameraTool } from "../../bit-components";
 
 export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistoriedDialog, hubChannel }) {
   const [items, setItems] = useState([]);
-  const isTeacher = window.location.toString().includes("teacher");
 
   useEffect(
     () => {
       function updateItems() {
-        const hasActiveCamera = !!scene.systems["camera-tools"].getMyCamera();
+        const hasActiveCamera = !!anyEntityWith(APP.world, MyCameraTool);
         const hasActivePen = !!scene.systems["pen-tools"].getMyPen();
 
-	let nextItems = []
-
-        if (hubChannel.can("spawn_and_move_media")) {
-          nextItems = [
-            ...nextItems,
-            // TODO: Create text/link dialog
-            // { id: "text", icon: TextIcon, color: "blue", label: "Text" },
-            // { id: "link", icon: LinkIcon, color: "blue", label: "Link" },
+	let nextItems = [
             configs.integration("tenor") && {
               id: "gif",
               icon: GIFIcon,
@@ -46,16 +40,14 @@ export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistorie
               label: <FormattedMessage id="place-popover.item-type.model" defaultMessage="Find Model" />,
               onSelect: () => mediaSearchStore.sourceNavigate("sketchfab")
             },
-            // TODO: Launch system file prompt directly
-            isTeacher && {
+            {
               id: "upload",
               icon: UploadIcon,
               color: "accent3",
               label: <FormattedMessage id="place-popover.item-type.upload" defaultMessage="Upload" />,
               onSelect: () => showNonHistoriedDialog(ObjectUrlModalContainer, { scene })
             }
-          ];
-        }
+	];
 
         setItems(nextItems);
       }
