@@ -367,26 +367,17 @@ AFRAME.GLTFModelPlus.registerComponent(
       enterComponentMapping = getSanitizedComponentMapping(enterComponent, enterProperty, publicComponents);
       leaveComponentMapping = getSanitizedComponentMapping(leaveComponent, leaveProperty, publicComponents);
 
-      // indexToEntityMap should be considered depredcated. These references are now resovled by the GLTFHubsComponentExtension
-      if (typeof target === "number") {
-        targetEntity = indexToEntityMap[target];
-      } else {
-        targetEntity = target?.el;
-      }
-
-      if (!targetEntity) {
-        throw new Error(`Couldn't find target entity with index: ${target}.`);
-      }
     } catch (e) {
       console.warn(`Error inflating gltf component "trigger-volume": ${e.message}`);
       return;
     }
 
+	  console.log(el);
     // Filter out scope and colliders properties.
     el.setAttribute("trigger-volume", {
-      colliders: "#avatar-pov-node",
       size,
       target: targetEntity,
+      componentName: el.className,
       enterComponent: enterComponentMapping.mappedComponent,
       enterProperty: enterComponentMapping.mappedProperty,
       enterValue: enterComponentMapping.getMappedValue(enterValue),
