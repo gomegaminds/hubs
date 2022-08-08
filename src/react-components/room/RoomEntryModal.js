@@ -13,6 +13,7 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { Column } from "../layout/Column";
 import { AppLogo } from "../misc/AppLogo";
 import { FormattedMessage } from "react-intl";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export function RoomEntryModal({
   className,
@@ -28,6 +29,11 @@ export function RoomEntryModal({
   ...rest
 }) {
   const breakpoint = useCssBreakpoints();
+  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  
+
+  const isAuthenticatedAsTeacher = isAuthenticated;
+
   return (
     <Modal className={classNames(styles.roomEntryModal, className)} disableFullscreen {...rest}>
       <Column center className={styles.content}>
@@ -65,6 +71,14 @@ export function RoomEntryModal({
               <ShowIcon />
               <span>
                 <FormattedMessage id="room-entry-modal.spectate-button" defaultMessage="Spectate" />
+              </span>
+            </Button>
+          )}
+          {!isAuthenticatedAsTeacher && (
+            <Button preset="megamindsPurple" onClick={() => loginWithRedirect()}>
+              <ShowIcon />
+              <span>
+                <FormattedMessage id="room-entry-modal.teacher-login-button" defaultMessage="Teacher Login" />
               </span>
             </Button>
           )}
