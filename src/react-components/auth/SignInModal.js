@@ -74,7 +74,11 @@ export const SignInMessages = defineMessages({
   tweet: {
     id: "sign-in-modal.signin-message.tweet",
     defaultMessage: "You'll need to sign in to send tweets."
-  }
+  },
+  verifyEmail: {
+    id: "sign-in-modal.signin-message.verify",
+    defaultMessage: "Verify to continue as teacher"
+  },
 });
 
 export function SubmitEmail({ onSubmitEmail, initialEmail, privacyUrl, termsUrl, message }) {

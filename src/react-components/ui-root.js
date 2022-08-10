@@ -595,6 +595,10 @@ class UIRoot extends Component {
         }
     };
 
+    combineAuth = () => {
+        console.log("Trying to combine auth");
+    };
+
     enterDaydream = async () => {
         console.log("Entering in Daydream mode");
         await this.performDirectEntryFlow(true);
@@ -865,9 +869,13 @@ class UIRoot extends Component {
                     }}
                     showEnterOnDevice={false}
                     onEnterOnDevice={() => this.attemptLink()}
+                    isSignedIn={this.props.hubChannel.signedIn}
                     showSpectate={!this.state.waitingOnAudio}
                     onSpectate={() => this.setState({ watching: true })}
                     showOptions={this.props.hubChannel.canOrWillIfCreator("update_hub")}
+                    onSignInClick={() =>
+                        this.props.performConditionalSignIn(() => this.props.hubChannel.signedIn, () => this.combineAuth(), SignInMessages.verifyEmail)
+                    }
                     onOptions={() => {
                         this.props.performConditionalSignIn(
                             () => this.props.hubChannel.canOrWillIfCreator("update_hub"),
@@ -1251,7 +1259,8 @@ class UIRoot extends Component {
                         onClick: () => this.setSidebar("room-info"),
                     },
                     (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
-                        (this.props.hub.entry_mode !== "invite" || this.props.hubChannel.canOrWillIfCreator("update_hub")) && {
+                        (this.props.hub.entry_mode !== "invite" ||
+                            this.props.hubChannel.canOrWillIfCreator("update_hub")) && {
                             id: "invite",
                             label: <FormattedMessage id="more-menu.invite" defaultMessage="Invite" />,
                             icon: InviteIcon,
@@ -1551,7 +1560,8 @@ class UIRoot extends Component {
                                                     presences={this.props.presences}
                                                     occupantCount={this.occupantCount()}
                                                     canSpawnMessages={
-                                                        entered && this.props.hubChannel.canOrWillIfCreator("spawn_and_move_media")
+                                                        entered &&
+                                                        this.props.hubChannel.canOrWillIfCreator("spawn_and_move_media")
                                                     }
                                                     scene={this.props.scene}
                                                     onClose={() => this.setSidebar(null)}
@@ -1614,7 +1624,8 @@ class UIRoot extends Component {
                                                     canEdit={this.props.hubChannel.canOrWillIfCreator("update_hub")}
                                                     onEdit={() => {
                                                         this.props.performConditionalSignIn(
-                                                            () => this.props.hubChannel.canOrWillIfCreator("update_hub"),
+                                                            () =>
+                                                                this.props.hubChannel.canOrWillIfCreator("update_hub"),
                                                             () => this.setSidebar("room-info-settings"),
                                                             SignInMessages.roomSettings
                                                         );
@@ -1759,7 +1770,9 @@ class UIRoot extends Component {
                                                                 hubChannel={this.props.hubChannel}
                                                             />
                                                             {(isTeacher ||
-                                                                this.props.hubChannel.canOrWillIfCreator("spawn_drawing")) && (
+                                                                this.props.hubChannel.canOrWillIfCreator(
+                                                                    "spawn_drawing"
+                                                                )) && (
                                                                 <ToolbarButton
                                                                     key={"pen"}
                                                                     icon={<PenIcon />}
@@ -1780,7 +1793,9 @@ class UIRoot extends Component {
                                                                 />
                                                             )}
                                                             {(isTeacher ||
-                                                                this.props.hubChannel.canOrWillIfCreator("spawn_and_move_media")) && (
+                                                                this.props.hubChannel.canOrWillIfCreator(
+                                                                    "spawn_and_move_media"
+                                                                )) && (
                                                                 <PlacePopoverContainer
                                                                     scene={this.props.scene}
                                                                     hubChannel={this.props.hubChannel}
@@ -1920,20 +1935,23 @@ function UIRootHooksWrapper(props) {
         "teacherprofile",
         "read:teacher_profile",
         false
-    )
+    );
 
-    useEffect( () => {
-        if(profile) {
-            if(profile.creatortoken) {
-                console.log(profile.creatortoken);
-                props.store.update({
-                    creatorAssignmentTokens: profile.creatortoken
-                });
+    useEffect(
+        () => {
+            if (profile) {
+                if (profile.creatortoken) {
+                    console.log(profile.creatortoken);
+                    props.store.update({
+                        creatorAssignmentTokens: profile.creatortoken,
+                    });
+                }
+            } else {
+                console.log("Loading authentication", profile);
             }
-        } else {
-            console.log("Loading authentication", profile);
-        }
-    }, [profile, isProfileLoading]);
+        },
+        [profile, isProfileLoading]
+    );
 
     useEffect(
         () => {
@@ -1958,11 +1976,11 @@ function UIRootHooksWrapper(props) {
     );
 
     return (
-            <ChatContextProvider messageDispatch={props.messageDispatch}>
-                <ObjectListProvider scene={props.scene}>
-                    <UIRoot breakpoint={breakpoint} {...props} />
-                </ObjectListProvider>
-            </ChatContextProvider>
+        <ChatContextProvider messageDispatch={props.messageDispatch}>
+            <ObjectListProvider scene={props.scene}>
+                <UIRoot breakpoint={breakpoint} {...props} />
+            </ObjectListProvider>
+        </ChatContextProvider>
     );
 }
 
