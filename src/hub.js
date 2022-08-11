@@ -343,7 +343,7 @@ function mountUI(props = {}) {
                                 <Auth0Provider
                                     domain="megaminds-prod.us.auth0.com"
                                     clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
-                                    redirectUri={window.location.href}
+                                    redirectUri={window.location.origin}
                                     audience="https://api.megaminds.world"
                                     scope="openid profile email read:classrooms read:teacher_profile create:submission"
                                     useRefreshTokens

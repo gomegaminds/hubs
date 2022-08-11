@@ -67,6 +67,10 @@ export function RoomEntryModal({
         [profile, isProfileLoading]
     );
 
+    const handleLogin = () => {
+        loginWithRedirect({ appState: { target: window.location.href } });
+    };
+
     if (step == 1) {
         return (
             <Modal className={classNames(styles.roomEntryModal, className)} disableFullscreen {...rest}>
@@ -84,7 +88,7 @@ export function RoomEntryModal({
                     </div>
                     <Column center className={styles.buttons}>
                         {!isAuthenticatedAsTeacher ? (
-                            <Button preset="megamindsPurple" onClick={() => loginWithRedirect()}>
+                            <Button preset="megamindsPurple" onClick={() => handleLogin()}>
                                 <span>
                                     <FormattedMessage
                                         id="room-entry-modal.teacher-login-button"

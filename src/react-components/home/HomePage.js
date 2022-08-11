@@ -22,43 +22,53 @@ import { AppLogo } from "../misc/AppLogo";
 import { isHmc } from "../../utils/isHmc";
 import maskEmail from "../../utils/mask-email";
 
+import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
+
 export function HomePage() {
-  const auth = useContext(AuthContext);
-  const intl = useIntl();
+    const { handleRedirectCallback } = useAuth0();
 
-  const { results: favoriteRooms } = useFavoriteRooms();
-  const { results: publicRooms } = usePublicRooms();
+    handleRedirectCallback().then(data => {
+        if(data.appState.target){
+            window.location.replace(data.appState.target);
+        }
+    })
 
-  const sortedFavoriteRooms = Array.from(favoriteRooms).sort((a, b) => b.member_count - a.member_count);
-  const sortedPublicRooms = Array.from(publicRooms).sort((a, b) => b.member_count - a.member_count);
-  const wrapInBold = chunk => <b>{chunk}</b>;
-  useEffect(() => {
-    const qs = new URLSearchParams(location.search);
+    const auth = useContext(AuthContext);
+    const intl = useIntl();
 
-    // Support legacy sign in urls.
-    if (qs.has("sign_in")) {
-      const redirectUrl = new URL("/signin", window.location);
-      redirectUrl.search = location.search;
-      window.location = redirectUrl;
-    } else if (qs.has("auth_topic")) {
-      const redirectUrl = new URL("/verify", window.location);
-      redirectUrl.search = location.search;
-      window.location = redirectUrl;
-    }
+    const { results: favoriteRooms } = useFavoriteRooms();
+    const { results: publicRooms } = usePublicRooms();
 
-    if (qs.has("new")) {
-      createAndRedirectToNewHub(null, null, true);
-    }
-  }, []);
+    const sortedFavoriteRooms = Array.from(favoriteRooms).sort((a, b) => b.member_count - a.member_count);
+    const sortedPublicRooms = Array.from(publicRooms).sort((a, b) => b.member_count - a.member_count);
+    const wrapInBold = (chunk) => <b>{chunk}</b>;
+    useEffect(() => {
+        const qs = new URLSearchParams(location.search);
 
-  const canCreateRooms = !configs.feature("disable_room_creation") || auth.isAdmin;
-  const email = auth.email;
+        // Support legacy sign in urls.
+        if (qs.has("sign_in")) {
+            const redirectUrl = new URL("/signin", window.location);
+            redirectUrl.search = location.search;
+            window.location = redirectUrl;
+        } else if (qs.has("auth_topic")) {
+            const redirectUrl = new URL("/verify", window.location);
+            redirectUrl.search = location.search;
+            window.location = redirectUrl;
+        }
 
-  return (
-	  <>
-	  <AppLogo className={styles.appLogo} />
-	  <br/>
-	  <p>Take online learning to a whole new world</p>
-	  </>
-  );
+        if (qs.has("new")) {
+            createAndRedirectToNewHub(null, null, true);
+        }
+    }, []);
+
+    const canCreateRooms = !configs.feature("disable_room_creation") || auth.isAdmin;
+    const email = auth.email;
+
+    return (
+        <>
+            <AppLogo className={styles.appLogo} />
+            <br />
+            <p>Take online learning to a whole new world</p>
+        </>
+    );
 }
