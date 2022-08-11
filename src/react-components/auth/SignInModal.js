@@ -74,7 +74,11 @@ export const SignInMessages = defineMessages({
   tweet: {
     id: "sign-in-modal.signin-message.tweet",
     defaultMessage: "You'll need to sign in to send tweets."
-  }
+  },
+  verifyEmail: {
+    id: "sign-in-modal.signin-message.verify",
+    defaultMessage: "Verify to continue as teacher"
+  },
 });
 
 export function SubmitEmail({ onSubmitEmail, initialEmail, privacyUrl, termsUrl, message }) {
@@ -129,7 +133,7 @@ SubmitEmail.defaultProps = {
 };
 
 SubmitEmail.propTypes = {
-  message: PropTypes.string,
+  message: PropTypes.object,
   termsUrl: PropTypes.string,
   privacyUrl: PropTypes.string,
   initialEmail: PropTypes.string,
@@ -190,7 +194,7 @@ export function SignInComplete({ message, onContinue }) {
 }
 
 SignInComplete.propTypes = {
-  message: PropTypes.string.isRequired,
+  message: PropTypes.string,
   onContinue: PropTypes.func.isRequired
 };
 

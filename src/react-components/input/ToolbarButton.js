@@ -2,11 +2,16 @@ import React, { forwardRef } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import styles from "./ToolbarButton.scss";
+import ReactDOMServer from 'react-dom/server';
 
 export const presets = [
   "basic",
+  "white",
   "transparent",
   "accept",
+  "micon",
+  "micoff",
+  "handraised",
   "cancel",
   "accent1",
   "accent2",
@@ -17,19 +22,29 @@ export const presets = [
 
 export const types = ["none", "left", "middle", "right"];
 
+export const edges = ["start", "between", "end", "both"];
+
 export const statusColors = ["recording", "unread", "enabled", "disabled"];
 
 export const ToolbarButton = forwardRef(
   (
-    { preset, className, iconContainerClassName, children, icon, label, selected, large, statusColor, type, ...rest },
+    { preset, className, submenu, tipTitle, tipBody, iconContainerClassName, children, icon, label, selected, large, statusColor, edge, type, ...rest },
     ref
   ) => {
+    const tip = (
+	    <>
+	    <h5>{tipTitle}</h5>
+	    <p>{tipBody}</p>
+	    </>
+    );
     return (
       <button
         ref={ref}
+	data-tip={tipTitle && ReactDOMServer.renderToString(tip)}
         className={classNames(
           styles.toolbarButton,
           styles[preset],
+          styles[edge],
           styles[type],
           { [styles.selected]: selected, [styles.large]: large },
           className
@@ -38,10 +53,10 @@ export const ToolbarButton = forwardRef(
       >
         <div className={classNames(styles.iconContainer, iconContainerClassName)} aria-hidden="true">
           {icon}
-          {statusColor && <div className={classNames(styles.statusIndicator, styles["status-" + statusColor])} />}
+          {statusColor && <div className={classNames(styles.statusIndicator, styles["status-" + statusColor], styles["edge-" + edge])} />}
           {children}
         </div>
-        {label && <label>{label}</label>}
+        {submenu && label && <label>{label}</label>}
       </button>
     );
   }

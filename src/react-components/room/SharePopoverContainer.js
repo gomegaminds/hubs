@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { ReactComponent as VideoIcon } from "../icons/Video.svg";
-import { ReactComponent as DesktopIcon } from "../icons/Desktop.svg";
+import { ReactComponent as VideoIcon } from "../icons/MegaMinds/Video.svg";
+import { ReactComponent as DesktopIcon } from "../icons/MegaMinds/ScreenShare.svg";
 import { ReactComponent as AvatarIcon } from "../icons/Avatar.svg";
 import { SharePopoverButton } from "./SharePopover";
 import { FormattedMessage } from "react-intl";
@@ -136,24 +136,30 @@ export function SharePopoverContainer({ scene, hubChannel }) {
     canShareCamera && {
       id: "camera",
       icon: VideoIcon,
-      color: "accent5",
+      color: "accent1",
       label: <FormattedMessage id="share-popover.source.camera" defaultMessage="Camera" />,
+      tipTitle: "Share Camera",
+      tipBody: "Spawn an element in the room showing your webcam",
       onSelect: toggleShareCamera,
       active: sharingSource === MediaDevices.CAMERA
     },
     canShareScreen && {
       id: "screen",
       icon: DesktopIcon,
-      color: "accent5",
+      color: "accent1",
       label: <FormattedMessage id="share-popover.source.screen" defaultMessage="Screen" />,
       onSelect: toggleShareScreen,
+      tipTitle: "Share Screen",
+      tipBody: "Spawn an element in the room showing your screen",
       active: sharingSource === MediaDevices.SCREEN
     },
     canShareCameraToAvatar && {
       id: "camera-to-avatar",
       icon: AvatarIcon,
-      color: "accent5",
+      color: "accent1",
       label: <FormattedMessage id="share-popover.source.avatar-camera" defaultMessage="Avatar Camera" />,
+      tipTitle: "Apply Webcam to Avatar",
+      tipBody: "It appears you are using an avatar that can incorporate your webcam in its desig. This button will enable the webcam to be shown as part of your avatar.",
       onSelect: toggleShareCameraToAvatar,
       active: sharingSource === "camera-to-avatar"
     }

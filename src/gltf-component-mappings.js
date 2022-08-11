@@ -5,6 +5,9 @@ import { TYPE, SHAPE, FIT } from "three-ammo/constants";
 const COLLISION_LAYERS = require("./constants").COLLISION_LAYERS;
 import { AudioType, DistanceModelType, SourceType } from "./components/audio-params";
 import { updateAudioSettings } from "./update-audio-settings";
+import { renderAsEntity } from "./utils/jsx-entity";
+import { Networked } from "./bit-components";
+import { addComponent } from "bitecs";
 
 AFRAME.GLTFModelPlus.registerComponent("duck", "duck", el => {
   el.setAttribute("duck", "");
@@ -121,23 +124,21 @@ AFRAME.GLTFModelPlus.registerComponent("waypoint", "waypoint", (el, componentNam
   el.setAttribute("waypoint", componentData);
 });
 
-AFRAME.GLTFModelPlus.registerComponent("media-frame", "media-frame", (el, componentName, componentData, components) => {
-  el.setAttribute("networked", {
-    template: "#interactable-media-frame",
-    owner: "scene",
-    persistent: true,
-    networkId: components.networked.id
-  });
-  el.setAttribute("shape-helper", {
-    type: "box",
-    fit: "manual",
-    halfExtents: {
-      x: componentData.bounds.x / 2,
-      y: componentData.bounds.y / 2,
-      z: componentData.bounds.z / 2
-    }
-  });
-  el.setAttribute("media-frame", componentData);
+import { findAncestorWithComponent } from "./utils/scene-graph";
+import { createElementEntity } from "./utils/jsx-entity";
+/** @jsx createElementEntity */ createElementEntity;
+
+AFRAME.GLTFModelPlus.registerComponent("media-frame", "media-frame", (el, _componentName, componentData) => {
+  const eid = renderAsEntity(APP.world, <entity media-frame={componentData} />);
+
+  addComponent(APP.world, Networked, eid);
+
+  const networkedEl = findAncestorWithComponent(el, "networked");
+  const rootNid = (networkedEl && networkedEl.components.networked.data.networkId) || "scene";
+  Networked.id[eid] = APP.getSid(`${rootNid}.${el.object3D.children[0].userData.gltfIndex}`);
+  APP.world.nid2eid.set(Networked.id[eid], eid);
+
+  el.object3D.add(APP.world.eid2obj.get(eid));
 });
 
 AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, componentData) => {
@@ -366,26 +367,17 @@ AFRAME.GLTFModelPlus.registerComponent(
       enterComponentMapping = getSanitizedComponentMapping(enterComponent, enterProperty, publicComponents);
       leaveComponentMapping = getSanitizedComponentMapping(leaveComponent, leaveProperty, publicComponents);
 
-      // indexToEntityMap should be considered depredcated. These references are now resovled by the GLTFHubsComponentExtension
-      if (typeof target === "number") {
-        targetEntity = indexToEntityMap[target];
-      } else {
-        targetEntity = target?.el;
-      }
-
-      if (!targetEntity) {
-        throw new Error(`Couldn't find target entity with index: ${target}.`);
-      }
     } catch (e) {
       console.warn(`Error inflating gltf component "trigger-volume": ${e.message}`);
       return;
     }
 
+	  console.log(el);
     // Filter out scope and colliders properties.
     el.setAttribute("trigger-volume", {
-      colliders: "#avatar-pov-node",
       size,
       target: targetEntity,
+      componentName: el.className,
       enterComponent: enterComponentMapping.mappedComponent,
       enterProperty: enterComponentMapping.mappedProperty,
       enterValue: enterComponentMapping.getMappedValue(enterValue),

@@ -43,18 +43,7 @@ export function ReactionPopoverContainer({ scene, initialPresence }) {
     ...emoji
   }));
 
-  const onToggleHandRaised = useCallback(
-    () => {
-      if (presence.hand_raised) {
-        window.APP.hubChannel.lowerHand();
-      } else {
-        window.APP.hubChannel.raiseHand();
-      }
-    },
-    [presence]
-  );
-
-  return <ReactionPopoverButton items={items} presence={presence} onToggleHandRaised={onToggleHandRaised} />;
+  return <ReactionPopoverButton items={items} presence={presence} />;
 }
 
 ReactionPopoverContainer.propTypes = {

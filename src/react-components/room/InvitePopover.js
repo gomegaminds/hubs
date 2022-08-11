@@ -4,7 +4,7 @@ import styles from "./InvitePopover.scss";
 import { CopyableTextInputField } from "../input/CopyableTextInputField";
 import { Popover } from "../popover/Popover";
 import { ToolbarButton } from "../input/ToolbarButton";
-import { ReactComponent as InviteIcon } from "../icons/Invite.svg";
+import { ReactComponent as InviteIcon } from "../icons/MegaMinds/InviteIcon.svg";
 import { Column } from "../layout/Column";
 import { InviteLinkInputField } from "./InviteLinkInputField";
 import { FormattedMessage, defineMessage, useIntl } from "react-intl";
@@ -21,12 +21,7 @@ function InvitePopoverContent({ url, embed, inviteRequired, fetchingInvite, invi
           <CopyableTextInputField
             label={<FormattedMessage id="invite-popover.room-link" defaultMessage="Room Link" />}
             value={url}
-            buttonPreset="accent3"
-          />
-          <CopyableTextInputField
-            label={<FormattedMessage id="invite-popover.embed-code" defaultMessage="Embed Code" />}
-            value={embed}
-            buttonPreset="accent5"
+            buttonPreset="accent1"
           />
         </>
       )}
@@ -84,6 +79,10 @@ export function InvitePopoverButton({
         <ToolbarButton
           ref={triggerRef}
           icon={<InviteIcon />}
+	  preset="white"
+	  edge="start"
+	  tipTitle="Invite Users"
+	  tipBody="Let other users join you by copying and sending the room link to others"
           selected={popoverVisible}
           onClick={togglePopover}
           label={title}

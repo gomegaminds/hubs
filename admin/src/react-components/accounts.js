@@ -245,6 +245,13 @@ export const AccountList = withStyles(styles)(
                     <IdentityEditLink />
                   </Datagrid>
                 </ReferenceManyField>
+                <ReferenceManyField label="OAuthProviders" target="_account_id" reference="oauth_providers">
+                  <Datagrid classes={{ rowCell: classes.noBorder, thead: classes.hide }}>
+                    <TextField source="source" />
+                    <TextField source="provider_account_id" />
+                    <TextField source="provider_access_token" />
+                  </Datagrid>
+                </ReferenceManyField>
 
                 <IdentityCreateLink />
                 <BooleanField source="is_admin" />

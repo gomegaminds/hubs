@@ -1,6 +1,11 @@
 @use "../../react-components/styles/theme.scss";
 @import 'shared';
 
+.toolbarGroup {
+	display:flex;
+	margin-right:5px;
+}
+
 :local(.ui) {
   @extend %default-font;
 
@@ -51,3 +56,6 @@ body.vr-mode {
   z-index: 11;
   pointer-events: auto;
 }
+
+
+

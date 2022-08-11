@@ -7,6 +7,8 @@ import ducky from "./assets/models/DuckyMesh.glb";
 import { EventTarget } from "event-target-shim";
 import { ExitReason } from "./react-components/room/ExitedRoomScreen";
 import { LogMessageType } from "./react-components/room/ChatSidebar";
+import { getLastWorldPosition } from "./utils/three-utils";
+import { createNetworkedEntity } from "./systems/netcode";
 
 let uiRoot;
 // Handles user-entered messages
@@ -43,6 +45,24 @@ export default class MessageDispatch extends EventTarget {
   }
 
   receive(message) {
+    if(message.type == "teleportRequest") {
+	    // Do not teleport the person making the request
+	    if(NAF.clientId != message.sessionId) {
+		    let pos = message.body
+		    // Scatter players around the person making request TODO: Make better
+		    pos.x = pos.x + Math.random() * (0.3 - 1) + 1;
+		    pos.z = pos.z + Math.random() * (0.3 - 1) + 1;
+		    this.scene.systems["hubs-systems"].characterController.teleportTo(pos);
+	    }
+    }
+    if(message.type == "muteRequest") {
+	    console.log("Mute request received");
+	    window.APP.mediaDevicesManager.stopMicShare();
+    }
+    if(message.type == "unMuteRequest") {
+	    window.APP.mediaDevicesManager.startMicShare({});
+    }
+
     this.addToPresenceLog(message);
     this.dispatchEvent(new CustomEvent("message", { detail: message }));
   }
@@ -122,6 +142,14 @@ export default class MessageDispatch extends EventTarget {
           this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_QUACK);
         }
         break;
+      case "cube": {
+        const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+        const eid = createNetworkedEntity(APP.world, "cube");
+        const obj = APP.world.eid2obj.get(eid);
+        obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+        obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+        break;
+      }
       case "debug":
         physicsSystem = document.querySelector("a-scene").systems["hubs-systems"].physicsSystem;
         physicsSystem.setDebug(!physicsSystem.debugEnabled);

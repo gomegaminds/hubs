@@ -198,7 +198,15 @@ export function fetchReticulumAuthenticated(url, method = "GET", payload) {
 
 export async function createAndRedirectToNewHub(name, sceneId, replace) {
   const createUrl = getReticulumFetchUrl("/api/v1/hubs");
-  const payload = { hub: { name: name || generateHubName() } };
+  const payload = { hub:
+	  { 
+		  name: name || generateHubName(),
+		  user_data: {
+			  toggle_voice: true,
+			  toggle_chat: true
+		  }
+	  } 
+  };
 
   if (sceneId) {
     payload.hub.scene_id = sceneId;

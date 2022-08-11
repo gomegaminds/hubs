@@ -5,6 +5,8 @@ import { getBox } from "../utils/auto-box-collider";
 import qsTruthy from "../utils/qs_truthy";
 import { isTagged } from "../components/tags";
 import { qsGet } from "../utils/qs_truthy";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { FlyControls } from 'three/examples/jsm/controls/FlyControls'
 const customFOV = qsGet("fov");
 const enableThirdPersonMode = qsTruthy("thirdPerson");
 import { Layers } from "../components/layers";
@@ -158,11 +160,13 @@ export const CAMERA_MODE_THIRD_PERSON_NEAR = 1;
 export const CAMERA_MODE_THIRD_PERSON_FAR = 2;
 export const CAMERA_MODE_INSPECT = 3;
 export const CAMERA_MODE_SCENE_PREVIEW = 4;
+export const CAMERA_MODE_WORLDBUILDING = 5;
 
 const NEXT_MODES = {
   [CAMERA_MODE_FIRST_PERSON]: CAMERA_MODE_THIRD_PERSON_NEAR,
   [CAMERA_MODE_THIRD_PERSON_NEAR]: CAMERA_MODE_THIRD_PERSON_FAR,
-  [CAMERA_MODE_THIRD_PERSON_FAR]: CAMERA_MODE_FIRST_PERSON
+  [CAMERA_MODE_THIRD_PERSON_FAR]: CAMERA_MODE_WORLDBUILDING,
+  [CAMERA_MODE_WORLDBUILDING]: CAMERA_MODE_FIRST_PERSON
 };
 
 const ensureLightsAreSeenByCamera = function(o) {
@@ -198,6 +202,7 @@ const FALLOFF = 0.9;
 export class CameraSystem {
   constructor(camera, renderer) {
     this.viewingCamera = camera;
+    this.worldBuildingControls = undefined;
     this.lightsEnabled = localStorage.getItem("show-background-while-inspecting") === "true";
     this.verticalDelta = 0;
     this.horizontalDelta = 0;
@@ -211,6 +216,7 @@ export class CameraSystem {
     }
     this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_VIDEO_TEXTURE_TARGET);
     this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
+    this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_UI);
 
     // xr.updateCamera gets called every render to copy the active cameras properties to the XR cameras. We also want to copy layers.
     // TODO this logic should either be moved into THREE or removed when we ditch aframe camera system
@@ -252,6 +258,19 @@ export class CameraSystem {
     if (this.mode === CAMERA_MODE_SCENE_PREVIEW) return;
 
     this.mode = NEXT_MODES[this.mode] || 0;
+  }
+
+  enableWorldBuildingCamera() {
+    // TODO: Implement worldbuilding mode
+    this.mode = CAMERA_MODE_WORLDBUILDING;
+    const el = window.APP.scene.sceneEl.object3D;
+
+    let camera = new THREE.PerspectiveCamera( 45, 1920 / 1080, 1, 1000 );
+    this.viewingCamera = camera;
+    this.worldBuildingControls = new OrbitControls(this.viewingCamera, window.APP.scene.renderer.domElement );
+    this.worldBuildingControls.target = new THREE.Vector3(0,0,0);
+    this.worldBuildingControls.update();
+
   }
 
   inspect(el, distanceMod, fireChangeEvent = true) {
@@ -520,6 +539,13 @@ export class CameraSystem {
             panY
           );
         }
+      } else if (this.mode === CAMERA_MODE_WORLDBUILDING) {
+	      if(this.viewingCamera) {
+		      setMatrixWorld(this.viewingCamera, window.APP.scene.sceneEl.object3D.matrixWorld);
+	      }
+	      if(this.worldBuildingControls) {
+		      this.worldBuildingControls.update();
+	      }
       }
     };
   })();
