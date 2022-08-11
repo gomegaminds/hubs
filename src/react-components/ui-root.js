@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import copy from "copy-to-clipboard";
@@ -82,7 +82,6 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
-import useTeacherProfile from "../mega-src/react-components/auth/useTeacherProfile";
 import { StudentPopoverContainer } from "../mega-src/react-components/room/StudentPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
@@ -874,7 +873,11 @@ class UIRoot extends Component {
                     onSpectate={() => this.setState({ watching: true })}
                     showOptions={this.props.hubChannel.canOrWillIfCreator("update_hub")}
                     onSignInClick={() =>
-                        this.props.performConditionalSignIn(() => this.props.hubChannel.signedIn, () => this.combineAuth(), SignInMessages.verifyEmail)
+                        this.props.performConditionalSignIn(
+                            () => this.props.hubChannel.signedIn,
+                            () => this.combineAuth(),
+                            SignInMessages.verifyEmail
+                        )
                     }
                     onOptions={() => {
                         this.props.performConditionalSignIn(
@@ -1805,9 +1808,25 @@ class UIRoot extends Component {
                                                             )}
                                                         </div>
                                                     )}
-                                                    {isTeacher &&
-                                                        !isMobile && (
-                                                            <div className="toolbarGroup">
+                                                    {!isMobile && (
+                                                        <div className="toolbarGroup">
+                                                        {/*
+                                                            <StudentPopoverContainer
+                                                                scene={this.props.scene}
+                                                                hubChannel={this.props.hubChannel}
+                                                                closeDialog={this.closeDialog}
+                                                                mediaSearchStore={this.props.mediaSearchStore}
+                                                                showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                                                onViewRoomSettings={() =>
+                                                                    this.setSidebar("room-settings")
+                                                                }
+                                                                onViewTeleportMenu={() =>
+                                                                    this.setSidebar("teleport-menu")
+                                                                }
+                                                                isSingleButton={!isWorldbuildingButtonVisible}
+                                                            />
+                                                            */}
+                                                            {isTeacher && (
                                                                 <TeacherPopoverContainer
                                                                     scene={this.props.scene}
                                                                     hubChannel={this.props.hubChannel}
@@ -1821,23 +1840,24 @@ class UIRoot extends Component {
                                                                     }
                                                                     isSingleButton={!isWorldbuildingButtonVisible}
                                                                 />
-                                                                {isWorldbuildingButtonVisible && (
-                                                                    <ToolbarButton
-                                                                        key={"worldbuilding"}
-                                                                        icon={<EditWorldIcon />}
-                                                                        onClick={() => this.enableWorldBuilding()}
-                                                                        label={
-                                                                            <FormattedMessage
-                                                                                id="place-popover.item-type.pen"
-                                                                                defaultMessage="Pen"
-                                                                            />
-                                                                        }
-                                                                        preset="accent1"
-                                                                        edge="end"
-                                                                    />
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                            )}
+                                                            {isWorldbuildingButtonVisible && (
+                                                                <ToolbarButton
+                                                                    key={"worldbuilding"}
+                                                                    icon={<EditWorldIcon />}
+                                                                    onClick={() => this.enableWorldBuilding()}
+                                                                    label={
+                                                                        <FormattedMessage
+                                                                            id="place-popover.item-type.pen"
+                                                                            defaultMessage="Pen"
+                                                                        />
+                                                                    }
+                                                                    preset="accent1"
+                                                                    edge="end"
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </>
                                             )}
                                         {entered &&
@@ -1931,27 +1951,6 @@ class UIRoot extends Component {
 function UIRootHooksWrapper(props) {
     useAccessibleOutlineStyle();
     const breakpoint = useCssBreakpoints();
-    const [profile, isProfileLoading, isApiError, refresh] = useTeacherProfile(
-        "teacherprofile",
-        "read:teacher_profile",
-        false
-    );
-
-    useEffect(
-        () => {
-            if (profile) {
-                if (profile.creatortoken) {
-                    console.log(profile.creatortoken);
-                    props.store.update({
-                        creatorAssignmentTokens: profile.creatortoken,
-                    });
-                }
-            } else {
-                console.log("Loading authentication", profile);
-            }
-        },
-        [profile, isProfileLoading]
-    );
 
     useEffect(
         () => {

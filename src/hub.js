@@ -341,11 +341,11 @@ function mountUI(props = {}) {
                                 <ExitedRoomScreenContainer reason={props.roomUnavailableReason} />
                             ) : (
                                 <Auth0Provider
-                                    domain="megaminds-testing.us.auth0.com"
-                                    clientId="S9gCNImmUZEQXC71jXKicCANc9f0FlBm"
-                                    redirectUri={window.location.origin + window.location.pathname}
-                                    audience="django-v1"
-                                    scope="openid profile email read:classrooms read:teacher_profile"
+                                    domain="megaminds-prod.us.auth0.com"
+                                    clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
+                                    redirectUri={window.location.href}
+                                    audience="https://api.megaminds.world"
+                                    scope="openid profile email read:classrooms read:teacher_profile create:submission"
                                     useRefreshTokens
                                     cacheLocation="localstorage"
                                 >
