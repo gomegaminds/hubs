@@ -66,6 +66,7 @@
     ]
   },
   "dependencies": {
+    "@auth0/auth0-react": "^1.10.2",
     "@braintree/sanitize-url": "^5.0.0",
     "@formatjs/intl-locale": "^2.4.13",
     "@formatjs/intl-pluralrules": "^4.0.3",
@@ -117,6 +118,7 @@
     "prop-types": "^15.7.2",
     "raven-js": "^3.20.1",
     "react": "^16.13.1",
+    "react-datetime": "^3.1.1",
     "react-dom": "^16.13.1",
     "react-emoji-render": "^0.4.6",
     "react-hook-form": "^6.10.1",
