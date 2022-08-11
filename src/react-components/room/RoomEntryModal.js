@@ -75,11 +75,16 @@ export function RoomEntryModal({
                         <h5>
                             <FormattedMessage id="room-entry-modal.room-teacher-label" defaultMessage="Teacher Login" />
                         </h5>
+                        <p>
+                            <FormattedMessage
+                                id="room-entry-modal.room-teacher-description"
+                                defaultMessage="In order to use this room as a teacher, you must both sign in with your account, and verify your email. If any of the buttons below are clickable, it means you have not done all the steps."
+                            />
+                        </p>
                     </div>
                     <Column center className={styles.buttons}>
                         {!isAuthenticatedAsTeacher ? (
                             <Button preset="megamindsPurple" onClick={() => loginWithRedirect()}>
-                                <ShowIcon />
                                 <span>
                                     <FormattedMessage
                                         id="room-entry-modal.teacher-login-button"
@@ -89,7 +94,6 @@ export function RoomEntryModal({
                             </Button>
                         ) : (
                             <Button preset="success" disabled>
-                                <ShowIcon />
                                 <span>
                                     <FormattedMessage
                                         id="room-entry-modal.teacher-login-button-success"
@@ -100,7 +104,6 @@ export function RoomEntryModal({
                         )}
                         {!isSignedIn ? (
                             <Button preset="megamindsPurple" onClick={onSignInClick}>
-                                <ShowIcon />
                                 <span>
                                     <FormattedMessage
                                         id="room-entry-modal.teacher-login-verified"
@@ -110,7 +113,6 @@ export function RoomEntryModal({
                             </Button>
                         ) : (
                             <Button preset="success" disabled>
-                                <ShowIcon />
                                 <span>
                                     <FormattedMessage
                                         id="room-entry-modal.teacher-login-verified-success"
@@ -119,6 +121,11 @@ export function RoomEntryModal({
                                 </span>
                             </Button>
                         )}
+                        <Button preset="megamindsPurple" onClick={() => setStep(0)}>
+                            <span>
+                                <FormattedMessage id="room-entry-modal.teacher-login-back" defaultMessage="Back" />
+                            </span>
+                        </Button>
                     </Column>
                 </Column>
             </Modal>
@@ -189,7 +196,10 @@ export function RoomEntryModal({
                                     <span>
                                         Signed in as teacher {profile.first_name} {""} {profile.last_name}
                                     </span>
-                                    <Button preset="megamindsPurple" onClick={() => logout({ returnTo: "https://dash.megaminds.world" })}>
+                                    <Button
+                                        preset="megamindsPurple"
+                                        onClick={() => logout({ returnTo: "https://dash.megaminds.world" })}
+                                    >
                                         <ShowIcon />
                                         <span>
                                             <FormattedMessage

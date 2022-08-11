@@ -1810,7 +1810,6 @@ class UIRoot extends Component {
                                                     )}
                                                     {!isMobile && (
                                                         <div className="toolbarGroup">
-                                                        {/*
                                                             <StudentPopoverContainer
                                                                 scene={this.props.scene}
                                                                 hubChannel={this.props.hubChannel}
@@ -1825,7 +1824,6 @@ class UIRoot extends Component {
                                                                 }
                                                                 isSingleButton={!isWorldbuildingButtonVisible}
                                                             />
-                                                            */}
                                                             {isTeacher && (
                                                                 <TeacherPopoverContainer
                                                                     scene={this.props.scene}
