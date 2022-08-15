@@ -66,9 +66,6 @@ export function RoomEntryModal({
 
             window.NAF.utils.getNetworkedEntity(el).then((networkedEl) => {
                 window.APP.pinningHelper.setPinned(networkedEl, true);
-                window.APP.scene.sceneEl.systems[
-                    "hubs-systems"
-                ].soundEffectsSystem.playSoundOneShot(SOUND_PIN);
             });
         }
         console.log("All", scene.nodes.length, "objects loaded");
@@ -80,25 +77,26 @@ export function RoomEntryModal({
                 return response.json();
             })
             .then((scene) => populateSceneFromMozGLTF(scene));
-        window.APP.hubChannel.updateHub({
-            user_data: {
-                clone_finished: true,
-            },
-        });
+
+        let settings = window.APP.hub
+
+        settings.user_data.clone_finished = true;
+
+        window.APP.hubChannel.updateHub(settings);
         console.log("Trying to sync room");
-        setSynced(true);
     };
 
     const isEditingRoom = window.APP.hub.user_data && window.APP.hub.user_data.classroom;
 
     useEffect(() => {
         if (
-            !synced &&
             window.APP.hub.user_data &&
             window.APP.hub.user_data.clone_finished == false &&
             !window.APP.hub.user_data.classroom
         ) {
             syncRoom();
+        } else {
+            console.log("Room already synced");
         }
     }, []);
     useEffect(
@@ -269,33 +267,6 @@ export function RoomEntryModal({
                                     <span>
                                         Signed in as teacher {profile.first_name} {""} {profile.last_name}
                                     </span>
-                                    <Button
-                                        preset="megamindsPurple"
-                                        onClick={() => logout({ returnTo: "https://dash.megaminds.world" })}
-                                    >
-                                        <ShowIcon />
-                                        <span>
-                                            <FormattedMessage
-                                                id="room-entry-modal.teacher-logout-button"
-                                                defaultMessage="Log out"
-                                            />
-                                        </span>
-                                    </Button>
-                                </>
-                            )}
-                        {showOptions &&
-                            breakpoint !== "sm" && (
-                                <>
-                                    <hr className={styleUtils.showLg} />
-                                    <Button preset="transparent" className={styleUtils.showLg} onClick={onOptions}>
-                                        <SettingsIcon />
-                                        <span>
-                                            <FormattedMessage
-                                                id="room-entry-modal.options-button"
-                                                defaultMessage="Options"
-                                            />
-                                        </span>
-                                    </Button>
                                 </>
                             )}
                     </Column>
@@ -314,7 +285,6 @@ RoomEntryModal.propTypes = {
     onEnterOnDevice: PropTypes.func,
     showSpectate: PropTypes.bool,
     onSpectate: PropTypes.func,
-    showOptions: PropTypes.bool,
     onOptions: PropTypes.func,
 };
 
@@ -322,5 +292,4 @@ RoomEntryModal.defaultProps = {
     showJoinRoom: true,
     showEnterOnDevice: true,
     showSpectate: true,
-    showOptions: true,
 };

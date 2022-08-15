@@ -91,7 +91,6 @@ import { SafariMicModal } from "./room/SafariMicModal";
 import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
 import { SignInStep } from "./auth/SignInModal";
 import { LeaveReason, LeaveRoomModal } from "./room/LeaveRoomModal";
-import { RoomSidebar } from "./room/RoomSidebar";
 import { TeleportSidebar } from "../mega-src/react-components/room/TeleportSidebar";
 import { RoomSettingsSidebarContainer } from "./room/RoomSettingsSidebarContainer";
 import { AutoExitWarningModal, AutoExitReason } from "./room/AutoExitWarningModal";
@@ -853,7 +852,6 @@ class UIRoot extends Component {
                     showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
                     onForceJoinRoom={() => {
                         this.onAudioReadyButton();
-
                     }}
                     onJoinRoom={() => {
                         if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
@@ -1426,12 +1424,10 @@ class UIRoot extends Component {
                                             <FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />
                                         }
                                         preset="accent1"
-                                        edge="both"
                                     />
                                 </div>
                                 <div className="toolbarGroup">
                                     <PlacePopoverContainer
-                                        edge="both"
                                         scene={this.props.scene}
                                         hubChannel={this.props.hubChannel}
                                         mediaSearchStore={this.props.mediaSearchStore}
@@ -1671,18 +1667,10 @@ class UIRoot extends Component {
                                                 />
                                             )}
                                             {this.state.sidebarId === "room-info" && (
-                                                <RoomSidebar
-                                                    accountId={this.props.sessionId}
+                                                <RoomSettingsSidebarContainer
                                                     room={this.props.hub}
-                                                    canEdit={this.props.hubChannel.canOrWillIfCreator("update_hub")}
-                                                    onEdit={() => {
-                                                        this.props.performConditionalSignIn(
-                                                            () =>
-                                                                this.props.hubChannel.canOrWillIfCreator("update_hub"),
-                                                            () => this.setSidebar("room-info-settings"),
-                                                            SignInMessages.roomSettings
-                                                        );
-                                                    }}
+                                                    hubChannel={this.props.hubChannel}
+                                                    showBackButton
                                                     onClose={() => this.setSidebar(null)}
                                                     onChangeScene={this.onChangeScene}
                                                 />
@@ -1692,8 +1680,7 @@ class UIRoot extends Component {
                                                     room={this.props.hub}
                                                     hubChannel={this.props.hubChannel}
                                                     showBackButton
-                                                    onClose={() => this.setSidebar("room-info")}
-                                                    onChangeScene={this.onChangeScene}
+                                                    onClose={() => this.setSidebar(null)}
                                                 />
                                             )}
                                             {this.state.sidebarId === "room-settings" && (
@@ -1702,7 +1689,6 @@ class UIRoot extends Component {
                                                     accountId={this.props.sessionId}
                                                     hubChannel={this.props.hubChannel}
                                                     onClose={() => this.setSidebar(null)}
-                                                    onChangeScene={this.onChangeScene}
                                                 />
                                             )}
                                         </>
@@ -1725,14 +1711,12 @@ class UIRoot extends Component {
                                                         />
                                                     }
                                                     preset="accent1"
-                                                    edge="start"
                                                     onClick={() => this.setState({ watching: false })}
                                                 />
                                                 {enableSpectateVRButton && (
                                                     <ToolbarButton
                                                         icon={<VRIcon />}
                                                         preset="accent1"
-                                                        edge="between"
                                                         label={
                                                             <FormattedMessage
                                                                 id="toolbar.spectate-in-vr-button"
@@ -1764,7 +1748,6 @@ class UIRoot extends Component {
                                                                 />
                                                             }
                                                             preset="accent1"
-                                                            edge="middle"
                                                         />
                                                     </div>
                                                 </>
@@ -1780,11 +1763,6 @@ class UIRoot extends Component {
                                                             )}
                                                         <RaiseHandButton
                                                             scene={this.props.scene}
-                                                            isEdge={
-                                                                !this.props.hub.user_data ||
-                                                                (this.props.hub.user_data &&
-                                                                    !this.props.hub.user_data.toggle_voice)
-                                                            }
                                                             initialPresence={getPresenceProfileForSession(
                                                                 this.props.presences,
                                                                 this.props.sessionId
@@ -1812,7 +1790,6 @@ class UIRoot extends Component {
                                                                     />
                                                                 }
                                                                 preset="accent1"
-                                                                edge="end"
                                                             />
                                                         )}
                                                     </div>
@@ -1842,7 +1819,6 @@ class UIRoot extends Component {
                                                                         />
                                                                     }
                                                                     preset="accent1"
-                                                                    edge="middle"
                                                                 />
                                                             )}
                                                             {(isTeacher ||
@@ -1872,7 +1848,6 @@ class UIRoot extends Component {
                                                                 onViewTeleportMenu={() =>
                                                                     this.setSidebar("teleport-menu")
                                                                 }
-                                                                isSingleButton={!isWorldbuildingButtonVisible}
                                                             />
                                                             {isTeacher && (
                                                                 <TeacherPopoverContainer
@@ -1886,7 +1861,6 @@ class UIRoot extends Component {
                                                                     onViewTeleportMenu={() =>
                                                                         this.setSidebar("teleport-menu")
                                                                     }
-                                                                    isSingleButton={!isWorldbuildingButtonVisible}
                                                                 />
                                                             )}
                                                             {isWorldbuildingButtonVisible && (
@@ -1901,7 +1875,6 @@ class UIRoot extends Component {
                                                                         />
                                                                     }
                                                                     preset="accent1"
-                                                                    edge="end"
                                                                 />
                                                             )}
                                                         </div>
@@ -1934,7 +1907,6 @@ class UIRoot extends Component {
                                                         <ToolbarButton
                                                             icon={<EditAvatarIcon />}
                                                             preset="white"
-                                                            edge={"start"}
                                                             label={
                                                                 <FormattedMessage
                                                                     id="more-menu.profile"
@@ -1952,7 +1924,6 @@ class UIRoot extends Component {
                                                                     defaultMessage="Preferences"
                                                                 />
                                                             }
-                                                            edge={"end"}
                                                             onClick={() => this.setState({ showPrefs: true })}
                                                         />
                                                     </>
