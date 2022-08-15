@@ -510,7 +510,7 @@ class UIRoot extends Component {
         this.updateSubscribedState();
     };
 
-    handleForceEntry = () => {
+    handleForceEntry = (skip_audio) => {
         console.log("Forced entry type: " + this.props.forcedVREntryType);
 
         if (!this.props.forcedVREntryType) return;
@@ -851,6 +851,10 @@ class UIRoot extends Component {
                 <RoomEntryModal
                     roomName={this.props.hub.name}
                     showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
+                    onForceJoinRoom={() => {
+                        this.onAudioReadyButton();
+
+                    }}
                     onJoinRoom={() => {
                         if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
                             this.setState({ entering: true });
@@ -1394,6 +1398,52 @@ class UIRoot extends Component {
         ];
         const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
         const isWorldbuildingButtonVisible = false;
+
+        const isEditMode = this.props.hub && this.props.hub.user_data && this.props.hub.user_data.classroom;
+
+        if (isEditMode) {
+            console.log("Is edit mode triggered");
+            return (
+                <div className={classNames(rootStyles)}>
+                    <RoomLayoutContainer
+                        scene={this.props.scene}
+                        store={this.props.store}
+                        entered={entered}
+                        objectFocused={!!this.props.selectedObject}
+                        streaming={streaming}
+                        viewport={<>{!this.state.dialog && renderEntryFlow ? entryDialog : undefined}</>}
+                        modal={this.state.dialog}
+                        toolbarCenter={
+                            <>
+                                <div className="toolbarGroup">
+                                    <ToolbarButton
+                                        key={"back"}
+                                        icon={<BackIcon />}
+                                        tipTitle={"Exit Editing Classroom"}
+                                        tipBody={"Finish editing and go back to the dashboard."}
+                                        onClick={() => window.location.replace(this.props.hub.user_data.return_url)}
+                                        label={
+                                            <FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />
+                                        }
+                                        preset="accent1"
+                                        edge="both"
+                                    />
+                                </div>
+                                <div className="toolbarGroup">
+                                    <PlacePopoverContainer
+                                        edge="both"
+                                        scene={this.props.scene}
+                                        hubChannel={this.props.hubChannel}
+                                        mediaSearchStore={this.props.mediaSearchStore}
+                                        showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                    />
+                                </div>
+                            </>
+                        }
+                    />
+                </div>
+            );
+        }
 
         return (
             <MoreMenuContextProvider>

@@ -21,6 +21,7 @@ export function RoomEntryModal({
     roomName,
     showJoinRoom,
     onJoinRoom,
+    onForceJoinRoom,
     showEnterOnDevice,
     onEnterOnDevice,
     showSpectate,
@@ -36,6 +37,7 @@ export function RoomEntryModal({
     const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
     const [step, setStep] = useState(0);
+    const [synced, setSynced] = useState(0);
 
     const isAuthenticatedAsTeacher = isAuthenticated;
 
@@ -45,6 +47,60 @@ export function RoomEntryModal({
         false
     );
 
+    function populateSceneFromMozGLTF(scene) {
+        document.querySelector("*[networked-counter]").setAttribute("networked-counter", { max: 100 });
+        for (var node of scene.nodes) {
+            console.log(node);
+            var el = document.createElement("a-entity");
+            AFRAME.scenes[0].appendChild(el);
+            el.setAttribute("media-loader", {
+                src: node.extensions.HUBS_components.media.src,
+                fitToBox: true,
+                resolve: true,
+            });
+            el.setAttribute("networked", { template: "#interactable-media" });
+            if (node.translation) el.object3D.position.fromArray(node.translation);
+            if (node.scale) el.object3D.scale.fromArray(node.scale);
+            if (node.rotation) el.object3D.quaternion.fromArray(node.rotation);
+            // somehow doesn't seem to be applied right, might be xyzw/wxyz or translating to origin first?
+
+            window.NAF.utils.getNetworkedEntity(el).then((networkedEl) => {
+                window.APP.pinningHelper.setPinned(networkedEl, true);
+                window.APP.scene.sceneEl.systems[
+                    "hubs-systems"
+                ].soundEffectsSystem.playSoundOneShot(SOUND_PIN);
+            });
+        }
+        console.log("All", scene.nodes.length, "objects loaded");
+    }
+
+    const syncRoom = () => {
+        fetch("https://megaminds-dev.world/" + window.APP.hub.user_data.clone_source + "/objects.gltf")
+            .then((response) => {
+                return response.json();
+            })
+            .then((scene) => populateSceneFromMozGLTF(scene));
+        window.APP.hubChannel.updateHub({
+            user_data: {
+                clone_finished: true,
+            },
+        });
+        console.log("Trying to sync room");
+        setSynced(true);
+    };
+
+    const isEditingRoom = window.APP.hub.user_data && window.APP.hub.user_data.classroom;
+
+    useEffect(() => {
+        if (
+            !synced &&
+            window.APP.hub.user_data &&
+            window.APP.hub.user_data.clone_finished == false &&
+            !window.APP.hub.user_data.classroom
+        ) {
+            syncRoom();
+        }
+    }, []);
     useEffect(
         () => {
             if (profile && !loaded) {
@@ -148,20 +204,33 @@ export function RoomEntryModal({
                         )}
                     <div className={styles.roomName}>
                         <h5>
-                            <FormattedMessage id="room-entry-modal.room-name-label" defaultMessage="Room Name" />
+                            {isEditingRoom ? (
+                                <FormattedMessage id="room-entry-modal.room-name-label" defaultMessage="Room Name" />
+                            ) : (
+                                <FormattedMessage id="room-entry-modal.edit-name-label" defaultMessage="Editing Room" />
+                            )}
                         </h5>
                         <p>{roomName}</p>
                     </div>
                     <Column center className={styles.buttons}>
                         {showJoinRoom && (
-                            <Button preset="megamindsPurple" onClick={onJoinRoom}>
+                            <Button preset="megamindsPurple" onClick={isEditingRoom ? onForceJoinRoom : onJoinRoom}>
                                 <EnterIcon />
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.join-room-button"
-                                        defaultMessage="Join Room"
-                                    />
-                                </span>
+                                {isEditingRoom ? (
+                                    <span>
+                                        <FormattedMessage
+                                            id="room-entry-modal.edit-room-button"
+                                            defaultMessage="Edit Room"
+                                        />
+                                    </span>
+                                ) : (
+                                    <span>
+                                        <FormattedMessage
+                                            id="room-entry-modal.join-room-button"
+                                            defaultMessage="Join Room"
+                                        />
+                                    </span>
+                                )}
                             </Button>
                         )}
                         {showEnterOnDevice && (
@@ -175,7 +244,7 @@ export function RoomEntryModal({
                                 </span>
                             </Button>
                         )}
-                        {showSpectate && (
+                        {showSpectate && !isEditingRoom && (
                             <Button preset="megamindsPurple" onClick={onSpectate}>
                                 <ShowIcon />
                                 <span>
