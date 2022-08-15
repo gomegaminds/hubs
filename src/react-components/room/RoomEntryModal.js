@@ -75,7 +75,7 @@ export function RoomEntryModal({
     }
 
     const syncRoom = () => {
-        fetch("https://megaminds-dev.world/" + window.APP.hub.user_data.clone_source + "/objects.gltf")
+        fetch("https://megaminds.world/" + window.APP.hub.user_data.clone_source + "/objects.gltf")
             .then((response) => {
                 return response.json();
             })
