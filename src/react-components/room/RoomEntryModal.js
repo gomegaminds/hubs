@@ -7,6 +7,7 @@ import { ReactComponent as EnterIcon } from "../icons/Enter.svg";
 import { ReactComponent as VRIcon } from "../icons/VR.svg";
 import { ReactComponent as ShowIcon } from "../icons/Show.svg";
 import { ReactComponent as SettingsIcon } from "../icons/Settings.svg";
+import { syncRoom } from "../../mega-src/utils/cloning-utils"
 import styles from "./RoomEntryModal.scss";
 import styleUtils from "../styles/style-utils.scss";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
@@ -46,45 +47,6 @@ export function RoomEntryModal({
         "read:teacher_profile",
         false
     );
-
-    function populateSceneFromMozGLTF(scene) {
-        document.querySelector("*[networked-counter]").setAttribute("networked-counter", { max: 100 });
-        for (var node of scene.nodes) {
-            console.log(node);
-            var el = document.createElement("a-entity");
-            AFRAME.scenes[0].appendChild(el);
-            el.setAttribute("media-loader", {
-                src: node.extensions.HUBS_components.media.src,
-                fitToBox: true,
-                resolve: true,
-            });
-            el.setAttribute("networked", { template: "#interactable-media" });
-            if (node.translation) el.object3D.position.fromArray(node.translation);
-            if (node.scale) el.object3D.scale.fromArray(node.scale);
-            if (node.rotation) el.object3D.quaternion.fromArray(node.rotation);
-            // somehow doesn't seem to be applied right, might be xyzw/wxyz or translating to origin first?
-
-            window.NAF.utils.getNetworkedEntity(el).then((networkedEl) => {
-                window.APP.pinningHelper.setPinned(networkedEl, true);
-            });
-        }
-        console.log("All", scene.nodes.length, "objects loaded");
-    }
-
-    const syncRoom = () => {
-        fetch("https://megaminds.world/" + window.APP.hub.user_data.clone_source + "/objects.gltf")
-            .then((response) => {
-                return response.json();
-            })
-            .then((scene) => populateSceneFromMozGLTF(scene));
-
-        let settings = window.APP.hub
-
-        settings.user_data.clone_finished = true;
-
-        window.APP.hubChannel.updateHub(settings);
-        console.log("Trying to sync room");
-    };
 
     const isEditingRoom = window.APP.hub.user_data && window.APP.hub.user_data.classroom;
 
