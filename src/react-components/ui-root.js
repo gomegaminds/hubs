@@ -83,6 +83,8 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
 import { StudentPopoverContainer } from "../mega-src/react-components/room/StudentPopoverContainer";
+import { syncRoom } from "../mega-src/utils/cloning-utils";
+import { WorldEditUI } from "../mega-src/react-components/room/WorldEditUI";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
 import { RaiseHandButton } from "./room/RaiseHandButton";
@@ -934,6 +936,7 @@ class UIRoot extends Component {
         );
     };
 
+
     renderAudioSetupPanel = () => {
         // TODO: Show HMD mic not chosen warning
         return (
@@ -1400,7 +1403,6 @@ class UIRoot extends Component {
         const isEditMode = this.props.hub && this.props.hub.user_data && this.props.hub.user_data.classroom;
 
         if (isEditMode) {
-            console.log("Edit mode triggered");
             return (
                 <div className={classNames(rootStyles)}>
                     {!this.state.dialog &&
@@ -1425,39 +1427,18 @@ class UIRoot extends Component {
                                 scene={this.props.scene}
                             />
                         )}
-                    <RoomLayoutContainer
-                        scene={this.props.scene}
-                        store={this.props.store}
+                    <WorldEditUI
                         entered={entered}
-                        objectFocused={!!this.props.selectedObject}
-                        streaming={streaming}
-                        viewport={<>{!this.state.dialog && renderEntryFlow ? entryDialog : undefined}</>}
-                        modal={this.state.dialog}
-                        toolbarCenter={
-                            <>
-                                <div className="toolbarGroup">
-                                    <ToolbarButton
-                                        key={"back"}
-                                        icon={<BackIcon />}
-                                        tipTitle={"Exit Editing Classroom"}
-                                        tipBody={"Finish editing and go back to the dashboard."}
-                                        onClick={() => window.location.replace(this.props.hub.user_data.return_url)}
-                                        label={
-                                            <FormattedMessage id="place-popover.item-type.pen" defaultMessage="Pen" />
-                                        }
-                                        preset="accent1"
-                                    />
-                                </div>
-                                <div className="toolbarGroup">
-                                    <PlacePopoverContainer
-                                        scene={this.props.scene}
-                                        hubChannel={this.props.hubChannel}
-                                        mediaSearchStore={this.props.mediaSearchStore}
-                                        showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                    />
-                                </div>
-                            </>
-                        }
+                        store={this.props.store}
+                        selectedObject={this.props.selectedObject}
+                        dialog={this.state.dialog}
+                        renderEntryFlow={renderEntryFlow}
+                        entryDialog={entryDialog}
+                        hub={this.props.hub}
+                        hubChannel={this.props.hubChannel}
+                        mediaSearchStore={this.props.mediaSearchStore}
+                        showNonHistoriedDialog={this.props.showNonHistoriedDialog}
+                        scene={this.props.scene}
                     />
                 </div>
             );
@@ -1873,6 +1854,7 @@ class UIRoot extends Component {
                                                             />
                                                             {isTeacher && (
                                                                 <TeacherPopoverContainer
+                                                                    closeDialog={this.closeDialog}
                                                                     scene={this.props.scene}
                                                                     hubChannel={this.props.hubChannel}
                                                                     mediaSearchStore={this.props.mediaSearchStore}

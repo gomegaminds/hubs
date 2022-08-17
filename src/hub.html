@@ -497,6 +497,238 @@
                 </a-entity>
             </template>
 
+            <template id="interactable-text-media">
+                <a-entity
+                    class="interactable"
+                    body-helper="type: dynamic; mass: 1; collisionFilterGroup: 1; collisionFilterMask: 25;"
+                    owned-object-limiter="counter: #media-counter"
+                    set-unowned-body-kinematic
+                    is-remote-hover-target
+                    tags="isHandCollisionTarget: true; isHoldable: true; offersHandConstraint: true; offersRemoteConstraint: true; inspectable: true;"
+                    destroy-at-extreme-distances
+                    scalable-when-grabbed
+                    floaty-object="modifyGravityOnRelease: true;"
+                    set-yxz-order
+                    hoverable-visuals
+                    position-at-border__freeze="target:.freeze-menu"
+                    position-at-border__freeze-unprivileged="target:.freeze-unprivileged-menu"
+                    listed-media
+                >
+                    <a-entity class="ui interactable-ui" layers="mask: 256; recursive: true;">
+                        <a-entity class="freeze-menu" visibility-while-frozen="withinDistance: 100; withPermission: spawn_and_move_media">
+                            <a-entity
+                                mixin="rounded-text-action-button"
+                                is-remote-hover-target
+                                tags="singleActionButton:true"
+                                pin-networked-object-button="tipSelector:.pin-button-tip; labelSelector:.pin-button-label;"
+                                position="0 0.125 0.001">
+                                <a-entity
+                                    class="pin-button-label"
+                                    visible="false"
+                                    text="value:pin; textAlign:center;"
+                                    text-raycast-hack
+                                    position="0 0 0.001">
+                                </a-entity>
+                            </a-entity>
+                            <a-entity
+                                class="pin-button-tip"
+                                text="value:Pinning will broadcast this object to Discord.; textAlign:center; color:#fff; depthOffset: -1;"
+                                visible="false"
+                                text-raycast-hack
+                                slice9="
+                                    color: #0F40A9;
+                                    width: 1.8;
+                                    height: 0.2;
+                                    left: 64;
+                                    top: 64;
+                                    right: 66;
+                                    bottom: 66;
+                                    opacity: 1.0;
+                                    src: button"
+                                position="0 0.6 0.001">
+                            </a-entity>
+                            <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" camera-focus-button="track: false" position="-0.25 0.375 0.001">
+                                <a-entity text="value:focus; textAlign:center;" text-raycast-hack position="0.075 0 0.02"></a-entity>
+                                <a-entity
+                                    sprite
+                                    icon-button="image: camera-action.png; hoverImage: camera-action.png;"
+                                    scale="0.165 0.165 0.165"
+                                    position="-0.125 0.005 0.02"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" camera-focus-button="track: true" position="0.25 0.375 0.001">
+                                <a-entity text="value:track; textAlign:center;" text-raycast-hack position="0.075 0 0.02"></a-entity>
+                                <a-entity
+                                    sprite
+                                    icon-button="image: camera-action.png; hoverImage: camera-action.png;"
+                                    scale="0.165 0.165 0.165"
+                                    position="-0.125 0.005 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-button"
+                                is-remote-hover-target
+                                tags="singleActionButton: true;"
+                                hide-when-pinned-and-forbidden="whenPinned: true"
+                                hide-when-protected-and-forbidden="whenProtected: true"
+                                remove-networked-object-button
+                                position="0 -0.375 0.001">
+                                <a-entity
+                                    sprite="name: remove-action.png"
+                                    icon-button="image: remove-action.png; hoverImage: remove-action.png"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity visibility-on-content-types="contentTypes: application/pdf; visible: false;">
+                            </a-entity>
+                            <a-entity visibility-on-content-types="contentTypes: video/ audio/ image/ application/vnd.apple.mpegurl application/x-mpegurl application/pdf; visible: false;">
+                                <a-entity
+                                    mixin="rounded-button"
+                                    is-remote-hover-target
+                                    tags="singleActionButton: true;"
+                                    drop-object-button
+                                    hide-when-pinned-and-forbidden="whenPinned: true"
+				    hide-when-protected-and-forbidden="whenProtected: true"
+                                    position="0 -0.625 0.001">
+                                    <a-entity
+                                        sprite
+                                        icon-button="image: drop-action.png; hoverImage: drop-action.png"
+                                        scale="0.165 0.165 0.165"
+                                        position="0 0 0.001"
+                                    ></a-entity>
+                                </a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-button"
+                                is-remote-hover-target
+                                tags="isHoldable: true; holdableButton: true;"
+                                inspect-button
+                                visibility-on-content-types="contentTypes: video/ audio/ image/ application/vnd.apple.mpegurl application/x-mpegurl application/pdf;"
+				hide-when-protected-and-forbidden="whenProtected: true"
+                                position="0 -0.625 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: focus-action.png; hoverImage: focus-action.png"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                class="deserialize-drawing"
+                                visible="false"
+                                mixin="rounded-button"
+                                is-remote-hover-target
+                                tags="singleActionButton: true;"
+                                deserialize-drawing-button
+                                position="-0.3 -0.625 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: deserialize-action.png; hoverImage: deserialize-action.png"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" open-media-button="onlyOpenLink: true" position="0.43 -0.375 0.001">
+                                <a-entity text="value:open link; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
+                            </a-entity>
+                            <a-entity mixin="rounded-text-button ui"
+                                is-remote-hover-target
+                                tags="singleActionButton: true; isHoverMenuChild: true;"
+                                local-refresh-media-button
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="0.43 -0.6 0.001"
+                            >
+                                <a-entity text="value:refresh; textAlign:center;"
+                                    text-raycast-hack
+                                    position="0 0 0.02">
+                                </a-entity>
+                            </a-entity>
+                            <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" clone-media-button position="-0.43 -0.375 0.001">
+                                <a-entity text="value:clone; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-action-button"
+                                tags="isHoldable: true; holdableButton: true;"
+                                is-remote-hover-target
+                                transform-button
+                                transform-button-selector
+                                hide-when-pinned-and-forbidden
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="-0.3 -0.125 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: rotate-action.png; hoverImage: rotate-action.png;"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-action-button"
+                                tags="isHoldable: true; holdableButton: true;"
+                                is-remote-hover-target
+                                scale-button
+                                hide-when-pinned-and-forbidden
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="0.3 -0.125 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: scale-action.png; hoverImage: scale-action.png"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                        </a-entity>
+                        <a-entity class="freeze-unprivileged-menu" visibility-while-frozen="withinDistance: 100; withoutPermission: spawn_and_move_media;">
+                            <a-entity mixin="rounded-text-button ui"
+                                is-remote-hover-target
+                                tags="singleActionButton: true; isHoverMenuChild: true;"
+                                local-refresh-media-button
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="0 -0.6 0.001"
+                            >
+                                <a-entity text="value:refresh; textAlign:center;"
+                                    text-raycast-hack
+                                    position="0 0 0.02">
+                                </a-entity>
+                            </a-entity>
+                            <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" open-media-button="onlyOpenLink: true" position="0 -0.25 0.001">
+                                <a-entity text="value:open link; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-action-button"
+                                is-remote-hover-target
+                                tags="singleActionButton:true;"
+                                mirror-media-button
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                visibility-on-content-types="contentTypes: video/ audio/ image/ application/vnd.apple.mpegurl application/x-mpegurl application/pdf;"
+                                position="0 0 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: inspect-action.png; hoverImage: inspect-action.png"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-button"
+                                tags="isHoldable: true; holdableButton: true;"
+                                is-remote-hover-target
+                                inspect-button
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="0 0.25 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: focus-action.png; hoverImage: focus-action.png"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                        </a-entity>
+                    </a-entity>
+                </a-entity>
+            </template>
+
             <template id="interactable-emoji">
                 <a-entity
                     class="interactable"
