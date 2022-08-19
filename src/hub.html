@@ -65,6 +65,7 @@
         mute-mic="eventSrc: a-scene; toggleEvents: action_mute"
         action-to-event__mute="path: /actions/muteMic; event: action_mute;"
         freeze-controller
+        transform-controls
         personal-space-bubble="debug: false;"
         rotate-selected-object
     >
@@ -278,6 +279,7 @@
                     floaty-object="modifyGravityOnRelease: true;"
                     set-yxz-order
                     hoverable-visuals
+                    gizmo-helper
                     position-at-border__freeze="target:.freeze-menu"
                     position-at-border__freeze-unprivileged="target:.freeze-unprivileged-menu"
                     listed-media

@@ -1975,6 +1975,7 @@ function UIRootHooksWrapper(props) {
     useAccessibleOutlineStyle();
     const breakpoint = useCssBreakpoints();
 
+
     useEffect(
         () => {
             const el = document.getElementById("preload-overlay");
@@ -1996,6 +1997,17 @@ function UIRootHooksWrapper(props) {
         },
         [props.scene]
     );
+
+    const isEditMode = props.hub && props.hub.user_data && props.hub.user_data.classroom;
+    if(isEditMode){
+    return (
+        <ChatContextProvider messageDispatch={props.messageDispatch}>
+            <ObjectListProvider editMode={isEditMode} scene={props.scene}>
+                <UIRoot breakpoint={breakpoint} {...props} />
+            </ObjectListProvider>
+        </ChatContextProvider>
+    );
+    }
 
     return (
         <ChatContextProvider messageDispatch={props.messageDispatch}>
