@@ -173,13 +173,16 @@ export class App {
         sceneEl.addEventListener("loaded", () => {
             renderer.setAnimationLoop(mainTick);
             sceneEl.renderStarted = true;
+            /*
             APP.transformControls = new TransformControls(camera, renderer.domElement);
             APP.transformControls.addEventListener("change", mainTick);
 
             APP.transformControls.visible = true;
             APP.transformControls.layers.enableAll();
             APP.transformControls.setMode("translate");
+            
             sceneEl.object3D.add(APP.transformControls);
+            */
         });
 
         return {
