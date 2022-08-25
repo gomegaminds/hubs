@@ -120,7 +120,7 @@ export const SCHEMA = {
         audioNormalization: { type: "bool", default: 0.0 },
         invertTouchscreenCameraMove: { type: "bool", default: true },
         enableOnScreenJoystickLeft: { type: "bool", default: detectMobile() },
-        enableOnScreenJoystickRight: { type: "bool", default: detectMobile() },
+        enableOnScreenJoystickRight: { type: "bool", default: false },
         enableGyro: { type: "bool", default: true },
         animateWaypointTransitions: { type: "bool", default: true },
         showFPSCounter: { type: "bool", default: false },

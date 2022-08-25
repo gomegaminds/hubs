@@ -1,7 +1,7 @@
 import * as bitecs from "bitecs";
 import { addEntity, createWorld } from "bitecs";
 import "./aframe-to-bit-components";
-import { TransformControls } from "three/examples/jsm/controls/TransformControls";
+import { TransformControls } from "./mega-src/components/TransformControls";
 import { AEntity, Networked, Object3DTag, Owned } from "./bit-components";
 import MediaSearchStore from "./storage/media-search-store";
 import Store from "./storage/store";
@@ -173,6 +173,13 @@ export class App {
         sceneEl.addEventListener("loaded", () => {
             renderer.setAnimationLoop(mainTick);
             sceneEl.renderStarted = true;
+            APP.transformControls = new TransformControls(camera, renderer.domElement);
+            APP.transformControls.addEventListener("change", mainTick);
+
+            APP.transformControls.visible = true;
+            APP.transformControls.layers.enableAll();
+            APP.transformControls.setMode("translate");
+            sceneEl.object3D.add(APP.transformControls);
         });
 
         return {

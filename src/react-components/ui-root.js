@@ -4,6 +4,7 @@ import classNames from "classnames";
 import copy from "copy-to-clipboard";
 import { FormattedMessage } from "react-intl";
 import screenfull from "screenfull";
+import { Toaster } from "react-hot-toast";
 
 import configs from "../utils/configs";
 import { VR_DEVICE_AVAILABILITY } from "../utils/vr-caps-detect";
@@ -2012,6 +2013,7 @@ function UIRootHooksWrapper(props) {
     return (
         <ChatContextProvider messageDispatch={props.messageDispatch}>
             <ObjectListProvider scene={props.scene}>
+                <Toaster />
                 <UIRoot breakpoint={breakpoint} {...props} />
             </ObjectListProvider>
         </ChatContextProvider>
