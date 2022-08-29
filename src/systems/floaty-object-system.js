@@ -85,7 +85,7 @@ export const floatyObjectSystem = world => {
     const bodyId = Rigidbody.bodyId[eid];
     const bodyData = physicsSystem.bodyUuidToData.get(bodyId);
     if (FloatyObject.flags[eid] & FLOATY_OBJECT_FLAGS.MODIFY_GRAVITY_ON_RELEASE) {
-      if (bodyData.linearVelocity < 1.85) {
+      if (bodyData.linearVelocity < 9.85) {
         physicsSystem.updateBodyOptions(bodyId, {
           gravity: { x: 0, y: 0, z: 0 },
           angularDamping: FloatyObject.flags[eid] & FLOATY_OBJECT_FLAGS.REDUCE_ANGULAR_FLOAT ? 0.89 : 0.5,
@@ -97,7 +97,7 @@ export const floatyObjectSystem = world => {
         addComponent(world, MakeStaticWhenAtRest, eid);
       } else {
         physicsSystem.updateBodyOptions(bodyId, {
-          gravity: { x: 0, y: FloatyObject.releaseGravity[eid], z: 0 },
+          gravity: { x: 0, y: 0, z: 0 },
           angularDamping: 0.01,
           linearDamping: 0.01,
           linearSleepingThreshold: 1.6,
