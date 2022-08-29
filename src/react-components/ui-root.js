@@ -6,6 +6,8 @@ import { FormattedMessage } from "react-intl";
 import screenfull from "screenfull";
 import { Toaster } from "react-hot-toast";
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import configs from "../utils/configs";
 import { VR_DEVICE_AVAILABILITY } from "../utils/vr-caps-detect";
 import { canShare } from "../utils/share";
@@ -1438,7 +1440,7 @@ class UIRoot extends Component {
                         hub={this.props.hub}
                         hubChannel={this.props.hubChannel}
                         mediaSearchStore={this.props.mediaSearchStore}
-                        showNonHistoriedDialog={this.props.showNonHistoriedDialog}
+                        showNonHistoriedDialog={this.showNonHistoriedDialog}
                         scene={this.props.scene}
                     />
                 </div>
