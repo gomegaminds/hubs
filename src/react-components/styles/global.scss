@@ -487,3 +487,11 @@ summary {
   border-radius: 4px;
   border: none;
 }
+
+.watermark {
+    pointer-events: none;
+    width: 300px;
+    position: fixed;
+    top: 25px;
+    left: 25px;
+}
