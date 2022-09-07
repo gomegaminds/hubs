@@ -7,7 +7,7 @@ import { ReactComponent as EnterIcon } from "../icons/Enter.svg";
 import { ReactComponent as VRIcon } from "../icons/VR.svg";
 import { ReactComponent as ShowIcon } from "../icons/Show.svg";
 import { ReactComponent as SettingsIcon } from "../icons/Settings.svg";
-import { syncRoom } from "../../mega-src/utils/cloning-utils"
+import { syncRoom } from "../../mega-src/utils/cloning-utils";
 import styles from "./RoomEntryModal.scss";
 import styleUtils from "../styles/style-utils.scss";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
@@ -16,6 +16,8 @@ import { AppLogo } from "../misc/AppLogo";
 import { FormattedMessage } from "react-intl";
 import { useAuth0 } from "@auth0/auth0-react";
 import useTeacherProfile from "../../mega-src/react-components/auth/useTeacherProfile";
+import ClassRoomEntryModal from "../../mega-src/react-components/room/ClassRoomEntryModal";
+import SessionEntryModal from "../../mega-src/react-components/room/SessionEntryModal";
 
 export function RoomEntryModal({
     className,
@@ -70,6 +72,13 @@ export function RoomEntryModal({
                         "You are logged in as a teacher, but you have not set up your profile yet. Please go to dash.megaminds.world and finish the setup before continuing as a teacher in the room."
                     );
                 }
+                if (profile.first_name) {
+                    window.APP.store.update({
+                        profile: {
+                            displayName: profile.first_name + " " + profile.last_name,
+                        },
+                    });
+                }
                 if (profile.creatortoken) {
                     console.log("Signing in...");
                     window.APP.hubChannel.signIn(window.APP.store.state.credentials.token, profile.creatortoken);
@@ -87,68 +96,22 @@ export function RoomEntryModal({
         loginWithRedirect({ appState: { target: window.location.href } });
     };
 
-    if (step == 1) {
+    if (isEditingRoom) {
         return (
-            <Modal className={classNames(styles.roomEntryModal, className)} disableFullscreen {...rest}>
-                <Column center className={styles.content}>
-                    <div className={styles.roomName}>
-                        <h5>
-                            <FormattedMessage id="room-entry-modal.room-teacher-label" defaultMessage="Teacher Login" />
-                        </h5>
-                        <p>
-                            <FormattedMessage
-                                id="room-entry-modal.room-teacher-description"
-                                defaultMessage="In order to use this room as a teacher, you must both sign in with your account, and verify your email. If any of the buttons below are clickable, it means you have not done all the steps."
-                            />
-                        </p>
-                    </div>
-                    <Column center className={styles.buttons}>
-                        {!isAuthenticatedAsTeacher ? (
-                            <Button preset="megamindsPurple" onClick={() => handleLogin()}>
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.teacher-login-button"
-                                        defaultMessage="Teacher Login"
-                                    />
-                                </span>
-                            </Button>
-                        ) : (
-                            <Button preset="success" disabled>
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.teacher-login-button-success"
-                                        defaultMessage="Logged in"
-                                    />
-                                </span>
-                            </Button>
-                        )}
-                        {!isSignedIn ? (
-                            <Button preset="megamindsPurple" onClick={onSignInClick}>
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.teacher-login-verified"
-                                        defaultMessage="Verify email"
-                                    />
-                                </span>
-                            </Button>
-                        ) : (
-                            <Button preset="success" disabled>
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.teacher-login-verified-success"
-                                        defaultMessage="Email verified"
-                                    />
-                                </span>
-                            </Button>
-                        )}
-                        <Button preset="megamindsPurple" onClick={() => setStep(0)}>
-                            <span>
-                                <FormattedMessage id="room-entry-modal.teacher-login-back" defaultMessage="Back" />
-                            </span>
-                        </Button>
-                    </Column>
-                </Column>
-            </Modal>
+            <ClassRoomEntryModal
+                isSignedIn={isSignedIn}
+                forceJoinRoom={onForceJoinRoom}
+                onSignInClick={onSignInClick}
+            />
+        );
+    } else {
+        return (
+            <SessionEntryModal
+                onJoinRoom={onJoinRoom}
+                isSignedIn={isSignedIn}
+                forceJoinRoom={onForceJoinRoom}
+                onSignInClick={onSignInClick}
+            />
         );
     }
 
@@ -204,14 +167,18 @@ export function RoomEntryModal({
                                 </span>
                             </Button>
                         )}
-                        {showSpectate && !isEditingRoom && (
-                            <Button preset="megamindsPurple" onClick={onSpectate}>
-                                <ShowIcon />
-                                <span>
-                                    <FormattedMessage id="room-entry-modal.spectate-button" defaultMessage="Spectate" />
-                                </span>
-                            </Button>
-                        )}
+                        {showSpectate &&
+                            !isEditingRoom && (
+                                <Button preset="megamindsPurple" onClick={onSpectate}>
+                                    <ShowIcon />
+                                    <span>
+                                        <FormattedMessage
+                                            id="room-entry-modal.spectate-button"
+                                            defaultMessage="Spectate"
+                                        />
+                                    </span>
+                                </Button>
+                            )}
                         {(!isAuthenticatedAsTeacher || !isSignedIn) && (
                             <Button preset="megamindsPurple" onClick={() => setStep(1)}>
                                 <ShowIcon />
