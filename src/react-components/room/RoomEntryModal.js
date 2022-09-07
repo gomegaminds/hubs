@@ -72,6 +72,13 @@ export function RoomEntryModal({
                         "You are logged in as a teacher, but you have not set up your profile yet. Please go to dash.megaminds.world and finish the setup before continuing as a teacher in the room."
                     );
                 }
+                if (profile.first_name) {
+                    window.APP.store.update({
+                        profile: {
+                            displayName: profile.first_name + " " + profile.last_name,
+                        },
+                    });
+                }
                 if (profile.creatortoken) {
                     console.log("Signing in...");
                     window.APP.hubChannel.signIn(window.APP.store.state.credentials.token, profile.creatortoken);
@@ -90,9 +97,22 @@ export function RoomEntryModal({
     };
 
     if (isEditingRoom) {
-        return <ClassRoomEntryModal isSignedIn={isSignedIn} forceJoinRoom={onForceJoinRoom} onSignInClick={onSignInClick} />;
+        return (
+            <ClassRoomEntryModal
+                isSignedIn={isSignedIn}
+                forceJoinRoom={onForceJoinRoom}
+                onSignInClick={onSignInClick}
+            />
+        );
     } else {
-        return <SessionEntryModal onJoinRoom={onJoinRoom} isSignedIn={isSignedIn} forceJoinRoom={onForceJoinRoom} onSignInClick={onSignInClick} />;
+        return (
+            <SessionEntryModal
+                onJoinRoom={onJoinRoom}
+                isSignedIn={isSignedIn}
+                forceJoinRoom={onForceJoinRoom}
+                onSignInClick={onSignInClick}
+            />
+        );
     }
 
     if (step == 0) {
