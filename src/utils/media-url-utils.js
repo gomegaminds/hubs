@@ -154,6 +154,9 @@ const dataUrlRegex = /data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/;
 export const guessContentType = url => {
   if (!url) return;
   if (url.startsWith("hubs://") && url.endsWith("/video")) return "video/vnd.hubs-webrtc";
+  if (url.startsWith("data:text")) {
+      return "simpleEntity"
+  }
   if (url.startsWith("data:")) {
     const matches = dataUrlRegex.exec(url);
     if (matches.length > 0) {

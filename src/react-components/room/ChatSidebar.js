@@ -284,22 +284,6 @@ export function formatSystemMessage(entry, intl) {
           values={{ oldName: <b>{entry.oldName}</b>, newName: <b>{entry.newName}</b> }}
         />
       );
-    case "scene_changed":
-      return (
-        <FormattedMessage
-          id="chat-sidebar.system-message.scene-change"
-          defaultMessage="{name} changed the scene to {sceneName}"
-          values={{ name: <b>{entry.name}</b>, sceneName: <b>{entry.sceneName}</b> }}
-        />
-      );
-    case "hub_name_changed":
-      return (
-        <FormattedMessage
-          id="chat-sidebar.system-message.hub-name-change"
-          defaultMessage="{name} changed the name of the room to {hubName}"
-          values={{ name: <b>{entry.name}</b>, hubName: <b>{entry.hubName}</b> }}
-        />
-      );
     case "hub_changed":
       return (
         <FormattedMessage

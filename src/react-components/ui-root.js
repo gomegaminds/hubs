@@ -4,6 +4,9 @@ import classNames from "classnames";
 import copy from "copy-to-clipboard";
 import { FormattedMessage } from "react-intl";
 import screenfull from "screenfull";
+import { Toaster } from "react-hot-toast";
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import configs from "../utils/configs";
 import { VR_DEVICE_AVAILABILITY } from "../utils/vr-caps-detect";
@@ -83,6 +86,8 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
 import { StudentPopoverContainer } from "../mega-src/react-components/room/StudentPopoverContainer";
+import { syncRoom } from "../mega-src/utils/cloning-utils";
+import { WorldEditUI } from "../mega-src/react-components/room/WorldEditUI";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
 import { RaiseHandButton } from "./room/RaiseHandButton";
@@ -91,7 +96,6 @@ import { SafariMicModal } from "./room/SafariMicModal";
 import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
 import { SignInStep } from "./auth/SignInModal";
 import { LeaveReason, LeaveRoomModal } from "./room/LeaveRoomModal";
-import { RoomSidebar } from "./room/RoomSidebar";
 import { TeleportSidebar } from "../mega-src/react-components/room/TeleportSidebar";
 import { RoomSettingsSidebarContainer } from "./room/RoomSettingsSidebarContainer";
 import { AutoExitWarningModal, AutoExitReason } from "./room/AutoExitWarningModal";
@@ -510,7 +514,7 @@ class UIRoot extends Component {
         this.updateSubscribedState();
     };
 
-    handleForceEntry = () => {
+    handleForceEntry = (skip_audio) => {
         console.log("Forced entry type: " + this.props.forcedVREntryType);
 
         if (!this.props.forcedVREntryType) return;
@@ -851,6 +855,9 @@ class UIRoot extends Component {
                 <RoomEntryModal
                     roomName={this.props.hub.name}
                     showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
+                    onForceJoinRoom={() => {
+                        this.onAudioReadyButton();
+                    }}
                     onJoinRoom={() => {
                         if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
                             this.setState({ entering: true });
@@ -931,6 +938,7 @@ class UIRoot extends Component {
             />
         );
     };
+
 
     renderAudioSetupPanel = () => {
         // TODO: Show HMD mic not chosen warning
@@ -1395,6 +1403,50 @@ class UIRoot extends Component {
         const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
         const isWorldbuildingButtonVisible = false;
 
+        const isEditMode = this.props.hub && this.props.hub.user_data && this.props.hub.user_data.classroom;
+
+        if (isEditMode) {
+            return (
+                <div className={classNames(rootStyles)}>
+                    {!this.state.dialog &&
+                        showMediaBrowser && (
+                            <MediaBrowserContainer
+                                history={this.props.history}
+                                mediaSearchStore={this.props.mediaSearchStore}
+                                hubChannel={this.props.hubChannel}
+                                onMediaSearchResultEntrySelected={(entry, selectAction) => {
+                                    if (entry.type === "room") {
+                                        this.showNonHistoriedDialog(LeaveRoomModal, {
+                                            destinationUrl: entry.url,
+                                            reason: LeaveReason.joinRoom,
+                                        });
+                                    } else {
+                                        this.props.onMediaSearchResultEntrySelected(entry, selectAction);
+                                    }
+                                }}
+                                performConditionalSignIn={this.props.performConditionalSignIn}
+                                showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                store={this.props.store}
+                                scene={this.props.scene}
+                            />
+                        )}
+                    <WorldEditUI
+                        entered={entered}
+                        store={this.props.store}
+                        selectedObject={this.props.selectedObject}
+                        dialog={this.state.dialog}
+                        renderEntryFlow={renderEntryFlow}
+                        entryDialog={entryDialog}
+                        hub={this.props.hub}
+                        hubChannel={this.props.hubChannel}
+                        mediaSearchStore={this.props.mediaSearchStore}
+                        showNonHistoriedDialog={this.showNonHistoriedDialog}
+                        scene={this.props.scene}
+                    />
+                </div>
+            );
+        }
+
         return (
             <MoreMenuContextProvider>
                 <ReactAudioContext.Provider value={this.state.audioContext}>
@@ -1621,18 +1673,10 @@ class UIRoot extends Component {
                                                 />
                                             )}
                                             {this.state.sidebarId === "room-info" && (
-                                                <RoomSidebar
-                                                    accountId={this.props.sessionId}
+                                                <RoomSettingsSidebarContainer
                                                     room={this.props.hub}
-                                                    canEdit={this.props.hubChannel.canOrWillIfCreator("update_hub")}
-                                                    onEdit={() => {
-                                                        this.props.performConditionalSignIn(
-                                                            () =>
-                                                                this.props.hubChannel.canOrWillIfCreator("update_hub"),
-                                                            () => this.setSidebar("room-info-settings"),
-                                                            SignInMessages.roomSettings
-                                                        );
-                                                    }}
+                                                    hubChannel={this.props.hubChannel}
+                                                    showBackButton
                                                     onClose={() => this.setSidebar(null)}
                                                     onChangeScene={this.onChangeScene}
                                                 />
@@ -1642,8 +1686,7 @@ class UIRoot extends Component {
                                                     room={this.props.hub}
                                                     hubChannel={this.props.hubChannel}
                                                     showBackButton
-                                                    onClose={() => this.setSidebar("room-info")}
-                                                    onChangeScene={this.onChangeScene}
+                                                    onClose={() => this.setSidebar(null)}
                                                 />
                                             )}
                                             {this.state.sidebarId === "room-settings" && (
@@ -1652,7 +1695,6 @@ class UIRoot extends Component {
                                                     accountId={this.props.sessionId}
                                                     hubChannel={this.props.hubChannel}
                                                     onClose={() => this.setSidebar(null)}
-                                                    onChangeScene={this.onChangeScene}
                                                 />
                                             )}
                                         </>
@@ -1675,14 +1717,12 @@ class UIRoot extends Component {
                                                         />
                                                     }
                                                     preset="accent1"
-                                                    edge="start"
                                                     onClick={() => this.setState({ watching: false })}
                                                 />
                                                 {enableSpectateVRButton && (
                                                     <ToolbarButton
                                                         icon={<VRIcon />}
                                                         preset="accent1"
-                                                        edge="between"
                                                         label={
                                                             <FormattedMessage
                                                                 id="toolbar.spectate-in-vr-button"
@@ -1714,7 +1754,6 @@ class UIRoot extends Component {
                                                                 />
                                                             }
                                                             preset="accent1"
-                                                            edge="middle"
                                                         />
                                                     </div>
                                                 </>
@@ -1730,11 +1769,6 @@ class UIRoot extends Component {
                                                             )}
                                                         <RaiseHandButton
                                                             scene={this.props.scene}
-                                                            isEdge={
-                                                                !this.props.hub.user_data ||
-                                                                (this.props.hub.user_data &&
-                                                                    !this.props.hub.user_data.toggle_voice)
-                                                            }
                                                             initialPresence={getPresenceProfileForSession(
                                                                 this.props.presences,
                                                                 this.props.sessionId
@@ -1762,7 +1796,6 @@ class UIRoot extends Component {
                                                                     />
                                                                 }
                                                                 preset="accent1"
-                                                                edge="end"
                                                             />
                                                         )}
                                                     </div>
@@ -1792,7 +1825,6 @@ class UIRoot extends Component {
                                                                         />
                                                                     }
                                                                     preset="accent1"
-                                                                    edge="middle"
                                                                 />
                                                             )}
                                                             {(isTeacher ||
@@ -1822,10 +1854,10 @@ class UIRoot extends Component {
                                                                 onViewTeleportMenu={() =>
                                                                     this.setSidebar("teleport-menu")
                                                                 }
-                                                                isSingleButton={!isWorldbuildingButtonVisible}
                                                             />
                                                             {isTeacher && (
                                                                 <TeacherPopoverContainer
+                                                                    closeDialog={this.closeDialog}
                                                                     scene={this.props.scene}
                                                                     hubChannel={this.props.hubChannel}
                                                                     mediaSearchStore={this.props.mediaSearchStore}
@@ -1836,7 +1868,6 @@ class UIRoot extends Component {
                                                                     onViewTeleportMenu={() =>
                                                                         this.setSidebar("teleport-menu")
                                                                     }
-                                                                    isSingleButton={!isWorldbuildingButtonVisible}
                                                                 />
                                                             )}
                                                             {isWorldbuildingButtonVisible && (
@@ -1851,7 +1882,6 @@ class UIRoot extends Component {
                                                                         />
                                                                     }
                                                                     preset="accent1"
-                                                                    edge="end"
                                                                 />
                                                             )}
                                                         </div>
@@ -1884,7 +1914,6 @@ class UIRoot extends Component {
                                                         <ToolbarButton
                                                             icon={<EditAvatarIcon />}
                                                             preset="white"
-                                                            edge={"start"}
                                                             label={
                                                                 <FormattedMessage
                                                                     id="more-menu.profile"
@@ -1902,7 +1931,6 @@ class UIRoot extends Component {
                                                                     defaultMessage="Preferences"
                                                                 />
                                                             }
-                                                            edge={"end"}
                                                             onClick={() => this.setState({ showPrefs: true })}
                                                         />
                                                     </>
@@ -1950,6 +1978,7 @@ function UIRootHooksWrapper(props) {
     useAccessibleOutlineStyle();
     const breakpoint = useCssBreakpoints();
 
+
     useEffect(
         () => {
             const el = document.getElementById("preload-overlay");
@@ -1972,9 +2001,21 @@ function UIRootHooksWrapper(props) {
         [props.scene]
     );
 
+    const isEditMode = props.hub && props.hub.user_data && props.hub.user_data.classroom;
+    if(isEditMode){
+    return (
+        <ChatContextProvider messageDispatch={props.messageDispatch}>
+            <ObjectListProvider editMode={isEditMode} scene={props.scene}>
+                <UIRoot breakpoint={breakpoint} {...props} />
+            </ObjectListProvider>
+        </ChatContextProvider>
+    );
+    }
+
     return (
         <ChatContextProvider messageDispatch={props.messageDispatch}>
             <ObjectListProvider scene={props.scene}>
+                <Toaster />
                 <UIRoot breakpoint={breakpoint} {...props} />
             </ObjectListProvider>
         </ChatContextProvider>

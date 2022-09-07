@@ -16,68 +16,63 @@ import { Button } from "../input/Button";
 const isMobile = AFRAME.utils.device.isMobile();
 
 function usePresence(scene, initialPresence) {
-  const [presence, setPresence] = useState(initialPresence);
+    const [presence, setPresence] = useState(initialPresence);
 
-  const onPresenceUpdate = ({ detail: presence }) => {
-    if (presence.sessionId === NAF.clientId) setPresence(presence);
-  };
-  useEffect(
-    () => {
-      scene.addEventListener("presence_updated", onPresenceUpdate);
-      return () => scene.removeEventListener("presence_updated", onPresenceUpdate);
-    },
-    [scene]
-  );
+    const onPresenceUpdate = ({ detail: presence }) => {
+        if (presence.sessionId === NAF.clientId) setPresence(presence);
+    };
+    useEffect(
+        () => {
+            scene.addEventListener("presence_updated", onPresenceUpdate);
+            return () => scene.removeEventListener("presence_updated", onPresenceUpdate);
+        },
+        [scene]
+    );
 
-  return presence;
+    return presence;
 }
 
-
 const raiseHandTitle = defineMessage({
-  id: "raisehand-popover.title",
-  defaultMessage: "Raise"
+    id: "raisehand-popover.title",
+    defaultMessage: "Raise",
 });
 
 const lowerHandTitle = defineMessage({
-  id: "lowerhand-popover.title",
-  defaultMessage: "Lower"
+    id: "lowerhand-popover.title",
+    defaultMessage: "Lower",
 });
 
-export function RaiseHandButton({ scene, initialPresence, isEdge, ...rest }) {
-  const presence = usePresence(scene, initialPresence);
-  const intl = useIntl();
-  const raiseTitle = intl.formatMessage(raiseHandTitle);
-  const lowerTitle = intl.formatMessage(lowerHandTitle);
+export function RaiseHandButton({ scene, initialPresence, ...rest }) {
+    const presence = usePresence(scene, initialPresence);
+    const intl = useIntl();
+    const raiseTitle = intl.formatMessage(raiseHandTitle);
+    const lowerTitle = intl.formatMessage(lowerHandTitle);
 
-  const onToggleHandRaised = useCallback(
-    () => {
-      if (presence.hand_raised) {
-        window.APP.hubChannel.lowerHand();
-      } else {
-        window.APP.hubChannel.raiseHand();
-      }
-    },
-    [presence]
-  );
+    const onToggleHandRaised = useCallback(
+        () => {
+            if (presence.hand_raised) {
+                window.APP.hubChannel.lowerHand();
+            } else {
+                window.APP.hubChannel.raiseHand();
+            }
+        },
+        [presence]
+    );
 
-  return (
+    return (
         <ToolbarButton
-          icon={
-            presence.hand_raised ? (
-              <HandRaisedIcon />
-            ) : (
-              <HandLoweredIcon />
-            )
-          }
-          onClick={() => {
-		  onToggleHandRaised();
-	  }}
-          label={presence.hand_raised ? lowerTitle : raiseTitle}
-	  tipTitle={presence.hand_raised ? lowerTitle : raiseTitle}
-	  tipBody={presence.hand_raised ? "Cancel your hand raise action" : "Raise your hand to grab attention. A hand icon will appear above your head."}
-          preset={presence.hand_raised ? "handraised" : "accent1"}
-	  edge={isEdge ? "start" : (window.APP.hubChannel.can("spawn_emoji") || isMobile) ? "middle" : "end" }
+            icon={presence.hand_raised ? <HandRaisedIcon /> : <HandLoweredIcon />}
+            onClick={() => {
+                onToggleHandRaised();
+            }}
+            label={presence.hand_raised ? lowerTitle : raiseTitle}
+            tipTitle={presence.hand_raised ? lowerTitle : raiseTitle}
+            tipBody={
+                presence.hand_raised
+                    ? "Cancel your hand raise action"
+                    : "Raise your hand to grab attention. A hand icon will appear above your head."
+            }
+            preset={presence.hand_raised ? "handraised" : "accent1"}
         />
-  );
+    );
 }
-

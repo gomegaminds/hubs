@@ -75,66 +75,6 @@ function allowDisplayOfSceneLink(accountId, scene) {
   return scene && ((accountId && scene.account_id === accountId) || scene.allow_promotion || scene.allow_remixing);
 }
 
-export function SceneInfo({ accountId, scene, showAttributions, canChangeScene, onChangeScene }) {
-  const changeSceneButton = canChangeScene && (
-    <Button preset="primary" onClick={onChangeScene}>
-      <FormattedMessage id="room-sidebar.scene-info.change-scene-button" defaultMessage="Change Scene" />
-    </Button>
-  );
-  if (!scene) return changeSceneButton;
-  const showSceneLink = allowDisplayOfSceneLink(accountId, scene);
-  const attributions = (scene.attributions && scene.attributions.content) || [];
-  const creator = scene.attributions && scene.attributions.creator;
-
-  const filteredAttributionElements = attributions
-    .filter(a => a.url || a.author)
-    .map((attribution, i) => <SceneAttribution attribution={attribution} key={i} />);
-
-  return (
-    <>
-      <h2 className={styles.sectionTitle}>
-        <FormattedMessage id="room-sidebar.scene-info.title" defaultMessage="Scene" />
-      </h2>
-      <div className={styles.sceneScreenshotContainer}>
-        {showSceneLink ? (
-          <a href={scene.url} target="_blank" rel="noopener noreferrer">
-            <img className={styles.sceneScreenshotImage} src={scene.screenshot_url} />
-          </a>
-        ) : (
-          <img className={styles.sceneScreenshotImage} src={scene.screenshot_url} />
-        )}
-      </div>
-      <div className={styles.sceneInfo}>
-        {showSceneLink ? (
-          <b className={styles.sceneName}>
-            <a href={scene.url} target="_blank" rel="noopener noreferrer">
-              {scene.name}
-            </a>
-          </b>
-        ) : (
-          <b className={styles.sceneName}>{scene.name}</b>
-        )}
-        <div className={styles.sceneCreator}>
-          <FormattedMessage
-            id="room-sidebar.scene-info.scene-creator"
-            defaultMessage="by {creator}"
-            values={{ creator }}
-          />
-        </div>
-      </div>
-      {showAttributions &&
-        filteredAttributionElements.length > 0 && (
-          <InputField
-            label={<FormattedMessage id="room-sidebar.scene-info.attributions" defaultMessage="Attributions" />}
-          >
-            <ul className={styles.attributions}>{filteredAttributionElements}</ul>
-          </InputField>
-        )}
-      {changeSceneButton}
-    </>
-  );
-}
-
 export function RoomSidebar({ room, accountId, onClose, canEdit, onEdit, onChangeScene }) {
   return (
     <Sidebar
@@ -157,13 +97,6 @@ export function RoomSidebar({ room, accountId, onClose, canEdit, onEdit, onChang
             {room.description}
           </InputField>
         )}
-        <SceneInfo
-          accountId={accountId}
-          scene={room.scene}
-          showAttributions
-          canChangeScene={canEdit}
-          onChangeScene={onChangeScene}
-        />
       </Column>
     </Sidebar>
   );

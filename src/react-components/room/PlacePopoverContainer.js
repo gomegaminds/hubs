@@ -17,69 +17,69 @@ import { anyEntityWith } from "../../utils/bit-utils";
 import { MyCameraTool } from "../../bit-components";
 
 export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistoriedDialog, hubChannel }) {
-  const [items, setItems] = useState([]);
+    const [items, setItems] = useState([]);
 
-  useEffect(
-    () => {
-      function updateItems() {
-        const hasActiveCamera = !!anyEntityWith(APP.world, MyCameraTool);
-        const hasActivePen = !!scene.systems["pen-tools"].getMyPen();
+    useEffect(
+        () => {
+            function updateItems() {
+                const hasActiveCamera = !!anyEntityWith(APP.world, MyCameraTool);
+                const hasActivePen = !!scene.systems["pen-tools"].getMyPen();
 
-	let nextItems = [
-            configs.integration("tenor") && {
-              id: "gif",
-              icon: GIFIcon,
-              color: "accent2",
-              label: <FormattedMessage id="place-popover.item-type.gif" defaultMessage="Find GIF" />,
-              onSelect: () => mediaSearchStore.sourceNavigate("gifs")
-            },
-            configs.integration("sketchfab") && {
-              id: "model",
-              icon: ObjectIcon,
-              color: "accent2",
-              label: <FormattedMessage id="place-popover.item-type.model" defaultMessage="Find Model" />,
-              onSelect: () => mediaSearchStore.sourceNavigate("sketchfab")
-            },
-            {
-              id: "upload",
-              icon: UploadIcon,
-              color: "accent3",
-              label: <FormattedMessage id="place-popover.item-type.upload" defaultMessage="Upload" />,
-              onSelect: () => showNonHistoriedDialog(ObjectUrlModalContainer, { scene })
+                let nextItems = [
+                    configs.integration("tenor") && {
+                        id: "gif",
+                        icon: GIFIcon,
+                        color: "accent2",
+                        label: <FormattedMessage id="place-popover.item-type.gif" defaultMessage="Find GIF" />,
+                        onSelect: () => mediaSearchStore.sourceNavigate("gifs"),
+                    },
+                    configs.integration("sketchfab") && {
+                        id: "model",
+                        icon: ObjectIcon,
+                        color: "accent2",
+                        label: <FormattedMessage id="place-popover.item-type.model" defaultMessage="Find Model" />,
+                        onSelect: () => mediaSearchStore.sourceNavigate("sketchfab"),
+                    },
+                    {
+                        id: "upload",
+                        icon: UploadIcon,
+                        color: "accent3",
+                        label: <FormattedMessage id="place-popover.item-type.upload" defaultMessage="Upload" />,
+                        onSelect: () => showNonHistoriedDialog(ObjectUrlModalContainer, { scene }),
+                    },
+                ];
+
+                setItems(nextItems);
             }
-	];
 
-        setItems(nextItems);
-      }
+            hubChannel.addEventListener("permissions_updated", updateItems);
 
-      hubChannel.addEventListener("permissions_updated", updateItems);
+            updateItems();
 
-      updateItems();
+            function onSceneStateChange(event) {
+                if (event.detail === "camera" || event.detail === "pen") {
+                    updateItems();
+                }
+            }
 
-      function onSceneStateChange(event) {
-        if (event.detail === "camera" || event.detail === "pen") {
-          updateItems();
-        }
-      }
+            scene.addEventListener("stateadded", onSceneStateChange);
+            scene.addEventListener("stateremoved", onSceneStateChange);
 
-      scene.addEventListener("stateadded", onSceneStateChange);
-      scene.addEventListener("stateremoved", onSceneStateChange);
+            return () => {
+                hubChannel.removeEventListener("permissions_updated", updateItems);
+                scene.removeEventListener("stateadded", onSceneStateChange);
+                scene.removeEventListener("stateremoved", onSceneStateChange);
+            };
+        },
+        [hubChannel, mediaSearchStore, showNonHistoriedDialog, scene]
+    );
 
-      return () => {
-        hubChannel.removeEventListener("permissions_updated", updateItems);
-        scene.removeEventListener("stateadded", onSceneStateChange);
-        scene.removeEventListener("stateremoved", onSceneStateChange);
-      };
-    },
-    [hubChannel, mediaSearchStore, showNonHistoriedDialog, scene]
-  );
-
-  return <PlacePopoverButton items={items} />;
+    return <PlacePopoverButton items={items} />;
 }
 
 PlacePopoverContainer.propTypes = {
-  hubChannel: PropTypes.object.isRequired,
-  scene: PropTypes.object.isRequired,
-  mediaSearchStore: PropTypes.object.isRequired,
-  showNonHistoriedDialog: PropTypes.func.isRequired
+    hubChannel: PropTypes.object.isRequired,
+    scene: PropTypes.object.isRequired,
+    mediaSearchStore: PropTypes.object.isRequired,
+    showNonHistoriedDialog: PropTypes.func.isRequired,
 };

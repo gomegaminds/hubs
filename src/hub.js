@@ -93,7 +93,8 @@ import "./components/leave-room-button";
 import "./components/visible-if-permitted";
 import "./components/visibility-on-content-types";
 import "./components/hide-when-pinned-and-forbidden";
-// import "../mega-src/components/hide-when-protected-and-forbidden";
+import "./mega-src/components/gizmo-helper";
+import "./mega-src/components/focus-button";
 import "./components/visibility-while-frozen";
 import "./components/stats-plus";
 import "./components/networked-avatar";
@@ -343,7 +344,7 @@ function mountUI(props = {}) {
                                 <Auth0Provider
                                     domain="megaminds-prod.us.auth0.com"
                                     clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
-                                    redirectUri={window.location.href}
+                                    redirectUri={window.location.origin}
                                     audience="https://api.megaminds.world"
                                     scope="openid profile email read:classrooms read:teacher_profile create:submission"
                                     useRefreshTokens
