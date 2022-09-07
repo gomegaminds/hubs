@@ -489,7 +489,7 @@ summary {
 }
 
 .watermark {
-    pointer-events: none;
+    pointer-events: none !important;
     width: 300px;
     position: fixed;
     top: 25px;
