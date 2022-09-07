@@ -85,6 +85,7 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/TeacherPopoverContainer";
+import { StickyNotePopover } from "../mega-src/react-components/room/StickyNotePopover";
 import { StudentPopoverContainer } from "../mega-src/react-components/room/StudentPopoverContainer";
 import { syncRoom } from "../mega-src/utils/cloning-utils";
 import { WorldEditUI } from "../mega-src/react-components/room/WorldEditUI";
@@ -1825,6 +1826,17 @@ class UIRoot extends Component {
                                                                         />
                                                                     }
                                                                     preset="accent1"
+                                                                />
+                                                            )}
+                                                            {(isTeacher ||
+                                                                this.props.hubChannel.canOrWillIfCreator(
+                                                                    "spawn_and_move_media"
+                                                                )) && (
+                                                                <StickyNotePopover
+                                                                    scene={this.props.scene}
+                                                                    hubChannel={this.props.hubChannel}
+                                                                    mediaSearchStore={this.props.mediaSearchStore}
+                                                                    showNonHistoriedDialog={this.showNonHistoriedDialog}
                                                                 />
                                                             )}
                                                             {(isTeacher ||
