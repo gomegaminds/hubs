@@ -16,7 +16,7 @@ AFRAME.registerComponent("floaty-object", {
     reduceAngularFloat: { default: false },
 
     // If true, the object will behave the same regardless of how fast it was moving when released
-    unthrowable: { default: false }
+    unthrowable: { default: true }
   },
 
   init() {

@@ -88,8 +88,8 @@ export const floatyObjectSystem = world => {
       if (bodyData.linearVelocity < 9.85) {
         physicsSystem.updateBodyOptions(bodyId, {
           gravity: { x: 0, y: 0, z: 0 },
-          angularDamping: FloatyObject.flags[eid] & FLOATY_OBJECT_FLAGS.REDUCE_ANGULAR_FLOAT ? 0.89 : 0.5,
-          linearDamping: 0.95,
+          angularDamping: 2.95,
+          linearDamping: 2.95,
           linearSleepingThreshold: 0.1,
           angularSleepingThreshold: 0.1,
           collisionFilterMask: COLLISION_LAYERS.HANDS | COLLISION_LAYERS.MEDIA_FRAMES

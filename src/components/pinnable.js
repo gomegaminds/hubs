@@ -21,7 +21,6 @@ AFRAME.registerComponent("pinnable", {
   },
 
   update() {
-    this._animate();
 
     if (this.data.pinned) {
       addComponent(APP.world, Pinned, this.el.object3D.eid);
@@ -32,7 +31,6 @@ AFRAME.registerComponent("pinnable", {
 
   _persistAndAnimate() {
     this._persist();
-    this._animate();
   },
 
   _persist() {
@@ -42,39 +40,6 @@ AFRAME.registerComponent("pinnable", {
 
   _isMine() {
     return this.el.components.networked?.data && NAF.utils.isMine(this.el);
-  },
-
-  _animate() {
-    const isAnimationRunning =
-      this.el.components["animation__pin-start"]?.animationIsPlaying ||
-      this.el.components["animation__pin-end"]?.animationIsPlaying;
-
-    if (this._isMine() && this.data.pinned && !isAnimationRunning) {
-      this.el.removeAttribute("animation__pin-start");
-      this.el.removeAttribute("animation__pin-end");
-      const currentScale = this.el.object3D.scale;
-
-      this.el.setAttribute("animation__pin-start", {
-        property: "scale",
-        dur: 200,
-        from: { x: currentScale.x, y: currentScale.y, z: currentScale.z },
-        to: { x: currentScale.x * 1.1, y: currentScale.y * 1.1, z: currentScale.z * 1.1 },
-        easing: "easeOutElastic"
-      });
-
-      this.el.setAttribute("animation__pin-end", {
-        property: "scale",
-        delay: 200,
-        dur: 200,
-        from: { x: currentScale.x * 1.1, y: currentScale.y * 1.1, z: currentScale.z * 1.1 },
-        to: { x: currentScale.x, y: currentScale.y, z: currentScale.z },
-        easing: "easeOutElastic"
-      });
-
-      if (this.el.components["body-helper"] && !this.el.sceneEl.systems.interaction.isHeld(this.el)) {
-        this.el.setAttribute("body-helper", { type: "kinematic" });
-      }
-    }
   },
 
   tick() {

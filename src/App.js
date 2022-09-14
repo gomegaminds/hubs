@@ -2,7 +2,14 @@ import * as bitecs from "bitecs";
 import { addEntity, createWorld } from "bitecs";
 import "./aframe-to-bit-components";
 import { TransformControls } from "./mega-src/components/TransformControls";
-import { AEntity, Networked, Object3DTag, Owned } from "./bit-components";
+import { addObject3DComponent } from "./utils/jsx-entity";
+import {
+    addComponent,
+    removeComponent,
+    defineQuery,
+    hasComponent,
+} from "bitecs";
+import { AEntity, Networked, Object3DTag, Owned, Gizmo, Holdable, RemoteHoverTarget, CursorRaycastable } from "./bit-components";
 import MediaSearchStore from "./storage/media-search-store";
 import Store from "./storage/store";
 import qsTruthy from "./utils/qs_truthy";
@@ -168,7 +175,6 @@ export class App {
             renderer.render(sceneEl.object3D, camera);
         }
 
-
         // This gets called after all system and component init functions
         sceneEl.addEventListener("loaded", () => {
             renderer.setAnimationLoop(mainTick);
@@ -178,9 +184,20 @@ export class App {
             APP.transformControls.addEventListener("change", mainTick);
 
             // APP.transformControls.visible = true;
-            // APP.transformControls.layers.enableAll();
-            // APP.transformControls.setMode("translate");
-            
+            APP.transformControls.layers.enableAll();
+            APP.transformControls.setMode("translate");
+            APP.transformControls.setSpace("local");
+
+            const eid = addEntity(APP.world);
+            addObject3DComponent(APP.world, eid, APP.transformControls);
+
+            APP.hasComponent = hasComponent;
+
+            addComponent(APP.world, RemoteHoverTarget, eid);
+            addComponent(APP.world, CursorRaycastable, eid);
+            addComponent(APP.world, Holdable, eid);
+            addComponent(APP.world, Gizmo, eid);
+
             sceneEl.object3D.add(APP.transformControls);
             console.log("Created transformcontrols on scene", APP.transformControls);
         });

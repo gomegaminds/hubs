@@ -54,6 +54,9 @@ export const Holdable = defineComponent();
 export const RemoveNetworkedEntityButton = defineComponent();
 export const Interacted = defineComponent();
 
+export const Gizmo = defineComponent();
+export const GizmoGrabbed = defineComponent();
+
 export const HandRight = defineComponent();
 export const HandLeft = defineComponent();
 export const RemoteRight = defineComponent();
@@ -66,6 +69,12 @@ export const HeldHandRight = defineComponent();
 export const HeldHandLeft = defineComponent();
 export const HeldRemoteRight = defineComponent();
 export const HeldRemoteLeft = defineComponent();
+
+export const HeldGizmoRight = defineComponent();
+export const HeldGizmoLeft = defineComponent();
+export const HoveredGizmoRight = defineComponent();
+export const HoveredGizmoLeft = defineComponent();
+
 export const Held = defineComponent();
 export const OffersRemoteConstraint = defineComponent();
 export const HandCollisionTarget = defineComponent();
