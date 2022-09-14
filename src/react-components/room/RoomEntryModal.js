@@ -54,9 +54,7 @@ export function RoomEntryModal({
 
     useEffect(() => {
         if (
-            window.APP.hub.user_data &&
-            window.APP.hub.user_data.clone_finished == false &&
-            !window.APP.hub.user_data.classroom
+            window.APP.hub.user_data && !window.APP.hub.user_data.classroom && isAuthenticatedAsTeacher
         ) {
             syncRoom();
         } else {
