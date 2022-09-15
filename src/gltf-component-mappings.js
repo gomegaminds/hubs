@@ -171,6 +171,7 @@ AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, com
         el.setAttribute("media-pager", { index: componentData.pageIndex });
     }
 
+
     if (componentData.paused !== undefined) {
         el.setAttribute("media-video", { videoPaused: componentData.paused });
     }

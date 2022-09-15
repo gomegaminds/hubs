@@ -17,14 +17,12 @@ export default function pinnedEntityToGltf(el) {
     const position = object3D.position.toArray();
     const scale = object3D.scale.toArray();
 
+    console.log(position);
+    console.log(object3D);
+
     if (!equalArray(rotation, [0, 0, 0, 1])) gltfNode.rotation = rotation;
     if (!equalArray(position, [0, 0, 0])) gltfNode.translation = position;
     if (!equalArray(scale, [1, 1, 1])) gltfNode.scale = scale;
-
-    console.log(components.text);
-    if (components.text) {
-        gltfComponents.text = components.text.data;
-    }
 
     if (components["media-loader"]) {
         const mediaSrc = components["media-loader"].data.src;
@@ -54,6 +52,11 @@ export default function pinnedEntityToGltf(el) {
     }
 
     gltfComponents.pinnable = { pinned: true };
+
+    if (components.text) {
+        gltfComponents.text = components.text.data;
+    }
+
 
     console.log("Saving", gltfComponents);
 
