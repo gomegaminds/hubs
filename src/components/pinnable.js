@@ -32,7 +32,6 @@ AFRAME.registerComponent("pinnable", {
 
   _persistAndAnimate() {
     this._persist();
-    this._animate();
   },
 
   _persist() {

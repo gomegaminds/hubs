@@ -244,6 +244,11 @@ export default class SceneEntryManager {
                 });
             });
 
+            entity.addEventListener("media_resolved", () => {
+                window.APP.pinningHelper.setPinned(entity, true);
+                console.log(entity);
+            });
+
             return entity;
         };
 
