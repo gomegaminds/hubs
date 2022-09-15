@@ -156,7 +156,7 @@
                                 <a-entity class="chest-image" scale="0.18 0.18 0.18" position="0 -0.025 0.13"></a-entity>
                                 <a-entity tags="ignoreSpaceBubble: true;" class="interactable ui interactable-ui" layers="mask: 256; recursive: true;">
                                     <a-entity billboard="onlyY: true;" class="freeze-menu" visibility-while-frozen="withinDistance: 100; requireHoverOnNonMobile: false;" avatar-volume-controls>
-                                        <a-entity class="avatar-volume-label" text="value: 0%; anchorX: center; textAlign: center; color: #ff3464; letterSpacing: 0.08;" text-raycast-hack position="0.0 0.45 0.35" scale="1.25 1.25 1.25"></a-entity>
+                                        <a-entity class="avatar-volume-label" text="value: 0%; anchorX: center; textAlign: center; color: #7D77ce; letterSpacing: 0.08;" text-raycast-hack position="0.0 0.45 0.35" scale="1.25 1.25 1.25"></a-entity>
                                         <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true;" position="-0.45 0.45 0.35" class="avatar-volume-down-button">
                                             <a-entity text="value: -; anchorX: center; textAlign: center; color: #ccc;" text-raycast-hack position="0 0 0.001" scale="0.85 0.85 0.85"></a-entity>
                                         </a-entity>
@@ -285,37 +285,6 @@
                 >
                     <a-entity class="ui interactable-ui" layers="mask: 256; recursive: true;">
                         <a-entity class="freeze-menu" visibility-while-frozen="withinDistance: 100; withPermission: spawn_and_move_media">
-                            <a-entity
-                                mixin="rounded-text-action-button"
-                                is-remote-hover-target
-                                tags="singleActionButton:true"
-                                pin-networked-object-button="tipSelector:.pin-button-tip; labelSelector:.pin-button-label;"
-                                position="0 0.125 0.001">
-                                <a-entity
-                                    class="pin-button-label"
-                                    visible="false"
-                                    text="value:pin; textAlign:center;"
-                                    text-raycast-hack
-                                    position="0 0 0.001">
-                                </a-entity>
-                            </a-entity>
-                            <a-entity
-                                class="pin-button-tip"
-                                text="value:Pinning will broadcast this object to Discord.; textAlign:center; color:#fff; depthOffset: -1;"
-                                visible="false"
-                                text-raycast-hack
-                                slice9="
-                                    color: #0F40A9;
-                                    width: 1.8;
-                                    height: 0.2;
-                                    left: 64;
-                                    top: 64;
-                                    right: 66;
-                                    bottom: 66;
-                                    opacity: 1.0;
-                                    src: button"
-                                position="0 0.6 0.001">
-                            </a-entity>
                             <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" camera-focus-button="track: false" position="-0.25 0.375 0.001">
                                 <a-entity text="value:focus; textAlign:center;" text-raycast-hack position="0.075 0 0.02"></a-entity>
                                 <a-entity
@@ -338,7 +307,6 @@
                                 mixin="rounded-button"
                                 is-remote-hover-target
                                 tags="singleActionButton: true;"
-                                hide-when-pinned-and-forbidden="whenPinned: true"
                                 hide-when-protected-and-forbidden="whenProtected: true"
                                 remove-networked-object-button
                                 position="0 -0.375 0.001">
@@ -350,38 +318,6 @@
                                 ></a-entity>
                             </a-entity>
                             <a-entity visibility-on-content-types="contentTypes: application/pdf; visible: false;">
-                            </a-entity>
-                            <a-entity visibility-on-content-types="contentTypes: video/ audio/ image/ application/vnd.apple.mpegurl application/x-mpegurl application/pdf; visible: false;">
-                                <a-entity
-                                    mixin="rounded-button"
-                                    is-remote-hover-target
-                                    tags="singleActionButton: true;"
-                                    drop-object-button
-                                    hide-when-pinned-and-forbidden="whenPinned: true"
-				    hide-when-protected-and-forbidden="whenProtected: true"
-                                    position="0 -0.625 0.001">
-                                    <a-entity
-                                        sprite
-                                        icon-button="image: drop-action.png; hoverImage: drop-action.png"
-                                        scale="0.165 0.165 0.165"
-                                        position="0 0 0.001"
-                                    ></a-entity>
-                                </a-entity>
-                            </a-entity>
-                            <a-entity
-                                mixin="rounded-button"
-                                is-remote-hover-target
-                                tags="isHoldable: true; holdableButton: true;"
-                                inspect-button
-                                visibility-on-content-types="contentTypes: video/ audio/ image/ application/vnd.apple.mpegurl application/x-mpegurl application/pdf;"
-				hide-when-protected-and-forbidden="whenProtected: true"
-                                position="0 -0.625 0.001">
-                                <a-entity
-                                    sprite
-                                    icon-button="image: focus-action.png; hoverImage: focus-action.png"
-                                    scale="0.165 0.165 0.165"
-                                    position="0 0 0.001"
-                                ></a-entity>
                             </a-entity>
                             <a-entity
                                 class="deserialize-drawing"
@@ -517,37 +453,6 @@
                 >
                     <a-entity class="ui interactable-ui" layers="mask: 256; recursive: true;">
                         <a-entity class="freeze-menu" visibility-while-frozen="withinDistance: 100; withPermission: spawn_and_move_media">
-                            <a-entity
-                                mixin="rounded-text-action-button"
-                                is-remote-hover-target
-                                tags="singleActionButton:true"
-                                pin-networked-object-button="tipSelector:.pin-button-tip; labelSelector:.pin-button-label;"
-                                position="0 0.125 0.001">
-                                <a-entity
-                                    class="pin-button-label"
-                                    visible="false"
-                                    text="value:pin; textAlign:center;"
-                                    text-raycast-hack
-                                    position="0 0 0.001">
-                                </a-entity>
-                            </a-entity>
-                            <a-entity
-                                class="pin-button-tip"
-                                text="value:Pinning will broadcast this object to Discord.; textAlign:center; color:#fff; depthOffset: -1;"
-                                visible="false"
-                                text-raycast-hack
-                                slice9="
-                                    color: #0F40A9;
-                                    width: 1.8;
-                                    height: 0.2;
-                                    left: 64;
-                                    top: 64;
-                                    right: 66;
-                                    bottom: 66;
-                                    opacity: 1.0;
-                                    src: button"
-                                position="0 0.6 0.001">
-                            </a-entity>
                             <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" camera-focus-button="track: false" position="-0.25 0.375 0.001">
                                 <a-entity text="value:focus; textAlign:center;" text-raycast-hack position="0.075 0 0.02"></a-entity>
                                 <a-entity
@@ -570,7 +475,6 @@
                                 mixin="rounded-button"
                                 is-remote-hover-target
                                 tags="singleActionButton: true;"
-                                hide-when-pinned-and-forbidden="whenPinned: true"
                                 hide-when-protected-and-forbidden="whenProtected: true"
                                 remove-networked-object-button
                                 position="0 -0.375 0.001">
@@ -582,23 +486,6 @@
                                 ></a-entity>
                             </a-entity>
                             <a-entity visibility-on-content-types="contentTypes: application/pdf; visible: false;">
-                            </a-entity>
-                            <a-entity visibility-on-content-types="contentTypes: video/ audio/ image/ application/vnd.apple.mpegurl application/x-mpegurl application/pdf; visible: false;">
-                                <a-entity
-                                    mixin="rounded-button"
-                                    is-remote-hover-target
-                                    tags="singleActionButton: true;"
-                                    drop-object-button
-                                    hide-when-pinned-and-forbidden="whenPinned: true"
-				    hide-when-protected-and-forbidden="whenProtected: true"
-                                    position="0 -0.625 0.001">
-                                    <a-entity
-                                        sprite
-                                        icon-button="image: drop-action.png; hoverImage: drop-action.png"
-                                        scale="0.165 0.165 0.165"
-                                        position="0 0 0.001"
-                                    ></a-entity>
-                                </a-entity>
                             </a-entity>
                             <a-entity
                                 mixin="rounded-button"
@@ -759,7 +646,6 @@
                                 mixin="rounded-button"
                                 is-remote-hover-target
                                 tags="singleActionButton: true;"
-                                hide-when-pinned-and-forbidden="whenPinned: true"
                                 remove-networked-object-button
                                 position="0 -0.375 0.001">
                                 <a-entity

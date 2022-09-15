@@ -56,7 +56,7 @@ AFRAME.registerSystem("ui-hotkeys", {
     }
 
     if (this.userinput.get(paths.actions.toggleCamera)) {
-      this.el.emit("action_toggle_camera");
+      // this.el.emit("action_toggle_camera");
     }
 
     if (this.userinput.get(paths.actions.toggleUI)) {
