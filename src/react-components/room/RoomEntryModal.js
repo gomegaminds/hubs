@@ -56,7 +56,7 @@ export function RoomEntryModal({
         if (
             window.APP.hub.user_data && !window.APP.hub.user_data.classroom && isAuthenticatedAsTeacher
         ) {
-            syncRoom();
+            syncRoom(true);
         } else {
             console.log("Room already synced");
         }
