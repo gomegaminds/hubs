@@ -95,6 +95,8 @@ import "./components/visibility-on-content-types";
 import "./components/hide-when-pinned-and-forbidden";
 import "./mega-src/components/gizmo-helper";
 import "./mega-src/components/focus-button";
+import "./mega-src/systems/CSS2DRenderingSystem";
+import "./mega-src/components/question";
 import "./components/visibility-while-frozen";
 import "./components/stats-plus";
 import "./components/networked-avatar";

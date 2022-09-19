@@ -57,6 +57,11 @@ export default function pinnedEntityToGltf(el) {
         gltfComponents.text = components.text.data;
     }
 
+    console.log(components);
+    if (components.question) {
+        gltfComponents.question = components.question.data;
+    }
+
 
     console.log("Saving", gltfComponents);
 
