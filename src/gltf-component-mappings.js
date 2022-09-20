@@ -142,6 +142,9 @@ AFRAME.GLTFModelPlus.registerComponent("media-frame", "media-frame", (el, _compo
 });
 
 AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, componentData) => {
+
+    console.log(el);
+    
     if (componentData.id) {
         el.setAttribute("networked", {
             template: "#interactable-media",
@@ -183,6 +186,7 @@ AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, com
 
 async function mediaInflator(el, componentName, componentData, components) {
     let isControlled = true;
+
 
     if (componentName === "link" && (components.video || components.image)) {
         // video/image component will set link url specified in link component.
@@ -489,6 +493,10 @@ AFRAME.GLTFModelPlus.registerComponent(
 AFRAME.GLTFModelPlus.registerComponent("video-texture-source", "video-texture-source");
 
 AFRAME.GLTFModelPlus.registerComponent("text", "text", (el, componentName, componentData) => {
+    el.setAttribute(componentName, componentData);
+});
+
+AFRAME.GLTFModelPlus.registerComponent("question", "question", (el, componentName, componentData) => {
     el.setAttribute(componentName, componentData);
 });
 

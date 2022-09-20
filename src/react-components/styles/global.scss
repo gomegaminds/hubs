@@ -1,6 +1,7 @@
 
 @use "./theme.scss";
 @import "~normalize.css";
+@import "../../mega-src/react-components/styles/global.css";
 
 // Theme CSS Variables
 // Injected theme will overwrite these defaults
@@ -353,11 +354,6 @@ video {
   height: auto;
 }
 
-label {
-  font-size: theme.$font-size-sm;
-  font-weight: theme.$font-weight-bold;
-}
-
 body :focus, [type="button"]:focus {
   outline: none;
 }
@@ -408,11 +404,6 @@ body::before {
 
 h5 {
   font-size: theme.$font-size-sm;
-}
-
-label, small, strong {
-  font-size: theme.$font-size-xs;
-  font-weight: theme.$font-weight-bold;
 }
 
 
@@ -468,24 +459,6 @@ summary {
   [fill] {
     fill: theme.$text1-color;
   }
-}
-
-.btn-purple {
-  background-color: #BDACF3;
-  color: white;
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: none;
-}
-
-.btn-success {
-  background-color: #8AFF96;
-  color: black;
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: none;
 }
 
 .watermark {
