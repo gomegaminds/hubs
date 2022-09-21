@@ -21,14 +21,12 @@ export default class PinningHelper {
   _signInAndPinOrUnpinElement = (el, pin) => {
     const action = pin ? () => this._pinElement(el) : () => this.unpinElement(el);
 
-    this.performConditionalSignIn(
-      () => this.hubChannel.signedIn,
-      action,
-      pin ? SignInMessages.pin : SignInMessages.unpin,
-      e => {
-        console.warn(`PinningHelper: Conditional sign-in failed. ${e}`);
+      if(this.hubChannel.signedIn) {
+          action();
+      } else {
+          return;
       }
-    );
+
   };
 
   async _pinElement(el) {
