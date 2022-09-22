@@ -283,6 +283,7 @@
                     set-yxz-order
                     hoverable-visuals
                     gizmo-helper
+                    lockable
                     position-at-border__freeze="target:.freeze-menu"
                     position-at-border__freeze-unprivileged="target:.freeze-unprivileged-menu"
                     listed-media
@@ -356,12 +357,31 @@
                             <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" clone-media-button position="-0.43 -0.375 0.001">
                                 <a-entity text="value:clone; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
                             </a-entity>
+                            <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" lock-button position="-0.43 -0.625 0.001">
+                                <a-entity text="value:lock; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
+                            </a-entity>
                             <a-entity
                                 mixin="rounded-action-button"
                                 tags="isHoldable: true; holdableButton: true;"
                                 is-remote-hover-target
-                                transform-button
-                                transform-button-selector
+                                transform-x-button
+                                transform-x-button-selector
+                                hide-when-pinned-and-forbidden
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="-0.3 -0.225 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: rotate-action.png; hoverImage: rotate-action.png;"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-action-button"
+                                tags="isHoldable: true; holdableButton: true;"
+                                is-remote-hover-target
+                                transform-y-button
+                                transform-y-button-selector
                                 hide-when-pinned-and-forbidden
 			        hide-when-protected-and-forbidden="whenProtected: true"
                                 position="-0.3 -0.125 0.001">
@@ -543,8 +563,40 @@
                                 mixin="rounded-action-button"
                                 tags="isHoldable: true; holdableButton: true;"
                                 is-remote-hover-target
-                                transform-button
-                                transform-button-selector
+                                transform--z-button
+                                transform-z-button-selector
+                                hide-when-pinned-and-forbidden
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="-0.3 -0.525 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: rotate-action.png; hoverImage: rotate-action.png;"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-action-button"
+                                tags="isHoldable: true; holdableButton: true;"
+                                is-remote-hover-target
+                                transform--x-button
+                                transform-x-button-selector
+                                hide-when-pinned-and-forbidden
+			        hide-when-protected-and-forbidden="whenProtected: true"
+                                position="-0.3 -0.225 0.001">
+                                <a-entity
+                                    sprite
+                                    icon-button="image: rotate-action.png; hoverImage: rotate-action.png;"
+                                    scale="0.165 0.165 0.165"
+                                    position="0 0 0.001"
+                                ></a-entity>
+                            </a-entity>
+                            <a-entity
+                                mixin="rounded-action-button"
+                                tags="isHoldable: true; holdableButton: true;"
+                                is-remote-hover-target
+                                transform-y-button
+                                transform-y-button-selector
                                 hide-when-pinned-and-forbidden
 			        hide-when-protected-and-forbidden="whenProtected: true"
                                 position="-0.3 -0.125 0.001">

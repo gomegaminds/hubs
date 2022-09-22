@@ -25,9 +25,9 @@ export class PhysicsSystem {
     this.indexToUuid = {};
     this.bodyUuidToData = new Map();
 
-    this.debug = false;
+    this.debug = true;
     this.debugRequested = false;
-    this.debugEnabled = false;
+    this.debugEnabled = true;
     this.scene = scene;
     this.stepDuration = 0;
 
