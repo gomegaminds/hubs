@@ -27,7 +27,7 @@ export class PhysicsSystem {
 
     this.debug = true;
     this.debugRequested = false;
-    this.debugEnabled = true;
+    this.debugEnabled = false;
     this.scene = scene;
     this.stepDuration = 0;
 

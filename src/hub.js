@@ -97,6 +97,7 @@ import "./mega-src/components/gizmo-helper";
 import "./mega-src/components/lock";
 import "./mega-src/components/focus-button";
 import "./mega-src/systems/CSS2DRenderingSystem";
+// import "./mega-src/systems/CSS3DRenderingSystem";
 import "./mega-src/components/question";
 import "./components/visibility-while-frozen";
 import "./components/stats-plus";
