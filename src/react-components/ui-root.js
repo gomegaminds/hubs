@@ -6,7 +6,7 @@ import { FormattedMessage } from "react-intl";
 import screenfull from "screenfull";
 import { Toaster } from "react-hot-toast";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import configs from "../utils/configs";
 import { VR_DEVICE_AVAILABILITY } from "../utils/vr-caps-detect";
@@ -300,10 +300,12 @@ class UIRoot extends Component {
 
     onConcurrentLoad = () => {
         if (qsTruthy("allow_multi") || this.props.store.state.preferences.allowMultipleHubsInstances) return;
-        this.startAutoExitTimer(AutoExitReason.concurrentSession);
+        // this.startAutoExitTimer(AutoExitReason.concurrentSession);
+        return;
     };
 
     onIdleDetected = () => {
+        return;
         if (
             this.props.disableAutoExitOnIdle ||
             this.state.isStreaming ||
@@ -940,7 +942,6 @@ class UIRoot extends Component {
         );
     };
 
-
     renderAudioSetupPanel = () => {
         // TODO: Show HMD mic not chosen warning
         return (
@@ -1404,7 +1405,11 @@ class UIRoot extends Component {
         const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
         const isWorldbuildingButtonVisible = false;
 
-        const isEditMode = this.props.hub && this.props.hub.user_data && this.props.hub.user_data.classroom;
+        let params = new URL(document.location).searchParams;
+        let editInParam = params.get("edit") !== null;
+        window.APP.editMode = editInParam;
+
+        const isEditMode = editInParam;
 
         if (isEditMode) {
             return (
@@ -1990,7 +1995,6 @@ function UIRootHooksWrapper(props) {
     useAccessibleOutlineStyle();
     const breakpoint = useCssBreakpoints();
 
-
     useEffect(
         () => {
             const el = document.getElementById("preload-overlay");
@@ -2013,15 +2017,19 @@ function UIRootHooksWrapper(props) {
         [props.scene]
     );
 
-    const isEditMode = props.hub && props.hub.user_data && props.hub.user_data.classroom;
-    if(isEditMode){
-    return (
-        <ChatContextProvider messageDispatch={props.messageDispatch}>
-            <ObjectListProvider editMode={isEditMode} scene={props.scene}>
-                <UIRoot breakpoint={breakpoint} {...props} />
-            </ObjectListProvider>
-        </ChatContextProvider>
-    );
+    let params = new URL(document.location).searchParams;
+    let editInParam = params.get("edit") !== null;
+    window.APP.editMode = editInParam;
+
+    const isEditMode = editInParam;
+    if (isEditMode) {
+        return (
+            <ChatContextProvider messageDispatch={props.messageDispatch}>
+                <ObjectListProvider editMode={isEditMode} scene={props.scene}>
+                    <UIRoot breakpoint={breakpoint} {...props} />
+                </ObjectListProvider>
+            </ChatContextProvider>
+        );
     }
 
     return (

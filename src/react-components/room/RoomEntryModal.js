@@ -7,7 +7,6 @@ import { ReactComponent as EnterIcon } from "../icons/Enter.svg";
 import { ReactComponent as VRIcon } from "../icons/VR.svg";
 import { ReactComponent as ShowIcon } from "../icons/Show.svg";
 import { ReactComponent as SettingsIcon } from "../icons/Settings.svg";
-import { syncRoom } from "../../mega-src/utils/cloning-utils";
 import styles from "./RoomEntryModal.scss";
 import styleUtils from "../styles/style-utils.scss";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
@@ -40,7 +39,6 @@ export function RoomEntryModal({
     const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
     const [step, setStep] = useState(0);
-    const [synced, setSynced] = useState(0);
 
     const isAuthenticatedAsTeacher = isAuthenticated;
 
@@ -50,17 +48,9 @@ export function RoomEntryModal({
         false
     );
 
-    const isEditingRoom = window.APP.hub.user_data && window.APP.hub.user_data.classroom;
 
-    useEffect(() => {
-        if (
-            window.APP.hub.user_data && !window.APP.hub.user_data.classroom && isAuthenticatedAsTeacher
-        ) {
-            syncRoom(true);
-        } else {
-            console.log("Room already synced");
-        }
-    }, []);
+    const isEditingRoom = window.APP.editMode
+
     useEffect(
         () => {
             if (profile && !loaded) {

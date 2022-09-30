@@ -143,8 +143,6 @@ AFRAME.GLTFModelPlus.registerComponent("media-frame", "media-frame", (el, _compo
 
 AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, componentData) => {
 
-    console.log(el);
-    
     if (componentData.id) {
         el.setAttribute("networked", {
             template: "#interactable-media",

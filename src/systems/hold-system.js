@@ -3,6 +3,7 @@ import { addComponent, removeComponent, defineQuery, hasComponent } from "bitecs
 import {
     Held,
     Holdable,
+    Locked,
     Pinned,
     HoveredRemoteRight,
     HeldRemoteRight,
@@ -29,6 +30,7 @@ function hasPermissionToGrab(world, eid) {
     if (!hasComponent(world, AEntity, eid)) return true;
     return canMove(world.eid2obj.get(eid).el);
 }
+
 
 function grab(world, userinput, queryHovered, held, grabPath) {
     const hovered = queryHovered(world)[0];
