@@ -48,13 +48,17 @@ export function RoomEntryModal({
         false
     );
 
-
-    const isEditingRoom = window.APP.editMode
+    const isEditingRoom = window.APP.editMode;
 
     useEffect(
         () => {
             if (profile && !loaded) {
                 console.log("Got profile", profile);
+                if (profile.reticulum_token) {
+                    console.log("Set reticulum token");
+                    window.APP.store.update({ credentials: { token: profile.reticulum_token } });
+                }
+
                 if (profile.setup == false) {
                     alert(
                         "You are logged in as a teacher, but you have not set up your profile yet. Please go to dash.megaminds.world and finish the setup before continuing as a teacher in the room."
