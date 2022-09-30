@@ -88,6 +88,12 @@ export function RoomEntryModal({
         loginWithRedirect({ appState: { target: window.location.href } });
     };
 
+    if(!loaded) {
+        return (
+            <p>Loading...</p>
+        )
+    }
+
     if (isEditingRoom) {
         return (
             <ClassRoomEntryModal
