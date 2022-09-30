@@ -33,7 +33,7 @@ export function PlacePopoverButton({ items }) {
                     label={title}
                     tipTitle={"Add media"}
                     tipBody={
-                        "Add media such as images, documents, and much more. Remember to pin them if you want them to stay in the room after you leave."
+                        "Add media such as images, documents, and much more."
                     }
                     preset="accent1"
                 />
