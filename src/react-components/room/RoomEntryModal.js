@@ -52,7 +52,7 @@ export function RoomEntryModal({
 
     useEffect(
         () => {
-            if (profile && !loaded) {
+            if (!isApiError && profile && !loaded) {
                 console.log("Got profile", profile);
                 if (profile.reticulum_token) {
                     console.log("Set reticulum token");
@@ -79,6 +79,7 @@ export function RoomEntryModal({
                 setLoaded(true);
             } else {
                 console.log("Loading authentication", profile);
+                setLoaded(true);
             }
         },
         [profile, isProfileLoading]
@@ -88,7 +89,7 @@ export function RoomEntryModal({
         loginWithRedirect({ appState: { target: window.location.href } });
     };
 
-    if(!loaded) {
+    if(isAuthenticatedAsTeacher && !loaded) {
         return (
             <p>Loading...</p>
         )
