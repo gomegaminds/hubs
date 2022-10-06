@@ -279,7 +279,7 @@ export default class HubChannel extends EventTarget {
     };
 
     updateScene = (url) => {
-        if (!this._permissions.update_hub) return "unauthorized";
+        // if (!this._permissions.update_hub) return "unauthorized";
         this.channel.push("update_scene", { url });
     };
 
