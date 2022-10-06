@@ -36,11 +36,9 @@ export function RoomEntryModal({
 }) {
     const breakpoint = useCssBreakpoints();
     const [loaded, setLoaded] = useState(false);
-    const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
+    const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
     const [step, setStep] = useState(0);
-
-    const isAuthenticatedAsTeacher = isAuthenticated;
 
     const [profile, isProfileLoading, isApiError, refresh] = useTeacherProfile(
         "teacherprofile",
@@ -48,17 +46,14 @@ export function RoomEntryModal({
         false
     );
 
+    console.log(profile);
+
     const isEditingRoom = window.APP.editMode;
 
     useEffect(
         () => {
-            if (!isApiError && profile && !loaded) {
+            if (!isProfileLoading && profile) {
                 console.log("Got profile", profile);
-                if (profile.reticulum_token) {
-                    console.log("Set reticulum token");
-                    window.APP.store.update({ credentials: { token: profile.reticulum_token } });
-                }
-
                 if (profile.setup == false) {
                     alert(
                         "You are logged in as a teacher, but you have not set up your profile yet. Please go to dash.megaminds.world and finish the setup before continuing as a teacher in the room."
@@ -73,12 +68,12 @@ export function RoomEntryModal({
                 }
                 if (profile.creatortoken) {
                     console.log("Signing in...");
-                    window.APP.hubChannel.signIn(window.APP.store.state.credentials.token, profile.creatortoken);
+                    window.APP.hubChannel.signIn(profile.reticulum_token, profile.creatortoken);
                     console.log("Signed in, need to refresh hub?");
                 }
                 setLoaded(true);
             } else {
-                console.log("Loading authentication", profile);
+                console.log("No profile found after loading", profile);
                 setLoaded(true);
             }
         },
@@ -89,10 +84,8 @@ export function RoomEntryModal({
         loginWithRedirect({ appState: { target: window.location.href } });
     };
 
-    if(isAuthenticatedAsTeacher && !loaded) {
-        return (
-            <p>Loading...</p>
-        )
+    if (isLoading || (isAuthenticated && isProfileLoading)) {
+        return <p>Loading...</p>;
     }
 
     if (isEditingRoom) {
@@ -101,12 +94,15 @@ export function RoomEntryModal({
                 isSignedIn={isSignedIn}
                 forceJoinRoom={onForceJoinRoom}
                 onSignInClick={onSignInClick}
+                isAuthenticated={isAuthenticated}
             />
         );
     } else {
         return (
             <SessionEntryModal
+                handleLogin={handleLogin}
                 onJoinRoom={onJoinRoom}
+                isAuthenticated={isAuthenticated}
                 isSignedIn={isSignedIn}
                 forceJoinRoom={onForceJoinRoom}
                 onSignInClick={onSignInClick}
@@ -178,7 +174,7 @@ export function RoomEntryModal({
                                     </span>
                                 </Button>
                             )}
-                        {(!isAuthenticatedAsTeacher || !isSignedIn) && (
+                        {(!isAuthenticated || !isSignedIn) && (
                             <Button preset="megamindsPurple" onClick={() => setStep(1)}>
                                 <ShowIcon />
                                 <span>
