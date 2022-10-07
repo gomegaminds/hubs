@@ -747,7 +747,13 @@ class UIRoot extends Component {
     };
 
     occupantCount = () => {
-        return this.props.presences ? Object.entries(this.props.presences).length : 0;
+        let ret = this.props.presences ? Object.entries(this.props.presences) : [];
+
+        let filteredRet = ret.filter((user) => user[1].metas[0].profile.displayName !== "teacher_bot_2df");
+
+        console.log(ret, filteredRet);
+
+        return filteredRet.length;
     };
 
     hasEmbedPresence = () => {
