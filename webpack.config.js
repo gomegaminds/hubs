@@ -5,14 +5,11 @@ const selfsigned = require("selfsigned");
 const webpack = require("webpack");
 const cors = require("cors");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const TOML = require("@iarna/toml");
 const fetch = require("node-fetch");
 const packageLock = require("./package-lock.json");
-const request = require("request");
-const internalIp = require("internal-ip");
 
 function createHTTPSConfig() {
   // Generate certs for the local webpack-dev-server.
@@ -83,24 +80,6 @@ function getModuleDependencies(moduleName) {
   return arr;
 }
 
-function deepModuleDependencyTest(modulesArr) {
-  const deps = [];
-
-  for (const moduleName of modulesArr) {
-    const moduleDependencies = getModuleDependencies(moduleName);
-    deps.push(...moduleDependencies);
-  }
-
-  return module => {
-    if (!module.nameForCondition) {
-      return false;
-    }
-
-    const name = module.nameForCondition();
-
-    return deps.some(depName => name.startsWith(depName));
-  };
-}
 
 function createDefaultAppConfig() {
   const schemaPath = path.join(__dirname, "src", "schema.toml");
@@ -179,7 +158,7 @@ async function fetchAppConfigAndEnvironmentVars() {
 
   const { shortlink_domain, thumbnail_server } = hubsConfigs.general;
 
-  const localIp = process.env.HOST_IP || (await internalIp.v4()) || "localhost";
+  const localIp = process.env.HOST_IP || "localhost";
 
   process.env.RETICULUM_SERVER = host;
   process.env.SHORTLINK_DOMAIN = shortlink_domain;
@@ -285,12 +264,10 @@ module.exports = async (env, argv) => {
   return {
     resolve: {
         symlinks: false,
-    },
-    node: {
-      // need to specify this manually because some random lodash code will try to access
-      // Buffer on the global object if it exists, so webpack will polyfill on its behalf
-      Buffer: false,
-      fs: "empty"
+        fallback: { "url": false },
+        alias: {
+            process: "process/browser"
+        }
     },
     entry: {
       support: path.join(__dirname, "src", "support.js"),
@@ -298,14 +275,6 @@ module.exports = async (env, argv) => {
       hub: path.join(__dirname, "src", "hub.js"),
       scene: path.join(__dirname, "src", "scene.js"),
       avatar: path.join(__dirname, "src", "avatar.js"),
-      link: path.join(__dirname, "src", "link.js"),
-      discord: path.join(__dirname, "src", "discord.js"),
-      cloud: path.join(__dirname, "src", "cloud.js"),
-      signin: path.join(__dirname, "src", "signin.js"),
-      verify: path.join(__dirname, "src", "verify.js"),
-      tokens: path.join(__dirname, "src", "tokens.js"),
-      "whats-new": path.join(__dirname, "src", "whats-new.js"),
-      "webxr-polyfill": path.join(__dirname, "src", "webxr-polyfill.js")
     },
     output: {
       filename: "assets/js/[name]-[chunkhash].js",
@@ -315,25 +284,19 @@ module.exports = async (env, argv) => {
     devServer: {
       https: createHTTPSConfig(),
       host: "0.0.0.0",
-      public: `${host}:8080`,
-      useLocalIp: true,
+      client: {
+          webSocketURL: {
+              hostname: "0.0.0.0",
+              port: 8080,
+
+          }
+      },
       allowedHosts: [host, "hubs.local"],
       headers: devServerHeaders,
       hot: liveReload,
-      inline: liveReload,
-      historyApiFallback: {
-        rewrites: [
-          { from: /^\/signin/, to: "/signin.html" },
-          { from: /^\/discord/, to: "/discord.html" },
-          { from: /^\/cloud/, to: "/cloud.html" },
-          { from: /^\/verify/, to: "/verify.html" },
-          { from: /^\/tokens/, to: "/tokens.html" },
-          { from: /^\/whats-new/, to: "/whats-new.html" }
-        ]
-      },
-      before: function(app) {
+      onBeforeSetupMiddleware: function(devServer) {
         // Local CORS proxy
-        app.all("/cors-proxy/*", (req, res) => {
+        devServer.app.all("/cors-proxy/*", (req, res) => {
           res.header("Access-Control-Allow-Origin", "*");
           res.header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
           res.header("Access-Control-Allow-Headers", "Range");
@@ -352,21 +315,13 @@ module.exports = async (env, argv) => {
 
           if (req.method === "OPTIONS") {
             res.send();
-          } else {
-            const url = req.originalUrl.replace("/cors-proxy/", "");
-            request({ url, method: req.method }, error => {
-              if (error) {
-                console.error(`cors-proxy: error fetching "${url}"\n`, error);
-                return;
-              }
-            }).pipe(res);
-          }
+          } 
         });
 
         // be flexible with people accessing via a local reticulum on another port
-        app.use(cors({ origin: /hubs\.local(:\d*)?$/ }));
+        devServer.app.use(cors({ origin: /hubs\.local(:\d*)?$/ }));
         // networked-aframe makes HEAD requests to the server for time syncing. Respond with an empty body.
-        app.head("*", function(req, res, next) {
+        devServer.app.head("*", function(req, res, next) {
           if (req.method === "HEAD") {
             res.append("Date", new Date().toGMTString());
             res.send("");
@@ -389,16 +344,20 @@ module.exports = async (env, argv) => {
           loader: "html-loader",
           options: {
             // <a-asset-item>'s src property is overwritten with the correct transformed asset url.
-            attrs: ["img:src", "a-asset-item:src", "audio:src", "source:src"]
+            sources: {
+                list: [
+                    "...",
+                ]
+            }
           }
         },
         {
           test: /\.worker\.js$/,
           loader: "worker-loader",
           options: {
-            name: "assets/js/[name]-[hash].js",
+            filename: "assets/js/[name]-[hash].js",
             publicPath: "/",
-            inline: true
+            inline: "fallback"
           }
         },
         {
@@ -408,7 +367,6 @@ module.exports = async (env, argv) => {
             path.resolve(__dirname, "src", "support.js")
           ],
           loader: "babel-loader",
-          options: legacyBabelConfig
         },
         // Some JS assets are loaded at runtime and should be coppied unmodified and loaded using file-loader
         {
@@ -453,20 +411,16 @@ module.exports = async (env, argv) => {
         {
           test: [path.resolve(__dirname, "node_modules", "three", "examples", "jsm", "exporters", "GLTFExporter.js")],
           loader: "babel-loader",
-          options: legacyBabelConfig
         },
         {
           test: /\.(scss|css)$/,
           use: [
             {
-              loader: MiniCssExtractPlugin.loader
-            },
-            {
               loader: "css-loader",
               options: {
-                name: "[path][name]-[hash].[ext]",
-                localIdentName: "[name]__[local]__[hash:base64:5]",
-                camelCase: true
+                  modules: {
+                      localIdentName: "[name]__[local]__[hash:base64:5]",
+                  },
               }
             },
             "sass-loader"
@@ -478,19 +432,6 @@ module.exports = async (env, argv) => {
           use: [
             {
               loader: "@svgr/webpack",
-              options: {
-                titleProp: true,
-                replaceAttrValues: { "#000": "{props.color}" },
-                template: require("./src/react-components/icons/IconTemplate"),
-                svgoConfig: {
-                  plugins: {
-                    removeViewBox: false,
-                    mergePaths: false,
-                    convertShapeToPath: false,
-                    removeHiddenElems: false
-                  }
-                }
-              }
             },
             "url-loader"
           ]
@@ -531,30 +472,16 @@ module.exports = async (env, argv) => {
         maxInitialRequests: 10,
         cacheGroups: {
           frontend: {
-            test: deepModuleDependencyTest([
-              "react",
-              "react-dom",
-              "prop-types",
-              "raven-js",
-              "react-intl",
-              "classnames",
-              "react-router",
-              "@fortawesome/fontawesome-svg-core",
-              "@fortawesome/free-solid-svg-icons",
-              "@fortawesome/react-fontawesome"
-            ]),
             name: "frontend",
             chunks: "initial",
             priority: 40
           },
           engine: {
-            test: deepModuleDependencyTest(["aframe", "three"]),
             name: "engine",
             chunks: "initial",
             priority: 30
           },
           store: {
-            test: deepModuleDependencyTest(["phoenix", "jsonschema", "event-target-shim", "jwt-decode", "js-cookie"]),
             name: "store",
             chunks: "initial",
             priority: 20
@@ -576,67 +503,38 @@ module.exports = async (env, argv) => {
       htmlPagePlugin({
         filename: "index.html",
         extraChunks: ["support"],
+        favicon: "./src/assets/images/favicon.ico",
         chunksSortMode: "manual"
       }),
       htmlPagePlugin({
         filename: "hub.html",
-        extraChunks: ["webxr-polyfill", "support"],
+        extraChunks: ["support"],
+        favicon: "./src/assets/images/favicon.ico",
         chunksSortMode: "manual",
         inject: "head"
       }),
       htmlPagePlugin({
         filename: "scene.html",
         extraChunks: ["support"],
+        favicon: "./src/assets/images/favicon.ico",
         chunksSortMode: "manual",
         inject: "head"
       }),
       htmlPagePlugin({
         filename: "avatar.html",
+        favicon: "./src/assets/images/favicon.ico",
         extraChunks: ["support"],
         chunksSortMode: "manual",
         inject: "head"
       }),
-      htmlPagePlugin({
-        filename: "link.html",
-        extraChunks: ["support"],
-        chunksSortMode: "manual"
+      new webpack.ProgressPlugin({
+          activeModules: true // display the current module
       }),
-      htmlPagePlugin({
-        filename: "discord.html"
-      }),
-      htmlPagePlugin({
-        filename: "whats-new.html",
-        inject: "head"
-      }),
-      htmlPagePlugin({
-        filename: "cloud.html",
-        inject: "head"
-      }),
-      htmlPagePlugin({
-        filename: "signin.html"
-      }),
-      htmlPagePlugin({
-        filename: "verify.html"
-      }),
-      htmlPagePlugin({
-        filename: "tokens.html"
-      }),
-      new CopyWebpackPlugin([
-        {
-          from: "src/hub.service.js",
-          to: "hub.service.js"
-        }
-      ]),
-      new CopyWebpackPlugin([
-        {
-          from: "src/schema.toml",
-          to: "schema.toml"
-        }
-      ]),
-      // Extract required css and add a content hash.
-      new MiniCssExtractPlugin({
-        filename: "assets/stylesheets/[name]-[contenthash].css",
-        disable: argv.mode !== "production"
+      new CopyWebpackPlugin({
+          patterns: [
+              { from: "src/hub.service.js", to: "hub.service.js" },
+              { from: "src/schema.toml", to: "schema.toml" }
+          ],
       }),
       // Define process.env variables in the browser context.
       new webpack.DefinePlugin({

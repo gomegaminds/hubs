@@ -1,7 +1,7 @@
 // It seems we need to use require to import modules
 // under the three/examples/js to avoid tree shaking
 // in webpack production mode.
-require("three/examples/js/lights/LightProbeGenerator");
+// require("three/examples/js/lights/LightProbeGenerator");
 
 const {
   AmbientLight,

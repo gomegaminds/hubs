@@ -9,7 +9,6 @@ import { ReactComponent as ShowIcon } from "../icons/Show.svg";
 import { ReactComponent as SettingsIcon } from "../icons/Settings.svg";
 import styles from "./RoomEntryModal.scss";
 import styleUtils from "../styles/style-utils.scss";
-import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { Column } from "../layout/Column";
 import { AppLogo } from "../misc/AppLogo";
 import { FormattedMessage } from "react-intl";
@@ -33,7 +32,6 @@ export function RoomEntryModal({
     isSignedIn,
     ...rest
 }) {
-    const breakpoint = useCssBreakpoints();
     const [loaded, setLoaded] = useState(false);
 
     const [step, setStep] = useState(0);

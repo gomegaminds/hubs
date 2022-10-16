@@ -19,7 +19,6 @@ import {
 import "./utils/debug-log";
 import configs from "./utils/configs";
 import "./utils/theme";
-import "@babel/polyfill";
 
 console.log(
     `App version: ${
@@ -46,11 +45,6 @@ THREE.Cache.enabled = false;
 import "./utils/logging";
 import { patchWebGLRenderingContext } from "./utils/webgl";
 patchWebGLRenderingContext();
-
-// It seems we need to use require to import modules
-// under the three/examples/js to avoid tree shaking
-// in webpack production mode.
-require("three/examples/js/loaders/GLTFLoader");
 
 import "networked-aframe/src/index";
 import "webrtc-adapter";
@@ -107,7 +101,7 @@ import "./components/visibility-on-content-types";
 import "./components/hide-when-pinned-and-forbidden";
 import "./mega-src/components/gizmo-helper";
 import "./mega-src/components/lock";
-import "./mega-src/components/focus-button";
+// import "./mega-src/components/focus-button";
 import "./mega-src/systems/CSS2DRenderingSystem";
 // import "./mega-src/systems/CSS3DRenderingSystem";
 import "./mega-src/components/question";
@@ -139,7 +133,7 @@ import "./components/follow-in-fov";
 import "./components/clone-media-button";
 import "./components/open-media-button";
 import "./components/refresh-media-button";
-import "./components/tweet-media-button";
+// import "./components/tweet-media-button";
 import "./components/remix-avatar-button";
 import "./components/transform-object-button";
 import "./components/transform-x-object-button";
@@ -348,7 +342,7 @@ function mountUI(props = {}) {
         qsTruthy("allow_idle") || (process.env.NODE_ENV === "development" && !qs.get("idle_timeout"));
     const forcedVREntryType = qsVREntryType;
 
-    ReactDOM.render(
+    ReactDOM.createRoot(
         <WrappedIntlProvider>
             <ThemeProvider store={store}>
                 <Router history={history}>
@@ -387,8 +381,7 @@ function mountUI(props = {}) {
                 </Router>
             </ThemeProvider>
         </WrappedIntlProvider>,
-        document.getElementById("ui-root")
-    );
+    ).render(document.getElementById("ui-root"));
 }
 
 export function remountUI(props) {

@@ -82,7 +82,6 @@ import { PeopleSidebarContainer, userFromPresence } from "./room/PeopleSidebarCo
 import { ObjectListProvider } from "./room/useObjectList";
 import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
-import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/popovers/TeacherPopoverContainer";
 import { HelpPopover } from "../mega-src/react-components/room/popovers/HelpPopover";
@@ -108,7 +107,6 @@ import { ExitReason } from "./room/ExitedRoomScreen";
 import { UserProfileSidebarContainer } from "./room/UserProfileSidebarContainer";
 import { CloseRoomModal } from "./room/CloseRoomModal";
 import { WebVRUnsupportedModal } from "./room/WebVRUnsupportedModal";
-import { TweetModalContainer } from "./room/TweetModalContainer";
 import { TipContainer, FullscreenTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
@@ -186,7 +184,6 @@ class UIRoot extends Component {
         onLoaded: PropTypes.func,
         activeObject: PropTypes.object,
         selectedObject: PropTypes.object,
-        breakpoint: PropTypes.string,
     };
 
     state = {
@@ -402,7 +399,6 @@ class UIRoot extends Component {
 
         this.playerRig = scene.querySelector("#avatar-rig");
 
-        scene.addEventListener("action_media_tweet", this.onTweet);
     }
 
     UNSAFE_componentWillMount() {
@@ -415,7 +411,6 @@ class UIRoot extends Component {
         this.props.scene.removeEventListener("share_video_enabled", this.onShareVideoEnabled);
         this.props.scene.removeEventListener("share_video_disabled", this.onShareVideoDisabled);
         this.props.scene.removeEventListener("share_video_failed", this.onShareVideoFailed);
-        this.props.scene.removeEventListener("action_media_tweet", this.onTweet);
         this.props.store.removeEventListener("statechanged", this.storeUpdated);
         window.removeEventListener("concurrentload", this.onConcurrentLoad);
         window.removeEventListener("idle_detected", this.onIdleDetected);
@@ -772,22 +767,6 @@ class UIRoot extends Component {
         }
 
         return false;
-    };
-
-    onTweet = ({ detail }) => {
-        handleExitTo2DInterstitial(true, () => {}).then(() => {
-            this.props.performConditionalSignIn(
-                () => this.props.hubChannel.signedIn,
-                () => {
-                    this.showNonHistoriedDialog(TweetModalContainer, {
-                        hubChannel: this.props.hubChannel,
-                        isAdmin: configs.isAdmin(),
-                        ...detail,
-                    });
-                },
-                SignInMessages.tweet
-            );
-        });
     };
 
     onChangeScene = () => {
@@ -1167,123 +1146,6 @@ class UIRoot extends Component {
             this.props.hubChannel && this.props.hubChannel.canOrWillIfCreator("kick_users") && !isMobileVR;
         const isTeacher = this.props.hubChannel.canOrWillIfCreator("close_hub");
 
-        const moreMenu = [
-            {
-                id: "room",
-                label: <FormattedMessage id="more-menu.room" defaultMessage="Room" />,
-                items: [
-                    isTeacher && {
-                        id: "room-info",
-                        label: <FormattedMessage id="more-menu.room-info" defaultMessage="Room Permissions" />,
-                        icon: HomeIcon,
-                        onClick: () => this.setSidebar("room-info"),
-                    },
-                    (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
-                        (this.props.hub.entry_mode !== "invite" ||
-                            this.props.hubChannel.canOrWillIfCreator("update_hub")) && {
-                            id: "invite",
-                            label: <FormattedMessage id="more-menu.invite" defaultMessage="Invite" />,
-                            icon: InviteIcon,
-                            onClick: () => this.props.scene.emit("action_invite"),
-                        },
-                    this.isFavorited()
-                        ? false && {
-                              id: "unfavorite-room",
-                              label: (
-                                  <FormattedMessage id="more-menu.unfavorite-room" defaultMessage="Unfavorite Room" />
-                              ),
-                              icon: StarIcon,
-                              onClick: () => this.toggleFavorited(),
-                          }
-                        : false && {
-                              id: "favorite-room",
-                              label: <FormattedMessage id="more-menu.favorite-room" defaultMessage="Favorite Room" />,
-                              icon: StarOutlineIcon,
-                              onClick: () => this.toggleFavorited(),
-                          },
-                    false &&
-                        isModerator &&
-                        entered && {
-                            id: "streamer-mode",
-                            label: streaming ? (
-                                <FormattedMessage
-                                    id="more-menu.exit-streamer-mode"
-                                    defaultMessage="Exit Streamer Mode"
-                                />
-                            ) : (
-                                <FormattedMessage
-                                    id="more-menu.enter-streamer-mode"
-                                    defaultMessage="Enter Streamer Mode"
-                                />
-                            ),
-                            icon: CameraIcon,
-                            onClick: () => this.toggleStreamerMode(),
-                        },
-                    false &&
-                        (this.props.breakpoint === "sm" || this.props.breakpoint === "md") &&
-                        entered && {
-                            id: "leave-room",
-                            label: <FormattedMessage id="more-menu.enter-leave-room" defaultMessage="Leave Room" />,
-                            icon: LeaveIcon,
-                            onClick: () => {
-                                this.showNonHistoriedDialog(LeaveRoomModal, {
-                                    destinationUrl: "/",
-                                    reason: LeaveReason.leaveRoom,
-                                });
-                            },
-                        },
-                    false &&
-                        canCloseRoom && {
-                            id: "close-room",
-                            label: <FormattedMessage id="more-menu.close-room" defaultMessage="Close Room" />,
-                            icon: DeleteIcon,
-                            onClick: () =>
-                                this.props.performConditionalSignIn(
-                                    () => this.props.hubChannel.canOrWillIfCreator("update_hub"),
-                                    () => {
-                                        this.showNonHistoriedDialog(CloseRoomModal, {
-                                            roomName: this.props.hub.name,
-                                            onConfirm: () => {
-                                                this.props.hubChannel.closeHub();
-                                            },
-                                        });
-                                    },
-                                    SignInMessages.closeRoom
-                                ),
-                        },
-                ].filter((item) => item),
-            },
-            {
-                id: "support",
-                label: <FormattedMessage id="more-menu.support" defaultMessage="Support" />,
-                items: [
-                    entered && {
-                        id: "start-tour",
-                        label: <FormattedMessage id="more-menu.start-tour" defaultMessage="Tutorial" />,
-                        icon: SupportIcon,
-                        onClick: () => this.props.scene.systems.tips.resetTips(),
-                    },
-                    configs.feature("show_docs_link") && {
-                        id: "help",
-                        label: <FormattedMessage id="more-menu.help" defaultMessage="Help" />,
-                        icon: SupportIcon,
-                        href: configs.link("docs", "https://hubs.mozilla.com/docs"),
-                    },
-                    configs.feature("show_terms") && {
-                        id: "tos",
-                        label: <FormattedMessage id="more-menu.tos" defaultMessage="Terms of Service" />,
-                        icon: TextDocumentIcon,
-                        href: configs.link("terms_of_use", TERMS),
-                    },
-                    configs.feature("show_privacy") && {
-                        id: "privacy",
-                        label: <FormattedMessage id="more-menu.privacy" defaultMessage="Privacy Notice" />,
-                        icon: ShieldIcon,
-                        href: configs.link("privacy_notice", PRIVACY),
-                    },
-                ].filter((item) => item),
-            },
-        ];
         const hasActivePen = !!this.props.scene.systems["pen-tools"].getMyPen();
         const isWorldbuildingButtonVisible = false;
 
@@ -1416,9 +1278,7 @@ class UIRoot extends Component {
                                     <>
                                         {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                                         {false && !this.props.selectedObject && <CompactMoreMenuButton />}
-                                        {(!this.props.selectedObject ||
-                                            (this.props.breakpoint !== "sm" && this.props.breakpoint !== "md")) &&
-                                            !isMobile && (
+                                        {!this.props.selectedObject && !isMobile && (
                                                 <ContentMenu>
                                                     {isTeacher &&
                                                         showObjectList && (
@@ -1441,7 +1301,7 @@ class UIRoot extends Component {
                                                             />
                                                         )}
                                                 </ContentMenu>
-                                            )}
+                                        )}
                                         {!entered &&
                                             !streaming &&
                                             !isMobile &&
@@ -1451,11 +1311,6 @@ class UIRoot extends Component {
                                                 hubChannel={this.props.hubChannel}
                                                 scene={this.props.scene}
                                                 onOpenProfile={() => this.setSidebar("profile")}
-                                                onGoToObject={() => {
-                                                    if (this.props.breakpoint === "sm") {
-                                                        this.setSidebar(null);
-                                                    }
-                                                }}
                                             />
                                         )}
                                         {this.state.sidebarId !== "chat" &&
@@ -1848,7 +1703,6 @@ class UIRoot extends Component {
 
 function UIRootHooksWrapper(props) {
     useAccessibleOutlineStyle();
-    const breakpoint = useCssBreakpoints();
 
     useEffect(
         () => {
@@ -1881,7 +1735,7 @@ function UIRootHooksWrapper(props) {
         return (
             <ChatContextProvider messageDispatch={props.messageDispatch}>
                 <ObjectListProvider editMode={isEditMode} scene={props.scene}>
-                    <UIRoot breakpoint={breakpoint} {...props} />
+                    <UIRoot {...props} />
                 </ObjectListProvider>
             </ChatContextProvider>
         );
@@ -1891,7 +1745,7 @@ function UIRootHooksWrapper(props) {
         <ChatContextProvider messageDispatch={props.messageDispatch}>
             <ObjectListProvider scene={props.scene}>
                 <Toaster />
-                <UIRoot breakpoint={breakpoint} {...props} />
+                <UIRoot  {...props} />
             </ObjectListProvider>
         </ChatContextProvider>
     );

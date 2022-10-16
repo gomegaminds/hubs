@@ -7,8 +7,10 @@ import classNames from "classnames";
 // It seems we need to use require to import modules
 // under the three/examples/js to avoid tree shaking
 // in webpack production mode.
-require("three/examples/js/controls/OrbitControls");
-require("three/examples/js/loaders/GLTFLoader");
+// require("three/examples/js/controls/OrbitControls");
+// require("three/examples/js/loaders/GLTFLoader");
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+
 import * as THREE from 'three';
 
 
@@ -93,7 +95,7 @@ class AvatarPreview extends Component {
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(55, this.canvas.clientWidth / this.canvas.clientHeight, 0.1, 1000);
-    this.controls = new THREE.OrbitControls(this.camera, this.canvas);
+    this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.screenSpacePanning = true;
     this.controls.enableKeys = true;
 

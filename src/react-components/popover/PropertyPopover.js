@@ -2,10 +2,8 @@ import React, { useState, useCallback, useEffect } from "react";
 // Note react-popper-2 is just an alias to react-popper@2.2.3 because storybook is depending on an old version.
 // https://github.com/storybookjs/storybook/issues/10982
 import { usePopper } from "react-popper-2";
-import styles from "./Popover.scss";
 import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
-import { useCssBreakpoints } from "react-use-css-breakpoints";
 import classNames from "classnames";
 import { CloseButton } from "../input/CloseButton";
 
@@ -38,8 +36,7 @@ export function PropertyPopover({
       { name: "offset", options: { offset: [offsetSkidding, offsetDistance] } } // https://popper.js.org/docs/v2/modifiers/offset/
     ]
   });
-  const breakpoint = useCssBreakpoints();
-  const fullscreen = !disableFullscreen && (breakpoint === "sm" || breakpoint === "md");
+  const fullscreen = !disableFullscreen;
   const openPopover = useCallback(() => setVisible(true), [setVisible]);
   const closePopover = useCallback(() => setVisible(false), [setVisible]);
   const togglePopover = useCallback(() => setVisible(visible => !visible), [setVisible]);
@@ -91,21 +88,6 @@ export function PropertyPopover({
     [visible, popperElement, referenceElement, setVisible]
   );
 
-  useEffect(
-    () => {
-      if (visible && fullscreen) {
-        document.body.classList.add(styles.fullscreenBody);
-      } else {
-        document.body.classList.remove(styles.fullscreenBody);
-      }
-
-      return () => {
-        document.body.classList.remove(styles.fullscreenBody);
-      };
-    },
-    [fullscreen, visible]
-  );
-
   return (
     <>
       {children({
@@ -119,17 +101,15 @@ export function PropertyPopover({
         createPortal(
           <div
             ref={setPopperElement}
-            className={classNames(styles.popoverProperties, { [styles.fullscreen]: fullscreen }, popoverClass)}
-            style={fullscreen ? undefined : popperStyles}
             {...attributes.popper}
           >
             {showHeader && (
-              <div className={styles.header}>
+              <div >
                 <CloseButton onClick={closePopover} />
                 <h5>{title}</h5>
               </div>
             )}
-            <div className={styles.content}>
+            <div>
               {typeof Content === "function" ? (
                 <Content fullscreen={fullscreen} closePopover={closePopover} />
               ) : (

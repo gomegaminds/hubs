@@ -100,10 +100,10 @@ export function getAbsoluteHref(baseUrl, relativeUrl) {
 }
 
 // Note this file is configured in webpack.config.js to be handled with file-loader, so this will be a string containing the file path
-import basisJsUrl from "three/examples/js/libs/basis/basis_transcoder.js";
-import basisWasmUrl from "three/examples/js/libs/basis/basis_transcoder.wasm";
-import dracoWrapperJsUrl from "three/examples/js/libs/draco/gltf/draco_wasm_wrapper.js";
-import dracoWasmUrl from "three/examples/js/libs/draco/gltf/draco_decoder.wasm";
+const basisJsUrl = "three/examples/js/libs/basis/basis_transcoder.js";
+const basisWasmUrl = "three/examples/js/libs/basis/basis_transcoder.wasm";
+const dracoWrapperJsUrl = "three/examples/js/libs/draco/gltf/draco_wasm_wrapper.js";
+const dracoWasmUrl =  "three/examples/js/libs/draco/gltf/draco_decoder.wasm";
 
 export const rewriteBasisTranscoderUrls = function(url) {
   if (url === "basis_transcoder.js") {

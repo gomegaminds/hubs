@@ -6,8 +6,8 @@ import { ToolbarButton } from "../input/ToolbarButton";
 import { ReactComponent as ReactionIcon } from "../icons/MegaMinds/Smile.svg";
 import { ReactComponent as HandRaisedIcon } from "../icons/HandRaised.svg";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
-import { Column } from "../layout/Column";
-import { Row } from "../layout/Row";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 import { HandRaisedButton } from "./ReactionButton";
 import styles from "./ReactionPopover.scss";
 import { Button } from "../input/Button";
@@ -19,11 +19,11 @@ const reactionPopoverTitle = defineMessage({
 
 function ReactionPopoverContent({ items, presence, onToggleHandRaised, ...rest }) {
     return (
-        <Column padding="sm" grow gap="sm">
+        <Col padding="sm" grow gap="sm">
             <Row noWrap>
                 <ImageGridPopover items={items} {...rest} />
             </Row>
-        </Column>
+        </Col>
     );
 }
 

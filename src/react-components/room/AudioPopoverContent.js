@@ -4,12 +4,11 @@ import styles from "./AudioPopover.scss";
 import { ReactComponent as MicrophoneIcon } from "../icons/Microphone.svg";
 import { ReactComponent as MicrophoneMutedIcon } from "../icons/MicrophoneMuted.svg";
 import { ReactComponent as VolumeOff } from "../icons/VolumeOff.svg";
-import { Column } from "../layout/Column";
+import Col from "react-bootstrap/Col";
 import { FormattedMessage } from "react-intl";
 import { SelectInputField } from "../input/SelectInputField";
-import { Row } from "../layout/Row";
+import Row from "react-bootstrap/Row";
 import { ToggleInput } from "../input/ToggleInput";
-import { Divider } from "../layout/Divider";
 import { Button } from "../input/Button";
 
 export const AudioPopoverContent = ({
@@ -28,7 +27,7 @@ export const AudioPopoverContent = ({
 }) => {
   const iconStyle = isMicrophoneEnabled ? styles.iconEnabled : styles.iconDisabled;
   return (
-    <Column padding grow gap="lg" className={styles.audioToolbarPopover}>
+    <Col padding grow gap="lg" className={styles.audioToolbarPopover}>
       <p style={{ alignSelf: "start" }}>
         <FormattedMessage id="mic-setup-modal.microphone-text" defaultMessage="Microphone" />
       </p>
@@ -55,7 +54,6 @@ export const AudioPopoverContent = ({
           onChange={onChangeMicrophoneMuted}
         />
       </Row>
-      <Divider />
       <p style={{ alignSelf: "start" }}>
         <FormattedMessage id="mic-setup-modal.speakers-text" defaultMessage="Speakers" />
       </p>
@@ -74,7 +72,7 @@ export const AudioPopoverContent = ({
       <Button preset="basic" onClick={onPlaySound} sm>
         <FormattedMessage id="mic-setup-modal.test-audio-button" defaultMessage="Test Audio" />
       </Button>
-    </Column>
+    </Col>
   );
 };
 

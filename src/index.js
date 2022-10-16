@@ -47,4 +47,6 @@ function Root() {
     );
 }
 
-ReactDOM.render(<Root />, document.getElementById("home-root"));
+const root = ReactDOM.createRoot(<Root />)
+root.render(document.getElementById("home-root"));
+

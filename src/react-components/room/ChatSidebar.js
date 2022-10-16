@@ -11,8 +11,6 @@ import { ReactComponent as ReactionIcon } from "../icons/Reaction.svg";
 import { IconButton } from "../input/IconButton";
 import { TextAreaInput } from "../input/TextAreaInput";
 import { ToolbarButton } from "../input/ToolbarButton";
-import { Popover } from "../popover/Popover";
-import { EmojiPicker } from "./EmojiPicker";
 import styles from "./ChatSidebar.scss";
 import { formatMessageBody } from "../../utils/chat-message";
 import { FormattedMessage, useIntl, defineMessages, FormattedRelativeTime } from "react-intl";
@@ -32,65 +30,6 @@ export function SendMessageButton(props) {
         </IconButton>
     );
 }
-
-// Memoize EmojiPickerPopoverButton since we don't want it re-rendering
-// the EmojiPicker unnecessarily.
-export const EmojiPickerPopoverButton = React.memo(({ onSelectEmoji }) => {
-    // We're using a ref here, since we don't want to re-render anything, but we
-    // do want to know if the Shift key is down when an emoji is selected.
-    const shiftKeyDown = useRef(false);
-
-    useEffect(() => {
-        const onKeyDown = (e) => {
-            if (e.key === "Shift") shiftKeyDown.current = true;
-        };
-        const onKeyUp = (e) => {
-            if (e.key === "Shift") shiftKeyDown.current = false;
-        };
-
-        window.addEventListener("keydown", onKeyDown);
-        window.addEventListener("keyup", onKeyUp);
-
-        return () => {
-            window.removeEventListener("keydown", onKeyDown);
-            window.removeEventListener("keyup", onKeyUp);
-        };
-    }, []);
-
-    return (
-        <Popover
-            title=""
-            content={({ closePopover }) => (
-                <EmojiPicker
-                    onSelect={(emoji) => {
-                        const keepPickerOpen = shiftKeyDown.current;
-                        onSelectEmoji({ emoji, pickerRemainedOpen: keepPickerOpen });
-                        // Keep the picker open if the Shift key was held down to allow
-                        // for multiple emoji selections.
-                        if (!keepPickerOpen) closePopover();
-                    }}
-                />
-            )}
-            placement="top"
-            offsetDistance={28}
-        >
-            {({ togglePopover, popoverVisible, triggerRef }) => (
-                <IconButton
-                    ref={triggerRef}
-                    className={styles.chatInputIcon}
-                    selected={popoverVisible}
-                    onClick={togglePopover}
-                >
-                    <ReactionIcon />
-                </IconButton>
-            )}
-        </Popover>
-    );
-});
-
-EmojiPickerPopoverButton.propTypes = {
-    onSelectEmoji: PropTypes.func.isRequired,
-};
 
 export function MessageAttachmentButton(props) {
     return (

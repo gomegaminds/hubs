@@ -10,7 +10,6 @@ import {
   SpawnMessageButton,
   ChatToolbarButton,
   SendMessageButton,
-  EmojiPickerPopoverButton,
   ChatLengthWarning
 } from "./ChatSidebar";
 import { useMaintainScrollPosition } from "../misc/useMaintainScrollPosition";
@@ -307,7 +306,6 @@ export function ChatSidebarContainer({ scene, canSpawnMessages, presences, occup
         }
         afterInput={
           <>
-            {!isMobile && <EmojiPickerPopoverButton onSelectEmoji={onSelectEmoji} />}
             {message.length === 0 && canSpawnMessages ? (
               <MessageAttachmentButton onChange={onUploadAttachments} />
             ) : (

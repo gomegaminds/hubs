@@ -7,8 +7,6 @@ import { ReactComponent as ReactionIcon } from "../icons/Reaction.svg";
 import { ReactComponent as HandRaisedIcon } from "../icons/MegaMinds/LowerHand.svg";
 import { ReactComponent as HandLoweredIcon } from "../icons/MegaMinds/RaiseHand.svg";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
-import { Column } from "../layout/Column";
-import { Row } from "../layout/Row";
 import { HandRaisedButton } from "./ReactionButton";
 import styles from "./ReactionPopover.scss";
 import { Button } from "../input/Button";
