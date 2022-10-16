@@ -50,7 +50,9 @@ export default function pinnedEntityToGltf(el) {
 
     gltfComponents.pinnable = { pinned: true };
 
+    console.log(components, el);
     if (components.text) {
+        console.log("Got text component on pinning");
         gltfComponents.text = components.text.data;
     }
 

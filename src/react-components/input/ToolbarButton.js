@@ -63,7 +63,7 @@ export const ToolbarButton = forwardRef(
                 )}
                 {...rest}
             >
-                <div className={classNames(styles.iconContainer, iconContainerClassName)} aria-hidden="true">
+                <div className={classNames("toolbar-container", styles.iconContainer, iconContainerClassName)} aria-hidden="true">
                     {icon}
                     {statusColor && (
                         <div className={classNames(styles.statusIndicator, styles["status-" + statusColor])} />

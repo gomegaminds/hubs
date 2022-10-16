@@ -245,11 +245,11 @@
 
 :local(.handraised) {
   :local(.icon-container) {
-    background-color: #8AFF96;
+    background-color: #00BA13;
   }  
 
   &:hover :local(.icon-container) {
-    background-color: #8AFF96;
+    background-color: #007A0C;
   }
 
   &:active :local(.icon-container) {
@@ -312,11 +312,11 @@
 
 :local(.micon) {
   :local(.icon-container) {
-    background-color: #8AFF96;
+    background-color: #00BA13;
   }  
 
   &:hover :local(.icon-container) {
-    background-color: #6ADD76;
+    background-color: #007A0C;
   }
 
   &:active :local(.icon-container) {
@@ -514,17 +514,17 @@
 
 :local(.accent1) {
   :local(.icon-container) {
-    background-color: theme.$accent1-color;
+    background-color: #6f6ec4;
     border-color: theme.$accent1-border-color;
     color: theme.$accent1-border-color;
   }  
 
   &:hover :local(.icon-container) {
-    background-color: theme.$accent1-color-hover;
+    background-color: #383865;
   }
 
   &:active :local(.icon-container) {
-    background-color: theme.$accent1-color-hover;
+    background-color: #383865;
   }
 
   &:local(.selected) {
@@ -789,16 +789,16 @@
   :local(.icon-container) {
     background-color: white;
     border-color: theme.$accent1-color;
-    color: theme.$accent1-color;
+    color: #6f6ec4;
   }  
 
   svg {
 	  *[stroke=\#000] {
-		  stroke: theme.$accent1-color;
+		  stroke: #6f6ec4;
 	  }
 
 	  *[fill=\#000] {
-		  fill: theme.$accent1-color;
+		  fill: #6f6ec4;
 	  }
   }
 

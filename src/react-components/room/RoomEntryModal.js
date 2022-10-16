@@ -13,10 +13,9 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { Column } from "../layout/Column";
 import { AppLogo } from "../misc/AppLogo";
 import { FormattedMessage } from "react-intl";
-import { useAuth0 } from "@auth0/auth0-react";
 import useTeacherProfile from "../../mega-src/react-components/auth/useTeacherProfile";
-import ClassRoomEntryModal from "../../mega-src/react-components/room/ClassRoomEntryModal";
-import SessionEntryModal from "../../mega-src/react-components/room/SessionEntryModal";
+import ClassRoomEntryModal from "../../mega-src/react-components/room/entry/ClassRoomEntryModal";
+import SessionEntryModal from "../../mega-src/react-components/room/entry/SessionEntryModal";
 
 export function RoomEntryModal({
     className,
@@ -36,40 +35,27 @@ export function RoomEntryModal({
 }) {
     const breakpoint = useCssBreakpoints();
     const [loaded, setLoaded] = useState(false);
-    const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
     const [step, setStep] = useState(0);
 
-    const [profile, isProfileLoading, isApiError, refresh] = useTeacherProfile(
+    const [profile, isProfileLoading, isError, refresh] = useTeacherProfile(
         "teacherprofile",
         "read:teacher_profile",
         false
     );
 
-    console.log(profile);
-
     const isEditingRoom = window.APP.editMode;
 
     useEffect(
         () => {
-            if (!isProfileLoading && profile) {
-                console.log("Got profile", profile);
+            if (!isProfileLoading && !isError && profile) {
                 if (profile.setup == false) {
                     alert(
                         "You are logged in as a teacher, but you have not set up your profile yet. Please go to dash.megaminds.world and finish the setup before continuing as a teacher in the room."
                     );
                 }
-                if (profile.first_name) {
-                    window.APP.store.update({
-                        profile: {
-                            displayName: profile.first_name + " " + profile.last_name,
-                        },
-                    });
-                }
                 if (profile.creatortoken) {
-                    console.log("Signing in...");
                     window.APP.hubChannel.signIn(profile.reticulum_token, profile.creatortoken);
-                    console.log("Signed in, need to refresh hub?");
                 }
                 setLoaded(true);
             } else {
@@ -80,11 +66,7 @@ export function RoomEntryModal({
         [profile, isProfileLoading]
     );
 
-    const handleLogin = () => {
-        loginWithRedirect({ appState: { target: window.location.href } });
-    };
-
-    if (isLoading || (isAuthenticated && isProfileLoading)) {
+    if (!loaded) {
         return <p>Loading...</p>;
     }
 
@@ -94,108 +76,16 @@ export function RoomEntryModal({
                 isSignedIn={isSignedIn}
                 forceJoinRoom={onForceJoinRoom}
                 onSignInClick={onSignInClick}
-                isAuthenticated={isAuthenticated}
             />
         );
     } else {
         return (
             <SessionEntryModal
-                handleLogin={handleLogin}
                 onJoinRoom={onJoinRoom}
-                isAuthenticated={isAuthenticated}
                 isSignedIn={isSignedIn}
                 forceJoinRoom={onForceJoinRoom}
                 onSignInClick={onSignInClick}
             />
-        );
-    }
-
-    if (step == 0) {
-        return (
-            <Modal className={classNames(styles.roomEntryModal, className)} disableFullscreen {...rest}>
-                <Column center className={styles.content}>
-                    {breakpoint !== "sm" &&
-                        breakpoint !== "md" && (
-                            <div className={styles.logoContainer}>
-                                <AppLogo />
-                            </div>
-                        )}
-                    <div className={styles.roomName}>
-                        <h5>
-                            {isEditingRoom ? (
-                                <FormattedMessage id="room-entry-modal.room-name-label" defaultMessage="Room Name" />
-                            ) : (
-                                <FormattedMessage id="room-entry-modal.edit-name-label" defaultMessage="Editing Room" />
-                            )}
-                        </h5>
-                        <p>{roomName}</p>
-                    </div>
-                    <Column center className={styles.buttons}>
-                        {showJoinRoom && (
-                            <Button preset="megamindsPurple" onClick={isEditingRoom ? onForceJoinRoom : onJoinRoom}>
-                                <EnterIcon />
-                                {isEditingRoom ? (
-                                    <span>
-                                        <FormattedMessage
-                                            id="room-entry-modal.edit-room-button"
-                                            defaultMessage="Edit Room"
-                                        />
-                                    </span>
-                                ) : (
-                                    <span>
-                                        <FormattedMessage
-                                            id="room-entry-modal.join-room-button"
-                                            defaultMessage="Join Room"
-                                        />
-                                    </span>
-                                )}
-                            </Button>
-                        )}
-                        {showEnterOnDevice && (
-                            <Button preset="megamindsPurple" onClick={onEnterOnDevice}>
-                                <VRIcon />
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.enter-on-device-button"
-                                        defaultMessage="Enter On Device"
-                                    />
-                                </span>
-                            </Button>
-                        )}
-                        {showSpectate &&
-                            !isEditingRoom && (
-                                <Button preset="megamindsPurple" onClick={onSpectate}>
-                                    <ShowIcon />
-                                    <span>
-                                        <FormattedMessage
-                                            id="room-entry-modal.spectate-button"
-                                            defaultMessage="Spectate"
-                                        />
-                                    </span>
-                                </Button>
-                            )}
-                        {(!isAuthenticated || !isSignedIn) && (
-                            <Button preset="megamindsPurple" onClick={() => setStep(1)}>
-                                <ShowIcon />
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.teacher-login-button"
-                                        defaultMessage="Teacher Login"
-                                    />
-                                </span>
-                            </Button>
-                        )}
-                        {!isProfileLoading &&
-                            profile && (
-                                <>
-                                    <span>
-                                        Signed in as teacher {profile.first_name} {""} {profile.last_name}
-                                    </span>
-                                </>
-                            )}
-                    </Column>
-                </Column>
-            </Modal>
         );
     }
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
 import registerTelemetry from "./telemetry";
 import Store from "./storage/store";
@@ -10,13 +11,14 @@ import "./react-components/styles/global.scss";
 import { ThemeProvider } from "./react-components/styles/theme";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
+import { EntryFlow } from "./mega-src/react-components/entry/EntryFlow";
+
 registerTelemetry("/home", "Hubs Home Page");
 
 const store = new Store();
 window.APP = { store };
 
 function Root() {
-
     return (
         <WrappedIntlProvider>
             <Auth0Provider
@@ -30,7 +32,14 @@ function Root() {
             >
                 <ThemeProvider store={store}>
                     <AuthContextProvider store={store}>
-                        <HomePage />
+                        <HashRouter>
+                            <Route exact path="/">
+                                <HomePage />
+                            </Route>
+                            <Route exact path="/entry">
+                                <EntryFlow />
+                            </Route>
+                        </HashRouter>
                     </AuthContextProvider>
                 </ThemeProvider>
             </Auth0Provider>

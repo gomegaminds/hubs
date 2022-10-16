@@ -9,6 +9,8 @@ import classNames from "classnames";
 // in webpack production mode.
 require("three/examples/js/controls/OrbitControls");
 require("three/examples/js/loaders/GLTFLoader");
+import * as THREE from 'three';
+
 
 import { createDefaultEnvironmentMap } from "../components/environment-map";
 import { loadGLTF } from "../components/gltf-model-plus";
