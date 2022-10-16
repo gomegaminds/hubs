@@ -85,6 +85,8 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/popovers/TeacherPopoverContainer";
+import { ChangeAvatarPopover } from "../mega-src/react-components/room/popovers/ChangeAvatarPopover";
+import { EntryDialog } from "../mega-src/react-components/room/entry/EntryDialog";
 import { StickyNotePopover } from "../mega-src/react-components/room/popovers/StickyNotePopover";
 import { StudentPopoverContainer } from "../mega-src/react-components/room/popovers/StudentPopoverContainer";
 import { syncRoom } from "../mega-src/utils/cloning-utils";
@@ -751,8 +753,6 @@ class UIRoot extends Component {
 
         let filteredRet = ret.filter((user) => user[1].metas[0].profile.displayName !== "teacher_bot_2df");
 
-        console.log(ret, filteredRet);
-
         return filteredRet.length;
     };
 
@@ -1127,54 +1127,21 @@ class UIRoot extends Component {
             !hide &&
             this.props.availableVREntryTypes.generic !== VR_DEVICE_AVAILABILITY.no;
 
-        const entryDialog =
-            this.props.availableVREntryTypes &&
-            !preload &&
-            (this.isWaitingForAutoExit() ? (
-                <AutoExitWarningModal
-                    reason={this.state.autoExitReason}
-                    secondsRemaining={this.state.secondsRemainingBeforeAutoExit}
-                    onCancel={this.endAutoExitTimer}
+        const entryDialog = (
+            <>
+                <EntryDialog
+                    onJoinRoom={() => {
+                        this.setState({ entering: true });
+                        this.props.hubChannel.sendEnteringEvent();
+                        this.onRequestMicPermission();
+
+                    }}
+                    scene={this.props.scene}
+                    onForceJoinRoom={() => this.onAudioReadyButton()}
+                    onAudioReadyButton={this.onAudioReadyButton}
                 />
-            ) : (
-                <>
-                    <StateRoute stateKey="entry_step" stateValue="device" history={this.props.history}>
-                        {this.renderDevicePanel()}
-                    </StateRoute>
-                    <StateRoute stateKey="entry_step" stateValue="audio" history={this.props.history}>
-                        {this.renderAudioSetupPanel()}
-                    </StateRoute>
-                    <StateRoute
-                        stateKey="entry_step"
-                        stateValue="profile"
-                        history={this.props.history}
-                        render={(props) => (
-                            <ProfileEntryPanel
-                                {...props}
-                                containerType="modal"
-                                displayNameOverride={displayNameOverride}
-                                finished={() => {
-                                    if (this.props.forcedVREntryType) {
-                                        this.pushHistoryState();
-                                        this.handleForceEntry();
-                                    } else {
-                                        this.onRequestMicPermission();
-                                        this.pushHistoryState("entry_step", "audio");
-                                    }
-                                }}
-                                showBackButton
-                                onBack={() => this.pushHistoryState()}
-                                store={this.props.store}
-                                mediaSearchStore={this.props.mediaSearchStore}
-                                avatarId={props.location.state.detail && props.location.state.detail.avatarId}
-                            />
-                        )}
-                    />
-                    <StateRoute stateKey="entry_step" stateValue="" history={this.props.history}>
-                        {this.renderEntryStartPanel()}
-                    </StateRoute>
-                </>
-            ));
+            </>
+        );
 
         const presenceLogEntries = this.props.presenceLogEntries || [];
 
@@ -1958,6 +1925,7 @@ class UIRoot extends Component {
                                                         />
                                                     </>
                                                 )}
+                                                <ChangeAvatarPopover />
                                                 {isTeacher && (
                                                     <>
                                                         <InvitePopoverContainer

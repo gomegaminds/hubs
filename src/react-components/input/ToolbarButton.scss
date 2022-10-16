@@ -789,16 +789,16 @@
   :local(.icon-container) {
     background-color: white;
     border-color: theme.$accent1-color;
-    color: theme.$accent1-color;
+    color: #6f6ec4;
   }  
 
   svg {
 	  *[stroke=\#000] {
-		  stroke: theme.$accent1-color;
+		  stroke: #6f6ec4;
 	  }
 
 	  *[fill=\#000] {
-		  fill: theme.$accent1-color;
+		  fill: #6f6ec4;
 	  }
   }
 

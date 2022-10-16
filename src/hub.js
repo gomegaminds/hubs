@@ -1,3 +1,15 @@
+import * as Sentry from "@sentry/react";
+import { BrowserTracing } from "@sentry/tracing";
+
+Sentry.init({
+    dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
+    integrations: [new BrowserTracing()],
+
+    // We recommend adjusting this value in production, or using tracesSampler
+    // for finer control
+    tracesSampleRate: 1.0,
+});
+
 import {
     getCurrentHubId,
     updateVRHudPresenceCount,
@@ -705,12 +717,21 @@ async function runBotMode(scene, entryManager) {
     entryManager.enterSceneWhenLoaded(false, false);
 }
 
+function redirectToEntryFlow() {
+    document.location = `/#/entry/?destination=${encodeURIComponent(document.location.toString())}`;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     if (isOAuthModal) {
         return;
     }
 
-    await store.initProfile();
+    if (store.state.profile?.displayName) {
+        console.log("Already has profile!");
+    } else {
+        console.log("No profile found! Should redirect to entry flow!");
+        redirectToEntryFlow();
+    }
 
     const canvas = document.querySelector(".a-canvas");
     canvas.classList.add("a-hidden");

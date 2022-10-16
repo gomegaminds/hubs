@@ -14,9 +14,6 @@ body {
   color: theme.$text1-color;
 }
 
-:global(#root), :global(#ui-root), :global(.home-root) {
-	text-align: center;
-}
 
 h1 {
   font-size: 2rem;

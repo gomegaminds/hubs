@@ -15,8 +15,8 @@ import { AppLogo } from "../misc/AppLogo";
 import { FormattedMessage } from "react-intl";
 import { useAuth0 } from "@auth0/auth0-react";
 import useTeacherProfile from "../../mega-src/react-components/auth/useTeacherProfile";
-import ClassRoomEntryModal from "../../mega-src/react-components/room/ClassRoomEntryModal";
-import SessionEntryModal from "../../mega-src/react-components/room/SessionEntryModal";
+import ClassRoomEntryModal from "../../mega-src/react-components/room/entry/ClassRoomEntryModal";
+import SessionEntryModal from "../../mega-src/react-components/room/entry/SessionEntryModal";
 
 export function RoomEntryModal({
     className,
@@ -107,95 +107,6 @@ export function RoomEntryModal({
                 forceJoinRoom={onForceJoinRoom}
                 onSignInClick={onSignInClick}
             />
-        );
-    }
-
-    if (step == 0) {
-        return (
-            <Modal className={classNames(styles.roomEntryModal, className)} disableFullscreen {...rest}>
-                <Column center className={styles.content}>
-                    {breakpoint !== "sm" &&
-                        breakpoint !== "md" && (
-                            <div className={styles.logoContainer}>
-                                <AppLogo />
-                            </div>
-                        )}
-                    <div className={styles.roomName}>
-                        <h5>
-                            {isEditingRoom ? (
-                                <FormattedMessage id="room-entry-modal.room-name-label" defaultMessage="Room Name" />
-                            ) : (
-                                <FormattedMessage id="room-entry-modal.edit-name-label" defaultMessage="Editing Room" />
-                            )}
-                        </h5>
-                        <p>{roomName}</p>
-                    </div>
-                    <Column center className={styles.buttons}>
-                        {showJoinRoom && (
-                            <Button preset="megamindsPurple" onClick={isEditingRoom ? onForceJoinRoom : onJoinRoom}>
-                                <EnterIcon />
-                                {isEditingRoom ? (
-                                    <span>
-                                        <FormattedMessage
-                                            id="room-entry-modal.edit-room-button"
-                                            defaultMessage="Edit Room"
-                                        />
-                                    </span>
-                                ) : (
-                                    <span>
-                                        <FormattedMessage
-                                            id="room-entry-modal.join-room-button"
-                                            defaultMessage="Join Room"
-                                        />
-                                    </span>
-                                )}
-                            </Button>
-                        )}
-                        {showEnterOnDevice && (
-                            <Button preset="megamindsPurple" onClick={onEnterOnDevice}>
-                                <VRIcon />
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.enter-on-device-button"
-                                        defaultMessage="Enter On Device"
-                                    />
-                                </span>
-                            </Button>
-                        )}
-                        {showSpectate &&
-                            !isEditingRoom && (
-                                <Button preset="megamindsPurple" onClick={onSpectate}>
-                                    <ShowIcon />
-                                    <span>
-                                        <FormattedMessage
-                                            id="room-entry-modal.spectate-button"
-                                            defaultMessage="Spectate"
-                                        />
-                                    </span>
-                                </Button>
-                            )}
-                        {(!isAuthenticated || !isSignedIn) && (
-                            <Button preset="megamindsPurple" onClick={() => setStep(1)}>
-                                <ShowIcon />
-                                <span>
-                                    <FormattedMessage
-                                        id="room-entry-modal.teacher-login-button"
-                                        defaultMessage="Teacher Login"
-                                    />
-                                </span>
-                            </Button>
-                        )}
-                        {!isProfileLoading &&
-                            profile && (
-                                <>
-                                    <span>
-                                        Signed in as teacher {profile.first_name} {""} {profile.last_name}
-                                    </span>
-                                </>
-                            )}
-                    </Column>
-                </Column>
-            </Modal>
         );
     }
 }

@@ -14,7 +14,6 @@ import { MediaTile } from "../room/MediaTiles";
 import { PageContainer } from "../layout/PageContainer";
 import { scaledThumbnailUrlFor } from "../../utils/media-url-utils";
 import { Column } from "../layout/Column";
-import { Button } from "../input/Button";
 import { Container } from "../layout/Container";
 import { SocialBar } from "../home/SocialBar";
 import { SignInButton } from "./SignInButton";
@@ -22,26 +21,22 @@ import { AppLogo } from "../misc/AppLogo";
 import { isHmc } from "../../utils/isHmc";
 import maskEmail from "../../utils/mask-email";
 
+import Button from "react-bootstrap/Button";
+
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
 export function HomePage() {
     const { handleRedirectCallback } = useAuth0();
 
-    handleRedirectCallback().then(data => {
-        if(data.appState.target){
+    handleRedirectCallback().then((data) => {
+        if (data.appState.target) {
             window.location.replace(data.appState.target);
         }
-    })
+    });
 
     const auth = useContext(AuthContext);
     const intl = useIntl();
 
-    const { results: favoriteRooms } = useFavoriteRooms();
-    const { results: publicRooms } = usePublicRooms();
-
-    const sortedFavoriteRooms = Array.from(favoriteRooms).sort((a, b) => b.member_count - a.member_count);
-    const sortedPublicRooms = Array.from(publicRooms).sort((a, b) => b.member_count - a.member_count);
-    const wrapInBold = (chunk) => <b>{chunk}</b>;
     useEffect(() => {
         const qs = new URLSearchParams(location.search);
 
@@ -65,10 +60,13 @@ export function HomePage() {
     const email = auth.email;
 
     return (
-        <>
-            <AppLogo className={styles.appLogo} />
-            <br />
-            <p>Take online learning to a whole new world</p>
-        </>
+        <div className="d-flex justify-content-center text-center">
+            <div style={{ height: "80px", width: "180px" }}>
+                <AppLogo className={styles.appLogo} />
+                <br />
+                <p>Take online learning to a whole new world</p>
+                <Button href="https://dash.megaminds.world" variant="purple-dark">Go to Dashboard</Button>
+            </div>
+        </div>
     );
 }
