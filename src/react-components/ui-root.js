@@ -85,6 +85,8 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/popovers/TeacherPopoverContainer";
+import { HelpPopover } from "../mega-src/react-components/room/popovers/HelpPopover";
+import { SettingsPopover } from "../mega-src/react-components/room/popovers/SettingsPopover";
 import { ChangeAvatarPopover } from "../mega-src/react-components/room/popovers/ChangeAvatarPopover";
 import { EntryDialog } from "../mega-src/react-components/room/entry/EntryDialog";
 import { StickyNotePopover } from "../mega-src/react-components/room/popovers/StickyNotePopover";
@@ -1134,7 +1136,6 @@ class UIRoot extends Component {
                         this.setState({ entering: true });
                         this.props.hubChannel.sendEnteringEvent();
                         this.onRequestMicPermission();
-
                     }}
                     scene={this.props.scene}
                     onForceJoinRoom={() => this.onAudioReadyButton()}
@@ -1168,79 +1169,12 @@ class UIRoot extends Component {
 
         const moreMenu = [
             {
-                id: "user",
-                label: !this.state.signedIn ? (
-                    <FormattedMessage id="more-menu.not-signed-in" defaultMessage="You are not signed in" />
-                ) : (
-                    <FormattedMessage
-                        id="more-menu.you-signed-in-as"
-                        defaultMessage="Signed in as: {email}"
-                        values={{ email: maskEmail(this.props.store.state.credentials.email) }}
-                    />
-                ),
-                items: [
-                    this.state.signedIn
-                        ? {
-                              id: "sign-out",
-                              label: <FormattedMessage id="more-menu.sign-out" defaultMessage="Sign Out" />,
-                              icon: LeaveIcon,
-                              onClick: async () => {
-                                  await this.props.authChannel.signOut(this.props.hubChannel);
-                                  this.setState({ signedIn: false });
-                              },
-                          }
-                        : {
-                              id: "sign-in",
-                              label: <FormattedMessage id="more-menu.sign-in" defaultMessage="Sign In" />,
-                              icon: EnterIcon,
-                              onClick: () => this.showContextualSignInDialog(),
-                          },
-                    false &&
-                        canCreateRoom && {
-                            id: "create-room",
-                            label: <FormattedMessage id="more-menu.create-room" defaultMessage="Create Room" />,
-                            icon: AddIcon,
-                            onClick: () =>
-                                this.showNonHistoriedDialog(LeaveRoomModal, {
-                                    destinationUrl: "/",
-                                    reason: LeaveReason.createRoom,
-                                }),
-                        },
-                    {
-                        id: "user-profile",
-                        label: <FormattedMessage id="more-menu.profile" defaultMessage="Change Name & Avatar" />,
-                        icon: AvatarIcon,
-                        onClick: () => this.setSidebar("profile"),
-                    },
-                    false && {
-                        id: "favorite-rooms",
-                        label: <FormattedMessage id="more-menu.favorite-rooms" defaultMessage="Favorite Rooms" />,
-                        icon: FavoritesIcon,
-                        onClick: () =>
-                            this.props.performConditionalSignIn(
-                                () => this.props.hubChannel.signedIn,
-                                () => {
-                                    showFullScreenIfAvailable();
-                                    this.props.mediaSearchStore.sourceNavigateWithNoNav("favorites", "use");
-                                },
-                                SignInMessages.favoriteRooms
-                            ),
-                    },
-                    {
-                        id: "preferences",
-                        label: <FormattedMessage id="more-menu.preferences" defaultMessage="Preferences" />,
-                        icon: SettingsIcon,
-                        onClick: () => this.setState({ showPrefs: true }),
-                    },
-                ].filter((item) => item),
-            },
-            {
                 id: "room",
                 label: <FormattedMessage id="more-menu.room" defaultMessage="Room" />,
                 items: [
                     isTeacher && {
                         id: "room-info",
-                        label: <FormattedMessage id="more-menu.room-info" defaultMessage="Room Info and Settings" />,
+                        label: <FormattedMessage id="more-menu.room-info" defaultMessage="Room Permissions" />,
                         icon: HomeIcon,
                         onClick: () => this.setSidebar("room-info"),
                     },
@@ -1323,18 +1257,6 @@ class UIRoot extends Component {
                 id: "support",
                 label: <FormattedMessage id="more-menu.support" defaultMessage="Support" />,
                 items: [
-                    configs.feature("show_community_link") && {
-                        id: "community",
-                        label: <FormattedMessage id="more-menu.community" defaultMessage="Community" />,
-                        icon: DiscordIcon,
-                        href: configs.link("community", "https://discord.gg/dFJncWwHun"),
-                    },
-                    configs.feature("show_issue_report_link") && {
-                        id: "report-issue",
-                        label: <FormattedMessage id="more-menu.report-issue" defaultMessage="Report Issue" />,
-                        icon: WarningCircleIcon,
-                        href: configs.link("issue_report", "https://hubs.mozilla.com/docs/help.html"),
-                    },
                     entered && {
                         id: "start-tour",
                         label: <FormattedMessage id="more-menu.start-tour" defaultMessage="Tutorial" />,
@@ -1346,19 +1268,6 @@ class UIRoot extends Component {
                         label: <FormattedMessage id="more-menu.help" defaultMessage="Help" />,
                         icon: SupportIcon,
                         href: configs.link("docs", "https://hubs.mozilla.com/docs"),
-                    },
-                    false &&
-                        configs.feature("show_controls_link") && {
-                            id: "controls",
-                            label: <FormattedMessage id="more-menu.controls" defaultMessage="Controls" />,
-                            icon: SupportIcon,
-                            href: configs.link("controls", "https://hubs.mozilla.com/docs/hubs-controls.html"),
-                        },
-                    configs.feature("show_whats_new_link") && {
-                        id: "whats-new",
-                        label: <FormattedMessage id="more-menu.whats-new" defaultMessage="What's New" />,
-                        icon: SupportIcon,
-                        href: "/whats-new",
                     },
                     configs.feature("show_terms") && {
                         id: "tos",
@@ -1898,44 +1807,16 @@ class UIRoot extends Component {
                                 toolbarRight={
                                     <>
                                         {entered && (
-                                            <>
-                                                {!isTeacher && (
-                                                    <>
-                                                        <ToolbarButton
-                                                            icon={<EditAvatarIcon />}
-                                                            preset="white"
-                                                            label={
-                                                                <FormattedMessage
-                                                                    id="more-menu.profile"
-                                                                    defaultMessage="Change Name & Avatar"
-                                                                />
-                                                            }
-                                                            onClick={() => this.setSidebar("profile")}
-                                                        />
-                                                        <ToolbarButton
-                                                            icon={<PreferenceIcon />}
-                                                            preset="white"
-                                                            label={
-                                                                <FormattedMessage
-                                                                    id="more-menu.preferences"
-                                                                    defaultMessage="Preferences"
-                                                                />
-                                                            }
-                                                            onClick={() => this.setState({ showPrefs: true })}
-                                                        />
-                                                    </>
-                                                )}
+                                            <div className="toolbarGroupRight">
+                                                <HelpPopover />
                                                 <ChangeAvatarPopover />
-                                                {isTeacher && (
+                                                <SettingsPopover onClick={() => this.setState({ showPrefs: true })} />
+                                                {isTeacher && !isMobile && (
                                                     <>
                                                         <InvitePopoverContainer
                                                             hub={this.props.hub}
                                                             hubChannel={this.props.hubChannel}
                                                             scene={this.props.scene}
-                                                        />
-                                                        <MoreMenuPopoverButton
-                                                            style={{ marginLeft: "10px" }}
-                                                            menu={moreMenu}
                                                         />
                                                     </>
                                                 )}
@@ -1952,7 +1833,7 @@ class UIRoot extends Component {
                                                         onClick={() => exit2DInterstitialAndEnterVR(true)}
                                                     />
                                                 )}
-                                            </>
+                                            </div>
                                         )}
                                     </>
                                 }
