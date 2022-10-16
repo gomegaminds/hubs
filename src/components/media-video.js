@@ -61,7 +61,7 @@ AFRAME.registerComponent("media-video", {
     contentType: { type: "string" },
     loop: { type: "boolean", default: true },
     hidePlaybackControls: { type: "boolean", default: false },
-    videoPaused: { type: "boolean" },
+    videoPaused: { type: "boolean", default: true },
     projection: { type: "string", default: "flat" },
     time: { type: "number" },
     tickRate: { default: 1000 }, // ms interval to send time interval updates
