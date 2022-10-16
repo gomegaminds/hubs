@@ -11,6 +11,7 @@ export default class PinningHelper {
   }
 
   async setPinned(el, pin) {
+      console.log("Got setPinned");
     if (NAF.utils.isMine(el)) {
       this._signInAndPinOrUnpinElement(el, pin);
     } else {
@@ -22,6 +23,7 @@ export default class PinningHelper {
     const action = pin ? () => this._pinElement(el) : () => this.unpinElement(el);
 
       if(this.hubChannel.signedIn) {
+          console.log("Is signed in");
           action();
       } else {
           return;
