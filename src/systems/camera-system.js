@@ -203,7 +203,7 @@ export class CameraSystem {
     constructor(camera, renderer) {
         this.viewingCamera = camera;
         this.worldBuildingControls = undefined;
-        this.lightsEnabled = localStorage.getItem("show-background-while-inspecting") === "true";
+        this.lightsEnabled = true;
         this.verticalDelta = 0;
         this.horizontalDelta = 0;
         this.inspectZoom = 0;
@@ -471,23 +471,29 @@ export class CameraSystem {
             if (this.userinput.get(paths.actions.startInspecting)) {
                 const hoverEl = this.interaction.state.rightRemote.hovered || this.interaction.state.leftRemote.hovered;
 
+                scene.emit("select_object_changed", hoverEl);
+
                 if (!hoverEl && this.isInsideMenu) {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    scene.emit("select_object_changed", null);
                     this.insideMenu = null;
                 } 
 
                 // If clicking the same object as already selected, hide the menu
                 if (hoverEl === this.isInsideMenu) {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    scene.emit("select_object_changed", null);
                     this.isInsideMenu = null;
                 }  else {
                     this.isInsideMenu = hoverEl;
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
+                    scene.emit("select_object_changed", hoverEl);
                 }
 
             } else if (this.userinput.get(paths.actions.stopInspecting)) {
                 if (this.isInsideMenu) {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    scene.emit("select_object_changed", null);
                     this.isInsideMenu = false;
                 }
             }
