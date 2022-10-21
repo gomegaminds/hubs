@@ -246,6 +246,8 @@ export class CameraSystem {
             );
             bg.layers.set(Layers.CAMERA_LAYER_INSPECT);
             this.viewingRig.object3D.add(bg);
+
+
         });
     }
 
@@ -453,17 +455,6 @@ export class CameraSystem {
             this.userinput = this.userinput || scene.systems.userinput;
             this.interaction = this.interaction || scene.systems.interaction;
 
-            if (
-                this.userinput.get(paths.actions.cursor.right.grab) ||
-                this.userinput.get(paths.actions.cursor.left.grab)
-            ) {
-                console.log("Grabbing something");
-                if (this.isInsideMenu !== null) {
-                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    this.isInsideMenu = null;
-                }
-            }
-
             if (this.userinput.get(paths.actions.stopInspecting)) {
                 console.log("Stop inspecting");
             }
@@ -471,25 +462,22 @@ export class CameraSystem {
             if (this.userinput.get(paths.actions.startInspecting)) {
                 const hoverEl = this.interaction.state.rightRemote.hovered || this.interaction.state.leftRemote.hovered;
 
-                scene.emit("select_object_changed", hoverEl);
+                console.log(hoverEl);
 
-                if (!hoverEl && this.isInsideMenu) {
-                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    scene.emit("select_object_changed", null);
-                    this.insideMenu = null;
-                } 
-
-                // If clicking the same object as already selected, hide the menu
+                // If we are starting edit of what we are already editing, close the menu
                 if (hoverEl === this.isInsideMenu) {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    scene.emit("select_object_changed", null);
                     this.isInsideMenu = null;
-                }  else {
+                    scene.emit("select_object_changed", null);
+                } else if (hoverEl) {
+                    // If already selected another object, reset their arrow
+                    if (this.isInsideMenu !== null) {
+                        this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    }
+                    scene.emit("select_object_changed", hoverEl);
                     this.isInsideMenu = hoverEl;
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
-                    scene.emit("select_object_changed", hoverEl);
                 }
-
             } else if (this.userinput.get(paths.actions.stopInspecting)) {
                 if (this.isInsideMenu) {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;

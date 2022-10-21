@@ -66,49 +66,6 @@ function ObjectMenuItems({ hubChannel, scene, activeObject, deselectObject, onGo
 
   return (
     <>
-      <ObjectMenuButton disabled={!canPin} onClick={togglePinned}>
-        <PinIcon />
-        <span>
-          {isPinned ? (
-            <FormattedMessage id="object-menu.unpin-object-button" defaultMessage="Unpin" />
-          ) : (
-            <FormattedMessage id="object-menu.pin-object-button" defaultMessage="Pin" />
-          )}
-        </span>
-      </ObjectMenuButton>
-      {url && (
-        <ObjectMenuButton as="a" href={url} target="_blank" rel="noopener noreferrer">
-          <LinkIcon />
-          <span>
-            <FormattedMessage id="object-menu.object-link-button" defaultMessage="Link" />
-          </span>
-        </ObjectMenuButton>
-      )}
-      <ObjectMenuButton
-        disabled={!canGoTo}
-        onClick={() => {
-          goToSelectedObject();
-          deselectObject();
-          onGoToObject();
-        }}
-      >
-        <GoToIcon />
-        <span>
-          <FormattedMessage id="object-menu.view-object-button" defaultMessage="View" />
-        </span>
-      </ObjectMenuButton>
-      <ObjectMenuButton
-        disabled={!canRemoveObject}
-        onClick={() => {
-          removeObject();
-          deselectObject();
-        }}
-      >
-        <DeleteIcon />
-        <span>
-          <FormattedMessage id="object-menu.delete-object-button" defaultMessage="Delete" />
-        </span>
-      </ObjectMenuButton>
     </>
   );
 }

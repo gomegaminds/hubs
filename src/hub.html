@@ -68,7 +68,6 @@
         networked-scene="audio: true; debug: true; connectOnLoad: false;"
         mute-mic="eventSrc: a-scene; toggleEvents: action_mute"
         action-to-event__mute="path: /actions/muteMic; event: action_mute;"
-        freeze-controller
         personal-space-bubble="debug: false;"
         rotate-selected-object
     >
@@ -107,7 +106,7 @@
                 </a-entity>
             </template>
             <template id="remote-avatar">
-                <a-entity tags="inspectable: true; preventAudioBoost: true" inspect-pivot-child-selector="selector:.inspect-pivot" networked-avatar ik-root player-info visible="false">
+                <a-entity id="playerInfoElement" tags="inspectable: true; preventAudioBoost: true" inspect-pivot-child-selector="selector:.inspect-pivot" networked-avatar ik-root player-info visible="false">
                     <a-entity class="camera">
                         <a-entity class="inspect-pivot" inspect-pivot-offset-from-camera></a-entity>
                     </a-entity>
@@ -158,46 +157,14 @@
 
                         <template data-name="Spine">
                             <a-entity is-remote-hover-target personal-space-invader="radius: 0.2; useMaterial: true;" bone-visibility>
-                                <a-entity class="avatar-inspect-collider" avatar-inspect-collider tags="togglesHoveredActionSet: true; ignoreSpaceBubble: true;" is-remote-hover-target inspect-button></a-entity>
-                                <a-entity class="chest-image" scale="0.18 0.18 0.18" position="0 -0.025 0.13"></a-entity>
+                                <a-entity class="avatar-inspect-collider" avatar-inspect-collider tags="togglesHoveredActionSet: true; ignoreSpaceBubble: true;" is-remote-hover-target inspect-button>
                                 <a-entity tags="ignoreSpaceBubble: true;" class="interactable ui interactable-ui" layers="mask: 256; recursive: true;">
-                                    <a-entity billboard="onlyY: true;" class="freeze-menu" visibility-while-frozen="withinDistance: 100; requireHoverOnNonMobile: false;" avatar-volume-controls>
-                                        <a-entity class="avatar-volume-label" text="value: 0%; anchorX: center; textAlign: center; color: #7D77ce; letterSpacing: 0.08;" text-raycast-hack position="0.0 0.45 0.35" scale="1.25 1.25 1.25"></a-entity>
-                                        <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true;" position="-0.45 0.45 0.35" class="avatar-volume-down-button">
-                                            <a-entity text="value: -; anchorX: center; textAlign: center; color: #ccc;" text-raycast-hack position="0 0 0.001" scale="0.85 0.85 0.85"></a-entity>
-                                        </a-entity>
-                                        <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true;" position="0.45 0.45 0.35" class="avatar-volume-up-button">
-                                            <a-entity text="value: +; anchorX: center; textAlign: center; color: #ccc;" text-raycast-hack position="0 0 0.001" scale="0.85 0.85 0.85"></a-entity>
-                                        </a-entity>
-                                        <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" block-button position="0 0 .35">
-                                            <a-entity text="value:Hide; textAlign:center;" text-raycast-hack position="0 0 0.001"></a-entity>
-                                        </a-entity>
-                                        <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" visible-if-permitted="mute_users" mute-button position="0 -0.3 .35" scale="0.8 0.8 0.8"  class="avatar-mute-button">
-                                            <a-entity text="value:Mute; textAlign:center;" text-raycast-hack visible-if-permitted="mute_users" position="0 0 0.001"></a-entity>
-                                        </a-entity>
-                                        <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" visible-if-permitted="kick_users" kick-button position="0 -0.5 .35" scale="0.8 0.8 0.8">
-                                            <a-entity text="value:Kick; textAlign:center;" text-raycast-hack visible-if-permitted="kick_users" position="0 0 0.001"></a-entity>
-                                        </a-entity>
-                                        <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" camera-focus-button="track: false; selector: .Head;" position="-0.40 0.375 0.35">
-                                            <a-entity text="value:focus; textAlign:center;" text-raycast-hack position="0.075 0 0.02"></a-entity>
-                                            <a-entity
-                                                sprite
-                                                icon-button="image: camera-action.png; hoverImage: camera-action.png;"
-                                                scale="0.165 0.165 0.165"
-                                                position="-0.125 0.005 0.02"
-                                            ></a-entity>
-                                        </a-entity>
-                                        <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" camera-focus-button="track: true; selector: .Head;" position="0.40 0.375 0.35">
-                                            <a-entity text="value:track; textAlign:center;" text-raycast-hack position="0.075 0 0.02"></a-entity>
-                                            <a-entity
-                                                sprite
-                                                icon-button="image: camera-action.png; hoverImage: camera-action.png;"
-                                                scale="0.165 0.165 0.165"
-                                                position="-0.125 0.005 0.001"
-                                            ></a-entity>
-                                        </a-entity>
+                                    <a-entity class="freeze-menu">
                                     </a-entity>
                                 </a-entity>
+
+                                </a-entity>
+                                <a-entity class="chest-image" scale="0.18 0.18 0.18" position="0 -0.025 0.13"></a-entity>
                             </a-entity>
                         </template>
 
@@ -288,7 +255,7 @@
                 >
                     <a-entity class="ui interactable-ui" layers="mask: 256; recursive: true;">
                         <a-entity class="freeze-menu" visibility-while-frozen="withinDistance: 100; withPermission: spawn_and_move_media">
-                            <a-entity arrow-animate rotation="180 0 0" position="0 0.8 0" gltf-model-plus="src: #arrow; modelToWorldScale: 0.001; inflate: true;" />
+                            <a-entity animation__rotate="property: rotation; loop: true; from: 180 360 0; to: 180 0 0; dur: 4000; easing: linear;" animation="property: position; dir: alternate; from: 0 0.6 0; to: 0 0.9 0; dur: 800; easing: easeOutQuad; loop: true" rotation="180 0 0" position="0 0.8 0.9" gltf-model-plus="src: #arrow; modelToWorldScale: 0.001; inflate: true;" />
                         </a-entity>
                     </a-entity>
                 </a-entity>
