@@ -85,6 +85,7 @@
     "animejs": "github:mozillareality/anime#hubs/master",
     "bitecs": "github:mozilla/bitECS#hubs-patches",
     "bootstrap": "^5.2.0",
+    "bootstrap-icons": "^1.9.1",
     "buffered-interpolation": "github:Infinitelee/buffered-interpolation",
     "classnames": "^2.2.5",
     "color": "^3.1.2",

@@ -19,23 +19,17 @@ export function showHoverEffect(el) {
 }
 
 export function canMove(entity) {
-    const isPinned = entity.components.pinnable && entity.components.pinnable.data.pinned;
-    const networkedTemplate = entity && entity.components.networked && entity.components.networked.data.template;
-    const isPen = networkedTemplate === "#interactable-pen";
-    const spawnerTemplate =
-        entity && entity.components["super-spawner"] && entity.components["super-spawner"].data.template;
-    const isEmojiSpawner = spawnerTemplate === "#interactable-emoji";
-    const isEmoji = !!entity.components.emoji;
-    const isLocked = entity.components.locked && !!entity.components.locked.data.locked;
+    if (window.APP.hubChannel.can("update_hub")) {
+        return true;
+    }
 
-    return (
-        hasComponent(APP.world, HoldableButton, entity.eid) ||
-        ((isEmoji || isEmojiSpawner
-            ? window.APP.hubChannel.can("spawn_emoji")
-            : window.APP.hubChannel.can("spawn_and_move_media")) &&
-            (!isPinned || window.APP.hubChannel.can("pin_objects")) &&
-            (!isPen || window.APP.hubChannel.can("spawn_drawing")))
-    );
+    if (entity.components["students-can-move"] !== undefined) {
+        console.log("Students can move was true");
+        const shouldMove = entity.components["students-can-move"].data.enabled === true;
+        return shouldMove;
+    } else {
+        return false;
+    }
 }
 
 function indexForComponent(component, schema) {

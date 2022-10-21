@@ -55,6 +55,14 @@ export default function pinnedEntityToGltf(el) {
         console.log("Got text component on pinning");
         gltfComponents.text = components.text.data;
     }
+    if (components.animation) {
+        console.log("Got Animation component on pinning");
+        gltfComponents.animation = components.animation.data;
+    }
+    if (components["students-can-move"]) {
+        console.log("Got StudentsCanMove component on pinning");
+        gltfComponents["students-can-move"] = components["students-can-move"].data;
+    }
 
     if (components.question) {
         gltfComponents.question = components.question.data;

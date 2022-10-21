@@ -85,6 +85,7 @@ import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/popovers/TeacherPopoverContainer";
+import { ObjectMenu } from "../mega-src/react-components/room/ObjectMenu";
 import { HelpPopover } from "../mega-src/react-components/room/popovers/HelpPopover";
 import { SettingsPopover } from "../mega-src/react-components/room/popovers/SettingsPopover";
 import { ChangeAvatarPopover } from "../mega-src/react-components/room/popovers/ChangeAvatarPopover";
@@ -1414,6 +1415,7 @@ class UIRoot extends Component {
                                 streaming={streaming}
                                 viewport={
                                     <>
+                                        <ObjectMenu />
                                         {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                                         {false && !this.props.selectedObject && <CompactMoreMenuButton />}
                                         {(!this.props.selectedObject ||
@@ -1446,18 +1448,6 @@ class UIRoot extends Component {
                                             !streaming &&
                                             !isMobile &&
                                             streamerName && <SpectatingLabel name={streamerName} />}
-                                        {this.props.activeObject && (
-                                            <ObjectMenuContainer
-                                                hubChannel={this.props.hubChannel}
-                                                scene={this.props.scene}
-                                                onOpenProfile={() => this.setSidebar("profile")}
-                                                onGoToObject={() => {
-                                                    if (this.props.breakpoint === "sm") {
-                                                        this.setSidebar(null);
-                                                    }
-                                                }}
-                                            />
-                                        )}
                                         {this.state.sidebarId !== "chat" &&
                                             this.props.hub && (
                                                 <PresenceLog

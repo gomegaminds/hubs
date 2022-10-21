@@ -45,6 +45,7 @@ export const NetworkedTransform = defineComponent({
 });
 
 export const AEntity = defineComponent();
+export const StudentsMoveable = defineComponent();
 export const Object3DTag = defineComponent();
 export const GLTFModel = defineComponent();
 export const CursorRaycastable = defineComponent();
