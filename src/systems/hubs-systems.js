@@ -25,7 +25,6 @@ import { AudioSettingsSystem } from "./audio-settings-system";
 import { AudioSystem } from "./audio-system";
 import { ShadowSystem } from "./shadow-system";
 import { InspectYourselfSystem } from "./inspect-yourself-system";
-import { EmojiSystem } from "./emoji-system";
 import { AudioZonesSystem } from "./audio-zones-system";
 import { GainSystem } from "./audio-gain-system";
 import { EnvironmentSystem } from "./environment-system";
@@ -79,7 +78,6 @@ AFRAME.registerSystem("hubs-systems", {
     this.uvScrollSystem = new UVScrollSystem();
     this.shadowSystem = new ShadowSystem(this.el);
     this.inspectYourselfSystem = new InspectYourselfSystem();
-    this.emojiSystem = new EmojiSystem(this.el);
     this.audioZonesSystem = new AudioZonesSystem();
     this.gainSystem = new GainSystem();
     this.environmentSystem = new EnvironmentSystem(this.el);
@@ -114,7 +112,6 @@ AFRAME.registerSystem("hubs-systems", {
     this.cursorTogglingSystem.tick(systems.interaction, systems.userinput, this.el);
     this.interactionSfxSystem.tick(systems.interaction, systems.userinput, this.soundEffectsSystem);
     this.superSpawnerSystem.tick();
-    this.emojiSystem.tick(t, systems.userinput);
     this.cursorPoseTrackingSystem.tick();
     this.hoverMenuSystem.tick();
     this.positionAtBorderSystem.tick();

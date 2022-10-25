@@ -159,6 +159,8 @@
                             <a-entity is-remote-hover-target personal-space-invader="radius: 0.2; useMaterial: true;" bone-visibility>
                                 <a-entity class="avatar-inspect-collider" avatar-inspect-collider tags="togglesHoveredActionSet: true; ignoreSpaceBubble: true;" is-remote-hover-target inspect-button>
                                 <a-entity tags="ignoreSpaceBubble: true;" class="interactable ui interactable-ui" layers="mask: 256; recursive: true;">
+                                    <a-entity class="freeze-menu">
+                                    </a-entity>
                                 </a-entity>
 
                                 </a-entity>
@@ -244,6 +246,7 @@
                     tags="isHandCollisionTarget: true; isHoldable: true; offersHandConstraint: true; offersRemoteConstraint: true; inspectable: true;"
                     floaty-object="modifyGravityOnRelease: true;"
                     set-yxz-order
+                    owner
                     listed-media
                 >
                     <a-entity class="ui" layers="mask: 256; recursive: true;">
@@ -255,45 +258,13 @@
             </template>
 
             <template id="interactable-emoji">
-                <a-entity
-                    class="interactable"
-                    emoji
-                    body-helper="type: dynamic; mass: 1; collisionFilterGroup: 1; collisionFilterMask: 15;"
-                    owned-object-limiter="counter: #emoji-counter"
-                    owned-object-cleanup-timeout="ttl: 3;"
-                    set-unowned-body-kinematic
-                    is-remote-hover-target
-                    tags="isHandCollisionTarget: true; isHoldable: true; offersHandConstraint: true; offersRemoteConstraint: true; inspectable: true;"
-                    destroy-at-extreme-distances
-                    scalable-when-grabbed
-                    floaty-object="modifyGravityOnRelease: true;"
-                    set-yxz-order
-                    position-at-border__freeze="target:.freeze-menu;"
-                    hoverable-visuals
-                >
+                <a-entity>
                     <a-entity
                         class="particle-emitter"
                         particle-emitter="particleCount: 0"
                         scale="0.25 0.25 0.25"
                         position="0 0.25 -0.001"
                     ></a-entity>
-                    <a-entity class="ui interactable-ui" layers="mask: 256; recursive: true;">
-                        <a-entity class="freeze-menu" visibility-while-frozen="withinDistance: 100; withPermission: spawn_and_move_media; visibleIfOwned: false;">
-                            <a-entity
-                                mixin="rounded-button"
-                                is-remote-hover-target
-                                tags="singleActionButton: true;"
-                                remove-networked-object-button
-                                position="0 -0.375 0.001">
-                                <a-entity
-                                    sprite="name: remove-action.png"
-                                    icon-button="image: remove-action.png; hoverImage: remove-action.png"
-                                    scale="0.165 0.165 0.165"
-                                    position="0 0 0.001"
-                                ></a-entity>
-                            </a-entity>
-                        </a-entity>
-                    </a-entity>
                 </a-entity>
             </template>
 
@@ -332,15 +303,7 @@
                         pen="camera: #avatar-pov-node; drawingManager: #drawing-manager"
                         pen-laser
                     ></a-entity>
-                    <a-entity class="ui delete-button pen-menu" visibility-while-frozen="withinDistance: 100; withPermission: spawn_drawing" >
-                        <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true" remove-networked-object-button position="0 0 0.001">
-                            <a-entity
-                                sprite
-                                icon-button="image: remove-action.png; hoverImage: remove-action.png;"
-                                scale="0.165 0.165 0.165"
-                                position="0 0 0.001"
-                            ></a-entity>
-                        </a-entity>
+                    <a-entity class="ui pen-menu">
                     </a-entity>
                 </a-entity>
             </template>

@@ -110,6 +110,7 @@ import "./components/hide-when-pinned-and-forbidden";
 
 // Classroom Editor Stuff
 import "./mega-src/components/students-can-move";
+import "./mega-src/components/owner";
 import "./mega-src/components/auto-rotate";
 import "./mega-src/components/question";
 // import "./mega-src/components/aframe/geometry";
@@ -332,8 +333,6 @@ const qsVREntryType = qs.get("vr_entry_type");
 
 function mountUI(props = {}) {
     const scene = document.querySelector("a-scene");
-    const disableAutoExitOnIdle =
-        qsTruthy("allow_idle") || (process.env.NODE_ENV === "development" && !qs.get("idle_timeout"));
     const forcedVREntryType = qsVREntryType;
 
     ReactDOM.render(
@@ -360,7 +359,6 @@ function mountUI(props = {}) {
                                         {...{
                                             scene,
                                             isBotMode,
-                                            disableAutoExitOnIdle,
                                             forcedVREntryType,
                                             store,
                                             mediaSearchStore,

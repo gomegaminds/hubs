@@ -10,7 +10,7 @@ export function SafariMicModal() {
       <Column center padding>
         <FormattedMessage
           id="safari-mic-modal.message"
-          defaultMessage="<p>Hubs requires microphone permissions in Safari.</p><p>Please reload and allow microphone access to continue.</p>"
+          defaultMessage="<p>MegaMinds requires microphone permissions in Safari.</p><p>Please reload and allow microphone access to continue.</p>"
           values={{
             // eslint-disable-next-line react/display-name
             p: chunks => <p>{chunks}</p>
