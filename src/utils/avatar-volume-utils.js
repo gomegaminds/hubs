@@ -46,3 +46,4 @@ export function updateAvatarVolumesPref(displayName, gainMultiplier, muted) {
 export function getAvatarVolumePref(displayName) {
   return APP.store.state.preferences.avatarVoiceLevels?.[displayName];
 }
+

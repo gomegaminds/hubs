@@ -55,6 +55,7 @@ export function RoomEntryModal({
                     );
                 }
                 if (profile.creatortoken) {
+                    console.log("CREATOR TOKEN");
                     window.APP.hubChannel.signIn(profile.reticulum_token, profile.creatortoken);
                 }
                 setLoaded(true);
@@ -63,10 +64,14 @@ export function RoomEntryModal({
                 setLoaded(true);
             }
         },
-        [profile, isProfileLoading]
+        [profile, isProfileLoading, isError]
     );
 
     if (!loaded) {
+        return <p>Loading...</p>;
+    }
+
+    if (!profile && isEditingRoom) {
         return <p>Loading...</p>;
     }
 

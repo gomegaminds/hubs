@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
+/*
 Sentry.init({
     dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
     integrations: [new BrowserTracing()],
@@ -9,10 +10,10 @@ Sentry.init({
     // for finer control
     tracesSampleRate: 1.0,
 });
+*/
 
 import {
     getCurrentHubId,
-    updateVRHudPresenceCount,
     updateSceneCopresentState,
     createHubChannelParams,
 } from "./utils/hub-utils";
@@ -24,7 +25,7 @@ import "@babel/polyfill";
 console.log(
     `App version: ${
         configs.IS_LOCAL_OR_CUSTOM_CLIENT
-            ? `Custom client or local client (undeploy custom client to run build ${process.env.BUILD_VERSION})`
+            ? `MEGAMINDS ${process.env.BUILD_VERSION})`
             : process.env.BUILD_VERSION || "?"
     }`
 );
@@ -78,10 +79,11 @@ import "./components/scene-components";
 import "./components/mute-mic";
 import "./components/bone-mute-state-indicator";
 import "./components/bone-visibility";
+import "./components/open-media-button";
 import "./components/fader";
-import "./components/in-world-hud";
+// import "./components/in-world-hud";
 import "./components/emoji";
-import "./components/emoji-hud";
+// import "./components/emoji-hud";
 import "./components/virtual-gamepad-controls";
 import "./components/screenshot";
 import "./components/ik-controller";
@@ -91,48 +93,45 @@ import "./components/hover-visuals";
 import "./components/offset-relative-to";
 import "./components/player-info";
 import "./components/name-tag";
-import "./components/debug";
+// import "./components/debug";
 import "./components/hand-poses";
-import "./components/hud-controller";
+// import "./components/hud-controller";
 import "./components/icon-button";
 import "./components/text-button";
-import "./components/block-button";
-import "./components/mute-button";
-import "./components/kick-button";
-import "./components/close-vr-notice-button";
-import "./components/leave-room-button";
+// import "./components/block-button";
+// import "./components/mute-button";
+// import "./components/kick-button";
+// import "./components/close-vr-notice-button";
+// import "./components/leave-room-button";
 import "./components/visible-if-permitted";
 import "./components/visibility-on-content-types";
 import "./components/hide-when-pinned-and-forbidden";
-import "./mega-src/components/gizmo-helper";
+// import "./mega-src/components/gizmo-helper";
+
+// Classroom Editor Stuff
 import "./mega-src/components/students-can-move";
 import "./mega-src/components/auto-rotate";
-import "./mega-src/components/aframe/geometry";
-import "./mega-src/components/toggle-menu";
-import "./mega-src/components/menu-system/close-button";
-import "./mega-src/components/lock";
-import "./mega-src/components/focus-button";
+import "./mega-src/components/question";
+// import "./mega-src/components/aframe/geometry";
+// import "./mega-src/components/toggle-menu";
+// import "./mega-src/components/menu-system/close-button";
+// import "./mega-src/components/lock";
+// import "./mega-src/components/focus-button";
 import "./mega-src/systems/CSS2DRenderingSystem";
 // import "./mega-src/systems/CSS3DRenderingSystem";
-import "./mega-src/components/question";
-import "./components/visibility-while-frozen";
+
+// import "./components/visibility-while-frozen";
 import "./components/stats-plus";
 import "./components/networked-avatar";
 import "./components/media-video";
 import "./components/media-pdf";
 import "./components/media-image";
-import "./components/avatar-volume-controls";
 import "./components/pinch-to-move";
 import "./components/pitch-yaw-rotator";
 import "./components/position-at-border";
 import "./components/pinnable";
-import "./components/pin-networked-object-button";
 // import "../mega-src/components/protectable";
 // import "../mega-src/components/protect-networked-object-button";
-import "./components/mirror-media-button";
-import "./components/close-mirrored-media-button";
-import "./components/drop-object-button";
-import "./components/camera-focus-button";
 import "./components/unmute-video-button";
 import "./components/visible-to-owner";
 import "./components/emit-state-change";
@@ -140,27 +139,13 @@ import "./components/action-to-event";
 import "./components/action-to-remove";
 import "./components/emit-scene-event-on-remove";
 import "./components/follow-in-fov";
-import "./components/clone-media-button";
-import "./components/open-media-button";
-import "./components/refresh-media-button";
-import "./components/tweet-media-button";
-import "./components/remix-avatar-button";
-import "./components/transform-object-button";
-import "./components/transform-x-object-button";
-import "./components/transform-y-object-button";
-import "./components/scale-button";
 import "./components/hover-menu";
 import "./components/disable-frustum-culling";
 import "./components/teleporter";
 import "./components/track-pose";
-import "./components/replay";
 import "./components/visibility-by-path";
 import "./components/tags";
 import "./components/periodic-full-syncs";
-import "./components/inspect-button";
-import "./components/inspect-pivot-child-selector";
-import "./components/inspect-pivot-offset-from-camera";
-import "./components/optional-alternative-to-not-hide";
 import "./components/avatar-audio-source";
 import "./components/avatar-inspect-collider";
 import "./components/video-texture-target";
@@ -189,11 +174,11 @@ import { createInWorldLogMessage } from "./react-components/chat-message";
 import "./systems/nav";
 import "./systems/frame-scheduler";
 import "./systems/personal-space-bubble";
-import "./systems/app-mode";
+// import "./systems/app-mode";
 import "./systems/permissions";
 import "./systems/exit-on-blur";
 import "./systems/auto-pixel-ratio";
-import "./systems/idle-detector";
+// import "./systems/idle-detector";
 import "./systems/pen-tools";
 import "./systems/userinput/userinput";
 import "./systems/userinput/userinput-debug";
@@ -201,7 +186,7 @@ import "./systems/ui-hotkeys";
 import "./systems/tips";
 import "./systems/interactions";
 import "./systems/hubs-systems";
-import "./systems/capture-system";
+// import "./systems/capture-system";
 import "./systems/listed-media";
 import "./systems/linked-media";
 import "./systems/audio-debug-system";
@@ -212,7 +197,6 @@ import "./gltf-component-mappings";
 import { App } from "./App";
 import MediaDevicesManager from "./utils/media-devices-manager";
 import PinningHelper from "./utils/pinning-helper";
-import ProtectHelper from "./utils/protect-helper";
 import { sleep } from "./utils/async-utils";
 import { platformUnsupported } from "./support";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
@@ -242,11 +226,11 @@ if (isEmbed && !qs.get("embed_token")) {
 
 THREE.Object3D.DefaultMatrixAutoUpdate = false;
 
-import "./components/owned-object-limiter";
-import "./components/owned-object-cleanup-timeout";
-import "./components/set-unowned-body-kinematic";
-import "./components/scalable-when-grabbed";
-import "./components/networked-counter";
+// import "./components/owned-object-limiter";
+// import "./components/owned-object-cleanup-timeout";
+// import "./components/set-unowned-body-kinematic";
+// import "./components/scalable-when-grabbed";
+// import "./components/networked-counter";
 import "./components/event-repeater";
 import "./components/set-yxz-order";
 
@@ -842,7 +826,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     window.APP.pinningHelper = new PinningHelper(hubChannel, authChannel, store, performConditionalSignIn);
-    window.APP.protectHelper = new ProtectHelper(hubChannel, authChannel, store, performConditionalSignIn);
 
     window.addEventListener("action_create_avatar", () => {
         performConditionalSignIn(
@@ -1290,7 +1273,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     events.on(`hub:sync`, () => {
         APP.hideHubPresenceEvents = false;
     });
-    events.on(`hub:sync`, updateVRHudPresenceCount);
     events.on(`hub:sync`, ({ presence }) => {
         updateSceneCopresentState(presence, scene);
     });

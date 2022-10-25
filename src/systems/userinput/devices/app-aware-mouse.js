@@ -23,12 +23,10 @@ export class AppAwareMouseDevice {
     this.cursorPose = new Pose();
   }
   write(frame) {
-    const transformSystem = AFRAME.scenes[0].systems["transform-selected-object"];
-
     const buttonLeft = frame.get(paths.device.mouse.buttonLeft);
     const buttonRight = frame.get(paths.device.mouse.buttonRight);
 
-    if ((buttonRight && !transformSystem.transforming) || (buttonLeft && !anyEntityWith(APP.world, HeldRemoteRight))) {
+    if ((buttonRight) || (buttonLeft && !anyEntityWith(APP.world, HeldRemoteRight))) {
       const movementXY = frame.get(paths.device.mouse.movementXY);
       if (movementXY) {
         frame.setVector2(paths.device.smartMouse.cameraDelta, movementXY[0], movementXY[1]);

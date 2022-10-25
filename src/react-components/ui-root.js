@@ -27,7 +27,6 @@ import { getMicrophonePresences } from "../utils/microphone-presence";
 import { getCurrentStreamer } from "../utils/component-utils";
 import { isIOS } from "../utils/is-mobile";
 
-import ProfileEntryPanel from "./profile-entry-panel";
 import MediaBrowserContainer from "./media-browser";
 
 import EntryStartPanel from "./entry-start-panel.js";
@@ -78,7 +77,7 @@ import { ReactComponent as VRIcon } from "./icons/VR.svg";
 import { ReactComponent as LeaveIcon } from "./icons/Leave.svg";
 import { ReactComponent as EnterIcon } from "./icons/Enter.svg";
 import { ReactComponent as InviteIcon } from "./icons/Invite.svg";
-import { PeopleSidebarContainer, userFromPresence } from "./room/PeopleSidebarContainer";
+import { userFromPresence } from "./room/PeopleSidebarContainer";
 import { ObjectListProvider } from "./room/useObjectList";
 import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
@@ -1507,42 +1506,6 @@ class UIRoot extends Component {
                                                     onClose={() => this.setSidebar(null)}
                                                 />
                                             )}
-                                            {this.state.sidebarId === "people" && (
-                                                <PeopleSidebarContainer
-                                                    displayNameOverride={displayNameOverride}
-                                                    store={this.props.store}
-                                                    mediaSearchStore={this.props.mediaSearchStore}
-                                                    hubChannel={this.props.hubChannel}
-                                                    history={this.props.history}
-                                                    mySessionId={this.props.sessionId}
-                                                    presences={this.props.presences}
-                                                    onClose={() => this.setSidebar(null)}
-                                                    onCloseDialog={() => this.closeDialog()}
-                                                    showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                                    performConditionalSignIn={this.props.performConditionalSignIn}
-                                                />
-                                            )}
-                                            {this.state.sidebarId === "profile" && (
-                                                <ProfileEntryPanel
-                                                    history={this.props.history}
-                                                    containerType="sidebar"
-                                                    displayNameOverride={displayNameOverride}
-                                                    finished={() => this.setSidebar(null)}
-                                                    onClose={() => this.setSidebar(null)}
-                                                    store={this.props.store}
-                                                    mediaSearchStore={this.props.mediaSearchStore}
-                                                />
-                                            )}
-                                            {this.state.sidebarId === "user" && (
-                                                <UserProfileSidebarContainer
-                                                    user={this.getSelectedUser()}
-                                                    hubChannel={this.props.hubChannel}
-                                                    performConditionalSignIn={this.props.performConditionalSignIn}
-                                                    onClose={() => this.setSidebar(null)}
-                                                    onCloseDialog={() => this.closeDialog()}
-                                                    showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                                />
-                                            )}
                                             {this.state.sidebarId === "teleport-menu" && (
                                                 <TeleportSidebar
                                                     room={this.props.hub}
@@ -1801,15 +1764,16 @@ class UIRoot extends Component {
                                                 <HelpPopover />
                                                 <ChangeAvatarPopover />
                                                 <SettingsPopover onClick={() => this.setState({ showPrefs: true })} />
-                                                {isTeacher && !isMobile && (
-                                                    <>
-                                                        <InvitePopoverContainer
-                                                            hub={this.props.hub}
-                                                            hubChannel={this.props.hubChannel}
-                                                            scene={this.props.scene}
-                                                        />
-                                                    </>
-                                                )}
+                                                {isTeacher &&
+                                                    !isMobile && (
+                                                        <>
+                                                            <InvitePopoverContainer
+                                                                hub={this.props.hub}
+                                                                hubChannel={this.props.hubChannel}
+                                                                scene={this.props.scene}
+                                                            />
+                                                        </>
+                                                    )}
                                                 {isMobileVR && (
                                                     <ToolbarButton
                                                         icon={<VRIcon />}

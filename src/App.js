@@ -1,3 +1,4 @@
+console.clear();
 import * as bitecs from "bitecs";
 import { addEntity, createWorld } from "bitecs";
 import "./aframe-to-bit-components";

@@ -45,7 +45,7 @@ import { mediaFramesSystem } from "./bit-media-frames";
 import { cameraToolSystem } from "../bit-systems/camera-tool";
 // import { holdableButtonSystem } from "./holdable-button-system";
 import { physicsCompatSystem } from "./bit-physics";
-import { destroyAtExtremeDistanceSystem } from "./bit-destroy-at-extreme-distances";
+// import { destroyAtExtremeDistanceSystem } from "./bit-destroy-at-extreme-distances";
 
 AFRAME.registerSystem("hubs-systems", {
   init() {
@@ -150,7 +150,7 @@ AFRAME.registerSystem("hubs-systems", {
     this.gainSystem.tick();
     this.nameTagSystem.tick();
 
-    destroyAtExtremeDistanceSystem(world);
+    // destroyAtExtremeDistanceSystem(world);
     removeNetworkedObjectButtonSystem(world);
     removeObject3DSystem(world);
 

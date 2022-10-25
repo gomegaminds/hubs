@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { PeopleSidebar } from "./PeopleSidebar";
 import { getMicrophonePresences } from "../../utils/microphone-presence";
-import ProfileEntryPanel from "../profile-entry-panel";
 import { UserProfileSidebarContainer } from "./UserProfileSidebarContainer";
 
 export function userFromPresence(sessionId, presence, micPresences, mySessionId) {
@@ -99,16 +98,7 @@ export function PeopleSidebarContainer({
     if (selectedPerson) {
         if (selectedPerson.id === mySessionId) {
             return (
-                <ProfileEntryPanel
-                    containerType="sidebar"
-                    displayNameOverride={displayNameOverride}
-                    store={store}
-                    mediaSearchStore={mediaSearchStore}
-                    finished={() => setSelectedPersonId(null)}
-                    history={history}
-                    showBackButton
-                    onBack={() => setSelectedPersonId(null)}
-                />
+                <p>That is you!</p>
             );
         } else {
             return (
