@@ -207,32 +207,6 @@
                     listed-media
                 >
                     <a-entity class="freeze-menu" visibility-while-frozen="withinDistance: 100;" layers="mask: 256; recursive: true;">
-                        <a-entity mixin="rounded-text-button ui"
-                            is-remote-hover-target
-                            tags="singleActionButton: true; isHoverMenuChild: true;"
-                            local-refresh-media-button
-                            position="0 -0.6 0.001"
-                        >
-                            <a-entity text="value:refresh; textAlign:center;"
-                                text-raycast-hack
-                                position="0 0 0.02">
-                            </a-entity>
-                        </a-entity>
-                        <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" open-media-button="onlyOpenLink: true" position="0 -0.25 0.001">
-                            <a-entity text="value:open link; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
-                        </a-entity>
-                        <a-entity
-                            mixin="rounded-button"
-                            tags="isHoldable: true; holdableButton: true;"
-                            is-remote-hover-target
-                            inspect-button
-                            position="0 0.25 0.001">
-                            <a-entity
-                                sprite
-                                icon-button="image: focus-action.png; hoverImage: focus-action.png"
-                                scale="0.165 0.165 0.165"
-                                position="0 0 0.001"
-                            ></a-entity>
                         </a-entity>
                     </a-entity>
                 </a-entity>
