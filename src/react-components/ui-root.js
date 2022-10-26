@@ -27,7 +27,6 @@ import MediaBrowserContainer from "./media-browser";
 
 import EntryStartPanel from "./entry-start-panel.js";
 import PreferencesScreen from "./preferences-screen.js";
-import PresenceLog from "./presence-log.js";
 import PreloadOverlay from "./preload-overlay.js";
 import RTCDebugPanel from "./debug-panel/RtcDebugPanel.js";
 import { showFullScreenIfAvailable, showFullScreenIfWasFullScreen } from "../utils/fullscreen";
@@ -71,6 +70,8 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/popovers/TeacherPopoverContainer";
 import { ObjectMenu } from "../mega-src/react-components/room/ObjectMenu";
+import { TopMenu } from "../mega-src/react-components/room/TopMenu";
+import { ChatSystem } from "../mega-src/react-components/room/ChatSystem";
 import { HelpPopover } from "../mega-src/react-components/room/popovers/HelpPopover";
 import { SettingsPopover } from "../mega-src/react-components/room/popovers/SettingsPopover";
 import { ChangeAvatarPopover } from "../mega-src/react-components/room/popovers/ChangeAvatarPopover";
@@ -767,47 +768,9 @@ class UIRoot extends Component {
                             objectFocused={!!this.props.selectedObject}
                             viewport={
                                 <>
+                                    <TopMenu sessionId={this.props.sessionId} presences={this.props.presences} />
                                     <ObjectMenu />
                                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
-                                    {(!this.props.selectedObject ||
-                                        (this.props.breakpoint !== "sm" && this.props.breakpoint !== "md")) &&
-                                        !isMobile && (
-                                            <ContentMenu>
-                                                {isTeacher &&
-                                                    showObjectList && (
-                                                        <ObjectsMenuButton
-                                                            active={this.state.sidebarId === "objects"}
-                                                            onClick={() => this.toggleSidebar("objects")}
-                                                        />
-                                                    )}
-                                                <PeopleMenuButton
-                                                    active={this.state.sidebarId === "people"}
-                                                    onClick={() => this.toggleSidebar("people")}
-                                                    presencecount={this.state.presenceCount}
-                                                />
-                                                {this.props.hub &&
-                                                    this.props.hub.user_data &&
-                                                    this.props.hub.user_data.toggle_chat && (
-                                                        <ChatMenuButton
-                                                            active={this.state.sidebarId === "chat"}
-                                                            onClick={() => this.toggleSidebar("chat")}
-                                                        />
-                                                    )}
-                                            </ContentMenu>
-                                        )}
-                                    {this.state.sidebarId !== "chat" &&
-                                        this.props.hub && (
-                                            <PresenceLog
-                                                inRoom={true}
-                                                presences={this.props.presences}
-                                                entries={presenceLogEntries}
-                                                hubId={this.props.hub.hub_id}
-                                                history={this.props.history}
-                                                onViewProfile={(sessionId) =>
-                                                    this.setSidebar("user", { selectedUserId: sessionId })
-                                                }
-                                            />
-                                        )}
                                     <TipContainer
                                         hide={this.props.activeObject}
                                         inRoom={entered}
@@ -816,35 +779,11 @@ class UIRoot extends Component {
                                         scene={this.props.scene}
                                         store={this.props.store}
                                     />
-                                    {(showRtcDebugPanel || showAudioDebugPanel) && (
-                                        <RTCDebugPanel
-                                            history={this.props.history}
-                                            store={window.APP.store}
-                                            scene={this.props.scene}
-                                            presences={this.props.presences}
-                                            sessionId={this.props.sessionId}
-                                            showRtcDebug={showRtcDebugPanel}
-                                            showAudioDebug={showAudioDebugPanel}
-                                        />
-                                    )}
                                 </>
                             }
                             sidebar={
                                 this.state.sidebarId ? (
                                     <>
-                                        {this.state.sidebarId === "chat" && (
-                                            <ChatSidebarContainer
-                                                presences={this.props.presences}
-                                                occupantCount={this.occupantCount()}
-                                                canSpawnMessages={
-                                                    entered &&
-                                                    this.props.hubChannel.canOrWillIfCreator("spawn_and_move_media")
-                                                }
-                                                scene={this.props.scene}
-                                                onClose={() => this.setSidebar(null)}
-                                                inputEffect={this.state.chatInputEffect}
-                                            />
-                                        )}
                                         {this.state.sidebarId === "objects" && (
                                             <ObjectsSidebarContainer
                                                 hubChannel={this.props.hubChannel}
@@ -864,7 +803,11 @@ class UIRoot extends Component {
                                 )
                             }
                             modal={this.state.dialog}
-                            toolbarLeft={<></>}
+                            toolbarLeft={
+                                <>
+                                    <ChatSystem entries={presenceLogEntries} />
+                                </>
+                            }
                             toolbarCenter={
                                 <>
                                     {entered && (

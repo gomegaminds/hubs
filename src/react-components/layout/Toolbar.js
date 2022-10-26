@@ -25,7 +25,7 @@ export function Toolbar({ className, left, center, right, ...rest }) {
     <div className={classNames(isMobile ? styles.toolbarPhone : styles.toolbar, className)} {...rest}>
       <ReactTooltip place="top" html={true} effect="solid" />
 	  {!isMobile && (
-		  <div className={classNames(styles.content, styles.leftContent)}>{left}</div>
+		  <div className="align-self-center">{left}</div>
 	  )}
       <div className={classNames("step-toolbar-center", styles.content, styleCenter)}>{center}</div>
       <div className={classNames("step-toolbar-right",styles.content, styleRight)}>{right}</div>

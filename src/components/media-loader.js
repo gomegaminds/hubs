@@ -554,8 +554,11 @@ AFRAME.registerComponent("media-loader", {
                 this.el.addEventListener(
                     "model-loaded",
                     () => {
-                        this.onMediaLoaded(SHAPE.HULL, true);
-                        addAnimationComponents(this.el);
+                        setTimeout(() => {
+                            // Set timeout to prevent race conditions on sketchfab models that cannot grab mesh immediatley
+                            this.onMediaLoaded(SHAPE.HULL, true);
+                            addAnimationComponents(this.el);
+                        }, 350);
                     },
                     { once: true }
                 );

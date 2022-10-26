@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
+/*
 Sentry.init({
     dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
     integrations: [new BrowserTracing()],
@@ -11,6 +12,7 @@ Sentry.init({
     // for finer control
     tracesSampleRate: 1.0,
 });
+*/
 
 import {
     getCurrentHubId,
