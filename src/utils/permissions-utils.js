@@ -19,6 +19,13 @@ export function showHoverEffect(el) {
 }
 
 export function canMove(entity) {
+    if (entity.components.locked !== undefined) {
+        const shouldMove = entity.components["locked"].data.enabled === true;
+        if (shouldMove) {
+            return false;
+        }
+    }
+
     if (window.APP.hubChannel.can("update_hub")) {
         return true;
     }

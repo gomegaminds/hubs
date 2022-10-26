@@ -108,6 +108,7 @@ import "./components/hide-when-pinned-and-forbidden";
 
 // Classroom Editor Stuff
 import "./mega-src/components/students-can-move";
+import "./mega-src/components/locked";
 import "./mega-src/components/owner";
 import "./mega-src/components/auto-rotate";
 import "./mega-src/components/question";
