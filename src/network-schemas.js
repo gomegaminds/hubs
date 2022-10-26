@@ -113,7 +113,8 @@ function registerNetworkSchemas() {
         property: "index"
       },
       "pinnable",
-      "students-can-move"
+      "students-can-move",
+      "owner"
     ],
     nonAuthorizedComponents: [
       {

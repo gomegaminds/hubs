@@ -498,6 +498,10 @@ AFRAME.GLTFModelPlus.registerComponent("animation", "animation", (el, componentN
     el.setAttribute(componentName, componentData);
 });
 
+AFRAME.GLTFModelPlus.registerComponent("owner", "owner", (el, componentName, componentData) => {
+    el.setAttribute(componentName, componentData);
+});
+
 AFRAME.GLTFModelPlus.registerComponent("students-can-move", "students-can-move", (el, componentName, componentData) => {
     el.setAttribute(componentName, componentData);
 });

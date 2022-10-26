@@ -246,8 +246,6 @@ export class CameraSystem {
             );
             bg.layers.set(Layers.CAMERA_LAYER_INSPECT);
             this.viewingRig.object3D.add(bg);
-
-
         });
     }
 
@@ -420,28 +418,7 @@ export class CameraSystem {
 
             const entered = scene.is("entered");
             uiRoot = uiRoot || document.getElementById("ui-root");
-            const isGhost = !entered && uiRoot && uiRoot.firstChild && uiRoot.firstChild.classList.contains("isGhost");
-            if (isGhost && this.mode !== CAMERA_MODE_FIRST_PERSON && this.mode !== CAMERA_MODE_INSPECT) {
-                this.mode = CAMERA_MODE_FIRST_PERSON;
-                const position = new THREE.Vector3();
-                const quat = new THREE.Quaternion();
-                const scale = new THREE.Vector3();
-                this.viewingRig.object3D.updateMatrices();
-                this.viewingRig.object3D.matrixWorld.decompose(position, quat, scale);
-                position.setFromMatrixPosition(this.viewingCamera.matrixWorld);
-                position.y = position.y - 1.6;
-                setMatrixWorld(
-                    this.avatarRig.object3D,
-                    new THREE.Matrix4().compose(
-                        position,
-                        quat,
-                        scale
-                    )
-                );
-                scene.systems["hubs-systems"].characterController.fly = true;
-                this.avatarPOV.object3D.updateMatrices();
-                setMatrixWorld(this.avatarPOV.object3D, this.viewingCamera.matrixWorld);
-            }
+
             if (!this.enteredScene && entered) {
                 this.enteredScene = true;
                 this.mode = CAMERA_MODE_FIRST_PERSON;
@@ -456,13 +433,16 @@ export class CameraSystem {
             this.interaction = this.interaction || scene.systems.interaction;
 
             if (this.userinput.get(paths.actions.stopInspecting)) {
-                console.log("Stop inspecting");
+                this.uninspect();
+                if (this.isInsideMenu) {
+                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                }
+                this.isInsideMenu = null;
+                scene.emit("select_object_changed", null);
             }
 
             if (this.userinput.get(paths.actions.startInspecting)) {
                 const hoverEl = this.interaction.state.rightRemote.hovered || this.interaction.state.leftRemote.hovered;
-
-                console.log(hoverEl);
 
                 // If we are starting edit of what we are already editing, close the menu
                 if (hoverEl === this.isInsideMenu) {
@@ -477,12 +457,6 @@ export class CameraSystem {
                     scene.emit("select_object_changed", hoverEl);
                     this.isInsideMenu = hoverEl;
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
-                }
-            } else if (this.userinput.get(paths.actions.stopInspecting)) {
-                if (this.isInsideMenu) {
-                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    scene.emit("select_object_changed", null);
-                    this.isInsideMenu = false;
                 }
             }
 

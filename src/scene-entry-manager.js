@@ -56,7 +56,6 @@ export default class SceneEntryManager {
     };
 
     enterScene = async (enterInVR, muteOnEntry) => {
-        console.log("Entering scene...");
         document.getElementById("viewing-camera").removeAttribute("scene-preview-camera");
 
         if (isDebug && NAF.connection.adapter.session) {
@@ -82,7 +81,6 @@ export default class SceneEntryManager {
             this.avatarRig.setAttribute("virtual-gamepad-controls", {});
         }
 
-        console.log("Entering with", this._entered);
         if (!this._entered) {
             this._setupPlayerRig();
             this._setupKicking();
@@ -246,7 +244,6 @@ export default class SceneEntryManager {
 
             entity.addEventListener("media_resolved", () => {
                 window.APP.pinningHelper.setPinned(entity, true);
-                console.log(entity);
             });
 
             return entity;

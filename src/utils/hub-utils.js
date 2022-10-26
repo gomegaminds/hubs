@@ -11,11 +11,7 @@ export function getCurrentHubId() {
   );
 }
 
-export function updateVRHudPresenceCount({ presence }) {
-  const occupantCount = Object.getOwnPropertyNames(presence.state).length;
-  const vrHudPresenceCount = document.querySelector("#hud-presence-count");
-  vrHudPresenceCount.setAttribute("text", "value", occupantCount.toString());
-}
+
 export function updateSceneCopresentState(presence, scene) {
   const occupantCount = Object.getOwnPropertyNames(presence.state).length;
   if (occupantCount > 1) {

@@ -25,7 +25,6 @@ import { AudioSettingsSystem } from "./audio-settings-system";
 import { AudioSystem } from "./audio-system";
 import { ShadowSystem } from "./shadow-system";
 import { InspectYourselfSystem } from "./inspect-yourself-system";
-import { EmojiSystem } from "./emoji-system";
 import { AudioZonesSystem } from "./audio-zones-system";
 import { GainSystem } from "./audio-gain-system";
 import { EnvironmentSystem } from "./environment-system";
@@ -45,7 +44,7 @@ import { mediaFramesSystem } from "./bit-media-frames";
 import { cameraToolSystem } from "../bit-systems/camera-tool";
 // import { holdableButtonSystem } from "./holdable-button-system";
 import { physicsCompatSystem } from "./bit-physics";
-import { destroyAtExtremeDistanceSystem } from "./bit-destroy-at-extreme-distances";
+// import { destroyAtExtremeDistanceSystem } from "./bit-destroy-at-extreme-distances";
 
 AFRAME.registerSystem("hubs-systems", {
   init() {
@@ -79,7 +78,6 @@ AFRAME.registerSystem("hubs-systems", {
     this.uvScrollSystem = new UVScrollSystem();
     this.shadowSystem = new ShadowSystem(this.el);
     this.inspectYourselfSystem = new InspectYourselfSystem();
-    this.emojiSystem = new EmojiSystem(this.el);
     this.audioZonesSystem = new AudioZonesSystem();
     this.gainSystem = new GainSystem();
     this.environmentSystem = new EnvironmentSystem(this.el);
@@ -114,7 +112,6 @@ AFRAME.registerSystem("hubs-systems", {
     this.cursorTogglingSystem.tick(systems.interaction, systems.userinput, this.el);
     this.interactionSfxSystem.tick(systems.interaction, systems.userinput, this.soundEffectsSystem);
     this.superSpawnerSystem.tick();
-    this.emojiSystem.tick(t, systems.userinput);
     this.cursorPoseTrackingSystem.tick();
     this.hoverMenuSystem.tick();
     this.positionAtBorderSystem.tick();
@@ -150,7 +147,7 @@ AFRAME.registerSystem("hubs-systems", {
     this.gainSystem.tick();
     this.nameTagSystem.tick();
 
-    destroyAtExtremeDistanceSystem(world);
+    // destroyAtExtremeDistanceSystem(world);
     removeNetworkedObjectButtonSystem(world);
     removeObject3DSystem(world);
 

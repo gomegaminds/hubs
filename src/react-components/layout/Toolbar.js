@@ -27,8 +27,8 @@ export function Toolbar({ className, left, center, right, ...rest }) {
 	  {!isMobile && (
 		  <div className={classNames(styles.content, styles.leftContent)}>{left}</div>
 	  )}
-      <div className={classNames(styles.content, styleCenter)}>{center}</div>
-      <div className={classNames(styles.content, styleRight)}>{right}</div>
+      <div className={classNames("step-toolbar-center", styles.content, styleCenter)}>{center}</div>
+      <div className={classNames("step-toolbar-right",styles.content, styleRight)}>{right}</div>
     </div>
   );
 }

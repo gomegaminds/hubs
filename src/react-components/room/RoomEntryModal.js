@@ -19,17 +19,10 @@ import SessionEntryModal from "../../mega-src/react-components/room/entry/Sessio
 
 export function RoomEntryModal({
     className,
-    roomName,
-    showJoinRoom,
     onJoinRoom,
     onForceJoinRoom,
-    showEnterOnDevice,
-    onEnterOnDevice,
-    showSpectate,
     onSpectate,
     onSignInClick,
-    showOptions,
-    onOptions,
     isSignedIn,
     ...rest
 }) {
@@ -55,6 +48,7 @@ export function RoomEntryModal({
                     );
                 }
                 if (profile.creatortoken) {
+                    console.log("CREATOR TOKEN");
                     window.APP.hubChannel.signIn(profile.reticulum_token, profile.creatortoken);
                 }
                 setLoaded(true);
@@ -63,10 +57,14 @@ export function RoomEntryModal({
                 setLoaded(true);
             }
         },
-        [profile, isProfileLoading]
+        [profile, isProfileLoading, isError]
     );
 
     if (!loaded) {
+        return <p>Loading...</p>;
+    }
+
+    if (!profile && isEditingRoom) {
         return <p>Loading...</p>;
     }
 
@@ -92,18 +90,6 @@ export function RoomEntryModal({
 
 RoomEntryModal.propTypes = {
     className: PropTypes.string,
-    roomName: PropTypes.string.isRequired,
-    showJoinRoom: PropTypes.bool,
     onJoinRoom: PropTypes.func,
-    showEnterOnDevice: PropTypes.bool,
-    onEnterOnDevice: PropTypes.func,
-    showSpectate: PropTypes.bool,
     onSpectate: PropTypes.func,
-    onOptions: PropTypes.func,
-};
-
-RoomEntryModal.defaultProps = {
-    showJoinRoom: true,
-    showEnterOnDevice: true,
-    showSpectate: true,
 };
