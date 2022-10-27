@@ -133,19 +133,6 @@ export function ExitedRoomScreen({ reason, showTerms, termsUrl, showSourceLink }
             />
           </p>
         )}
-        {![ExitReason.left, ExitReason.disconnected, ExitReason.sceneError].includes(reason) && (
-          <p>
-            <FormattedMessage
-              id="exited-room-screen.create-room"
-              defaultMessage="You can also <a>create a new room</a>."
-              values={{
-                // eslint-disable-next-line react/display-name
-                a: chunks => <a href="/">{chunks}</a>
-              }}
-            />
-          </p>
-        )}
-
         <Button as="a" preset="accept" href={window.location.href}>
           <FormattedMessage id="exited-room-screen.refresh-page-button" defaultMessage="Refresh Page" />
         </Button>

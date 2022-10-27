@@ -150,6 +150,7 @@ class UIRoot extends Component {
         enterInVR: false,
         entered: false,
         entering: false,
+        mobileChat: false,
         dialog: null,
         noMoreLoadingUpdates: false,
         hideLoader: false,
@@ -805,66 +806,42 @@ class UIRoot extends Component {
                             modal={this.state.dialog}
                             toolbarLeft={
                                 <>
-                                    <ChatSystem entries={presenceLogEntries} />
+                                    <ChatSystem />
                                 </>
                             }
                             toolbarCenter={
-                                <>
-                                    {entered && (
-                                        <>
-                                            <div className="toolbarGroup">
-                                                {this.props.hub &&
-                                                    this.props.hub.user_data &&
-                                                    this.props.hub.user_data.toggle_voice && (
-                                                        <AudioPopoverContainer scene={this.props.scene} />
-                                                    )}
-                                                <RaiseHandButton
-                                                    scene={this.props.scene}
-                                                    initialPresence={getPresenceProfileForSession(
-                                                        this.props.presences,
-                                                        this.props.sessionId
-                                                    )}
-                                                />
-                                                {this.props.hubChannel.canOrWillIfCreator("spawn_emoji") && (
-                                                    <ReactionPopoverContainer
+                                !this.state.mobileChat ? (
+                                    <>
+                                        {entered && (
+                                            <>
+                                                <div className="toolbarGroup">
+                                                    {this.props.hub &&
+                                                        this.props.hub.user_data &&
+                                                        this.props.hub.user_data.toggle_voice && (
+                                                            <AudioPopoverContainer scene={this.props.scene} />
+                                                        )}
+                                                    <RaiseHandButton
                                                         scene={this.props.scene}
                                                         initialPresence={getPresenceProfileForSession(
                                                             this.props.presences,
                                                             this.props.sessionId
                                                         )}
                                                     />
-                                                )}
+                                                    {this.props.hubChannel.canOrWillIfCreator("spawn_emoji") && (
+                                                        <ReactionPopoverContainer
+                                                            scene={this.props.scene}
+                                                            initialPresence={getPresenceProfileForSession(
+                                                                this.props.presences,
+                                                                this.props.sessionId
+                                                            )}
+                                                        />
+                                                    )}
 
-                                                {isMobile && (
-                                                    <ToolbarButton
-                                                        key={"chat"}
-                                                        icon={<ChatIcon />}
-                                                        onClick={() => this.toggleSidebar("chat")}
-                                                        label={
-                                                            <FormattedMessage
-                                                                id="place-popover.item-type.pen"
-                                                                defaultMessage="Pen"
-                                                            />
-                                                        }
-                                                        preset="accent1"
-                                                    />
-                                                )}
-                                            </div>
-                                            {!isMobile && (
-                                                <div className="toolbarGroup">
-                                                    <SharePopoverContainer
-                                                        scene={this.props.scene}
-                                                        hubChannel={this.props.hubChannel}
-                                                    />
-                                                    {(isTeacher ||
-                                                        this.props.hubChannel.canOrWillIfCreator("spawn_drawing")) && (
+                                                    {isMobile && (
                                                         <ToolbarButton
-                                                            key={"pen"}
-                                                            icon={<PenIcon />}
-                                                            tipTitle={"Pen Tool"}
-                                                            tipBody={"Toggle a pen to draw on surfaces"}
-                                                            selected={hasActivePen}
-                                                            onClick={() => this.props.scene.emit("penButtonPressed")}
+                                                            key={"chat"}
+                                                            icon={<ChatIcon />}
+                                                            onClick={() => this.setState({ mobileChat: true })}
                                                             label={
                                                                 <FormattedMessage
                                                                     id="place-popover.item-type.pen"
@@ -874,75 +851,114 @@ class UIRoot extends Component {
                                                             preset="accent1"
                                                         />
                                                     )}
-                                                    {(isTeacher ||
-                                                        this.props.hubChannel.canOrWillIfCreator(
-                                                            "spawn_and_move_media"
-                                                        )) && (
-                                                        <StickyNotePopover
-                                                            scene={this.props.scene}
-                                                            hubChannel={this.props.hubChannel}
-                                                            mediaSearchStore={this.props.mediaSearchStore}
-                                                            showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                                        />
-                                                    )}
-                                                    {(isTeacher ||
-                                                        this.props.hubChannel.canOrWillIfCreator(
-                                                            "spawn_and_move_media"
-                                                        )) && (
-                                                        <PlacePopoverContainer
-                                                            scene={this.props.scene}
-                                                            hubChannel={this.props.hubChannel}
-                                                            mediaSearchStore={this.props.mediaSearchStore}
-                                                            showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                                        />
-                                                    )}
                                                 </div>
-                                            )}
-                                            {!isMobile && (
-                                                <div className="toolbarGroup">
-                                                    <StudentPopoverContainer
-                                                        scene={this.props.scene}
-                                                        hubChannel={this.props.hubChannel}
-                                                        closeDialog={this.closeDialog}
-                                                        mediaSearchStore={this.props.mediaSearchStore}
-                                                        showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                                    />
-                                                    {isTeacher && (
-                                                        <TeacherPopoverContainer
+                                                {!isMobile && (
+                                                    <div className="toolbarGroup">
+                                                        <SharePopoverContainer
+                                                            scene={this.props.scene}
+                                                            hubChannel={this.props.hubChannel}
+                                                        />
+                                                        {(isTeacher ||
+                                                            this.props.hubChannel.canOrWillIfCreator(
+                                                                "spawn_drawing"
+                                                            )) && (
+                                                            <ToolbarButton
+                                                                key={"pen"}
+                                                                icon={<PenIcon />}
+                                                                tipTitle={"Pen Tool"}
+                                                                tipBody={"Toggle a pen to draw on surfaces"}
+                                                                selected={hasActivePen}
+                                                                onClick={() =>
+                                                                    this.props.scene.emit("penButtonPressed")
+                                                                }
+                                                                label={
+                                                                    <FormattedMessage
+                                                                        id="place-popover.item-type.pen"
+                                                                        defaultMessage="Pen"
+                                                                    />
+                                                                }
+                                                                preset="accent1"
+                                                            />
+                                                        )}
+                                                        {(isTeacher ||
+                                                            this.props.hubChannel.canOrWillIfCreator(
+                                                                "spawn_and_move_media"
+                                                            )) && (
+                                                            <StickyNotePopover
+                                                                scene={this.props.scene}
+                                                                hubChannel={this.props.hubChannel}
+                                                                mediaSearchStore={this.props.mediaSearchStore}
+                                                                showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                                            />
+                                                        )}
+                                                        {(isTeacher ||
+                                                            this.props.hubChannel.canOrWillIfCreator(
+                                                                "spawn_and_move_media"
+                                                            )) && (
+                                                            <PlacePopoverContainer
+                                                                scene={this.props.scene}
+                                                                hubChannel={this.props.hubChannel}
+                                                                mediaSearchStore={this.props.mediaSearchStore}
+                                                                showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {!isMobile && (
+                                                    <div className="toolbarGroup">
+                                                        <StudentPopoverContainer
+                                                            scene={this.props.scene}
+                                                            hubChannel={this.props.hubChannel}
                                                             closeDialog={this.closeDialog}
-                                                            scene={this.props.scene}
-                                                            hubChannel={this.props.hubChannel}
                                                             mediaSearchStore={this.props.mediaSearchStore}
                                                             showNonHistoriedDialog={this.showNonHistoriedDialog}
-                                                            onViewTeleportMenu={() => this.setSidebar("teleport-menu")}
                                                         />
-                                                    )}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </>
+                                                        {isTeacher && (
+                                                            <TeacherPopoverContainer
+                                                                closeDialog={this.closeDialog}
+                                                                scene={this.props.scene}
+                                                                hubChannel={this.props.hubChannel}
+                                                                mediaSearchStore={this.props.mediaSearchStore}
+                                                                showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                                                onViewTeleportMenu={() =>
+                                                                    this.setSidebar("teleport-menu")
+                                                                }
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </>
+                                ) : (
+                                    <ChatSystem
+                                        isMobile={true}
+                                        hideMobile={() => this.setState({ mobileChat: false })}
+                                    />
+                                )
                             }
                             toolbarRight={
-                                <>
-                                    {entered && (
-                                        <div className="toolbarGroupRight">
-                                            <HelpPopover />
-                                            <ChangeAvatarPopover />
-                                            <SettingsPopover onClick={() => this.setState({ showPrefs: true })} />
-                                            {isTeacher &&
-                                                !isMobile && (
-                                                    <>
-                                                        <InvitePopoverContainer
-                                                            hub={this.props.hub}
-                                                            hubChannel={this.props.hubChannel}
-                                                            scene={this.props.scene}
-                                                        />
-                                                    </>
-                                                )}
-                                        </div>
-                                    )}
-                                </>
+                                !this.state.mobileChat && (
+                                    <>
+                                        {entered && (
+                                            <div className="toolbarGroupRight">
+                                                <HelpPopover />
+                                                <ChangeAvatarPopover />
+                                                <SettingsPopover onClick={() => this.setState({ showPrefs: true })} />
+                                                {isTeacher &&
+                                                    !isMobile && (
+                                                        <>
+                                                            <InvitePopoverContainer
+                                                                hub={this.props.hub}
+                                                                hubChannel={this.props.hubChannel}
+                                                                scene={this.props.scene}
+                                                            />
+                                                        </>
+                                                    )}
+                                            </div>
+                                        )}
+                                    </>
+                                )
                             }
                         />
                     )}
