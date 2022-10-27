@@ -351,7 +351,7 @@ export default class HubChannel extends EventTarget {
             profile_tokens.find((t) => t.hubId === this.hubId);
 
         if(profile_creatorAssignmentTokenEntry){
-            console.log("Getting assignment token from teacher profile!");
+            // console.log("Getting assignment token from teacher profile!");
             return profile_creatorAssignmentTokenEntry && profile_creatorAssignmentTokenEntry.creatorAssignmentToken;
         }
 

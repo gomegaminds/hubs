@@ -281,7 +281,7 @@ export class AudioSystem {
   // https://stackoverflow.com/questions/10232908/is-there-a-way-to-detect-a-mobile-safari-audio-interruption-headphones-unplugg
   _safariMobileAudioInterruptionFix() {
     this.audioContext.onstatechange = () => {
-      console.log(`AudioContext state changed to ${this.audioContext.state}`);
+      // console.log(`AudioContext state changed to ${this.audioContext.state}`);
       if (this.audioContext.state === "suspended") {
         // When you unplug the headphone or when the bluetooth headset disconnects on
         // iOS Safari or Chrome, the state changes to suspended.

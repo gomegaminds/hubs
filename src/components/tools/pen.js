@@ -99,7 +99,7 @@ AFRAME.registerComponent("pen", {
     near: { default: 0.01 },
     drawMode: { default: DRAW_MODE.DEFAULT_3D, oneOf: [DRAW_MODE.DEFAULT_3D, DRAW_MODE.PROJECTION] },
     penVisible: { default: true },
-    penTipPosition: { default: { x: 0, y: 0, z: 0 } }
+    penTipPosition: { default: { x: 0, y: 0, z: 0 }, type: "vec3" }
   },
 
   init() {

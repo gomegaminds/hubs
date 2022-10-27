@@ -340,7 +340,7 @@ class UIRoot extends Component {
     };
 
     onLoadingFinished = () => {
-        console.log("UI root loading has finished");
+        // console.log("UI root loading has finished");
         this.setState({ noMoreLoadingUpdates: true });
         this.props.scene.emit("loading_finished");
 
@@ -350,7 +350,7 @@ class UIRoot extends Component {
     };
 
     onSceneLoaded = () => {
-        console.log("UI root scene has loaded");
+        // console.log("UI root scene has loaded");
         this.setState({ sceneLoaded: true });
     };
 

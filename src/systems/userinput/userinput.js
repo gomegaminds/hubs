@@ -306,7 +306,7 @@ AFRAME.registerSystem("userinput", {
       const forceEnableTouchscreen = hackyMobileSafariTest();
 
       if (inVRMode) {
-        console.log("Using VR bindings.");
+        // console.log("Using VR bindings.");
         this.registeredMappings.delete(
           isMobile || forceEnableTouchscreen ? touchscreenUserBindings : keyboardMouseUserBindings
         );
@@ -328,7 +328,7 @@ AFRAME.registerSystem("userinput", {
           });
         }
       } else {
-        console.log("Using Non-VR bindings.");
+        // console.log("Using Non-VR bindings.");
         // remove mappings for all active VR input devices
         for (let i = 0; i < this.activeDevices.items.length; i++) {
           const activeDevice = this.activeDevices.items[i];

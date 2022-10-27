@@ -136,7 +136,7 @@ export async function connectToReticulum(debug = false, params = null, socketCla
   };
 
   const socketUrl = await getNewSocketUrl();
-  console.log(`Phoenix Socket URL: ${socketUrl}`);
+  // console.log(`Phoenix Socket URL: ${socketUrl}`);
 
   const socketSettings = {};
 
@@ -151,7 +151,7 @@ export async function connectToReticulum(debug = false, params = null, socketCla
   }
 
   const socket = new socketClass(`${socketUrl}/socket`, socketSettings);
-  console.log(`Phoenix Socket URL: ${socketUrl}/socket`);
+  // console.log(`Phoenix Socket URL: ${socketUrl}/socket`);
   socket.connect();
   socket.onError(async () => {
     // On error, underlying reticulum node may have died, so rebalance by

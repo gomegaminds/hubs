@@ -24,16 +24,6 @@ export async function refreshMediaMirror() {
   entity.object3D.scale.set(0.75, 0.75, 0.75);
   entity.object3D.matrixNeedsUpdate = true;
 
-  const refreshButton = entity.querySelector("[refresh-media-button]");
-  if (refreshButton) {
-    refreshButton.parentNode.removeChild(refreshButton);
-  }
-
-  const localRefreshButton = entity.querySelector("[local-refresh-media-button]");
-  if (localRefreshButton) {
-    localRefreshButton.parentNode.removeChild(localRefreshButton);
-  }
-
   mirrorTarget.parentEl.components["follow-in-fov"].reset();
   mirrorTarget.parentEl.object3D.visible = true;
 }

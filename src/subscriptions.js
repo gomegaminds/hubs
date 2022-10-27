@@ -45,12 +45,12 @@ export default class Subscriptions {
   };
 
   setRegistration = registration => {
-    console.log("Service worker registered");
+    // console.log("Service worker registered");
     this.registration = registration;
   };
 
   setRegistrationFailed = e => {
-    console.error("Service worker registration failed", e);
+    // console.error("Service worker registration failed", e);
     this.registration = null;
   };
 

@@ -43,7 +43,7 @@ export default class SceneEntryManager {
 
     init = () => {
         this.whenSceneLoaded(() => {
-            console.log("Scene is loaded so setting up controllers");
+            // console.log("Scene is loaded so setting up controllers");
             this.rightCursorController.components["cursor-controller"].enabled = false;
             this.leftCursorController.components["cursor-controller"].enabled = false;
             this.mediaDevicesManager = APP.mediaDevicesManager;
@@ -130,10 +130,10 @@ export default class SceneEntryManager {
 
     whenSceneLoaded = (callback) => {
         if (this.scene.hasLoaded) {
-            console.log("Scene already loaded so callback invoked directly");
+            // console.log("Scene already loaded so callback invoked directly");
             callback();
         } else {
-            console.log("Scene not yet loaded so callback is deferred");
+            // console.log("Scene not yet loaded so callback is deferred");
             this.scene.addEventListener("loaded", callback);
         }
     };

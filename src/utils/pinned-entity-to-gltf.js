@@ -50,24 +50,19 @@ export default function pinnedEntityToGltf(el) {
 
     gltfComponents.pinnable = { pinned: true };
 
-    console.log(components, el);
     if (components.text) {
-        console.log("Got text component on pinning");
         gltfComponents.text = components.text.data;
     }
     if (components.animation) {
-        console.log("Got Animation component on pinning");
         gltfComponents.animation = components.animation.data;
     }
     if (components["students-can-move"]) {
-        console.log("Got StudentsCanMove component on pinning");
         gltfComponents["students-can-move"] = components["students-can-move"].data;
     }
     if (components["locked"]) {
         gltfComponents["locked"] = components["locked"].data;
     }
     if (components["owner"]) {
-        console.log("Got Owner component on pinning");
         gltfComponents["owner"] = components["owner"].data;
     }
 

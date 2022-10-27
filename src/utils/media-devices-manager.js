@@ -190,7 +190,6 @@ export default class MediaDevicesManager extends EventEmitter {
     }
 
     async fetchMediaDevices() {
-        console.log("Fetching media devices");
         return new Promise((resolve) => {
             navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
                 mediaDevices = mediaDevices.filter((d) => d.label !== "");
@@ -226,7 +225,6 @@ export default class MediaDevicesManager extends EventEmitter {
 
     async startMicShare({ deviceId, unmute, updatePrefs = true }) {
         if (this.isMicShared && this.selectedMicDeviceId === deviceId) return;
-        console.log("Starting microphone sharing");
 
         if (!deviceId) {
             const { preferredMic } = this._store.state.preferences;
@@ -237,7 +235,6 @@ export default class MediaDevicesManager extends EventEmitter {
             constraints = { audio: { deviceId: { ideal: [deviceId] } } };
         }
 
-        console.log("Attempting to start mic share with ", deviceId);
         const result = await this._startMicShare(constraints);
 
         await this.fetchMediaDevices();
@@ -254,10 +251,8 @@ export default class MediaDevicesManager extends EventEmitter {
                         },
                     });
                 }
-                console.log(`Selected input device: ${this.micLabelForDeviceId(micDeviceId)}`);
             }
         } else {
-            console.log("No available audio tracks");
         }
 
         await APP.dialog.setLocalMediaStream(this._mediaStream);
@@ -295,7 +290,6 @@ export default class MediaDevicesManager extends EventEmitter {
         constraints.audio.autoGainControl = !this._store.state.preferences.disableAutoGainControl;
 
         try {
-            console.log("Adding microphone media stream");
             const newStream = await navigator.mediaDevices.getUserMedia(constraints);
             this.audioSystem.addStreamToOutboundAudio("microphone", newStream);
             this.audioTrack = newStream.getAudioTracks()[0];

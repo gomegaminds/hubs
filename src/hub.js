@@ -7,11 +7,14 @@ import configs from "./utils/configs";
 import "./utils/theme";
 import "@babel/polyfill";
 
+
+/*
 console.log(
     `App version: ${
         configs.IS_LOCAL_OR_CUSTOM_CLIENT ? `MEGAMINDS ${process.env.BUILD_VERSION})` : process.env.BUILD_VERSION || "?"
     }`
 );
+*/
 
 if (process.env.NODE_ENV !== "development") {
     Sentry.init({
@@ -293,7 +296,7 @@ if (!isOAuthModal) {
 }
 
 function setupLobbyCamera() {
-    console.log("Setting up lobby camera");
+    // console.log("Setting up lobby camera");
     const camera = document.getElementById("scene-preview-node");
     const previewCamera = document.getElementById("environment-scene").object3D.getObjectByName("scene-preview-camera");
 
@@ -415,7 +418,7 @@ export async function getSceneUrlForHub(hub) {
 }
 
 export async function updateEnvironmentForHub(hub, entryManager) {
-    console.log("Updating environment for hub");
+    // console.log("Updating environment for hub");
     const sceneUrl = await getSceneUrlForHub(hub);
 
     const sceneErrorHandler = () => {
@@ -428,7 +431,7 @@ export async function updateEnvironmentForHub(hub, entryManager) {
 
     const envSystem = sceneEl.systems["hubs-systems"].environmentSystem;
 
-    console.log(`Scene URL: ${sceneUrl}`);
+    // console.log(`Scene URL: ${sceneUrl}`);
     const loadStart = performance.now();
 
     let environmentEl = null;
@@ -441,7 +444,7 @@ export async function updateEnvironmentForHub(hub, entryManager) {
             () => {
                 environmentEl.removeEventListener("model-error", sceneErrorHandler);
 
-                console.log(`Scene file initial load took ${Math.round(performance.now() - loadStart)}ms`);
+                // console.log(`Scene file initial load took ${Math.round(performance.now() - loadStart)}ms`);
 
                 // Show the canvas once the model has loaded
                 document.querySelector(".a-canvas").classList.remove("a-hidden");
@@ -479,7 +482,7 @@ export async function updateEnvironmentForHub(hub, entryManager) {
 
                         envSystem.updateEnvironment(environmentEl);
 
-                        console.log(`Scene file update load took ${Math.round(performance.now() - loadStart)}ms`);
+                        // console.log(`Scene file update load took ${Math.round(performance.now() - loadStart)}ms`);
 
                         traverseMeshesAndAddShapes(environmentEl);
 
@@ -569,7 +572,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
         }
     }
 
-    console.log(`Dialog host: ${hub.host}:${hub.port}`);
+    // console.log(`Dialog host: ${hub.host}:${hub.port}`);
 
     remountUI({
         messageDispatch: messageDispatch,
@@ -629,7 +632,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
         while (!scene.components["networked-scene"] || !scene.components["networked-scene"].data) await nextTick();
 
         const loadEnvironmentAndConnect = () => {
-            console.log("Loading environment and connecting to dialog servers");
+            // console.log("Loading environment and connecting to dialog servers");
 
             updateEnvironmentForHub(hub, entryManager);
 
@@ -670,7 +673,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
         scene.emit("hub_updated", { hub });
 
         if (!isEmbed) {
-            console.log("Page is not embedded so environment initialization will start immediately");
+           // console.log("Page is not embedded so environment initialization will start immediately");
             loadEnvironmentAndConnect();
         } else {
             console.log("Page is embedded so environment initialization will be deferred");
@@ -687,7 +690,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
 }
 
 async function runBotMode(scene, entryManager) {
-    console.log("Running in bot mode...");
+    // console.log("Running in bot mode...");
     const noop = () => {};
     const alwaysFalse = () => false;
     scene.renderer = {
@@ -712,9 +715,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (store.state.profile?.displayName) {
-        console.log("Already has profile!");
+        // console.log("Already has profile!");
     } else {
-        console.log("No profile found! Should redirect to entry flow!");
+        // console.log("No profile found! Should redirect to entry flow!");
         redirectToEntryFlow();
     }
 
@@ -727,6 +730,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const detectedOS = detectOS(navigator.userAgent);
     const browser = detect();
+    
     // HACK - it seems if we don't initialize the mic track up-front, voices can drop out on iOS
     // safari when initializing it later.
     if (["iOS", "Mac OS"].includes(detectedOS) && ["safari", "ios"].includes(browser.name)) {
@@ -739,7 +743,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const hubId = getCurrentHubId();
-    console.log(`Hub ID: ${hubId}`);
+    // console.log(`Hub ID: ${hubId}`);
 
     const shouldRedirectToSignInPage =
         // Default room won't work if account is required to access
@@ -974,7 +978,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     getReticulumMeta().then((reticulumMeta) => {
-        console.log(`Reticulum @ ${reticulumMeta.phx_host}: v${reticulumMeta.version} on ${reticulumMeta.pool}`);
+        // console.log(`Reticulum @ ${reticulumMeta.phx_host}: v${reticulumMeta.version} on ${reticulumMeta.pool}`);
 
         if (
             qs.get("required_ret_version") &&
@@ -1031,7 +1035,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     environmentScene.addEventListener("model-loaded", ({ detail: { model } }) => {
-        console.log("Environment scene has loaded");
+        // console.log("Environment scene has loaded");
 
         if (!scene.is("entered")) {
             setupLobbyCamera();

@@ -59,12 +59,12 @@ export const traverseMeshesAndAddShapes = (function() {
       entity.removeAttribute(id);
     }
 
-    console.group("traverseMeshesAndAddShapes");
+    // console.group("traverseMeshesAndAddShapes");
 
     if (document.querySelector(["[shape-helper__trimesh]", "[shape-helper__heightfield]"])) {
-      console.log("heightfield or trimesh found on scene");
+      // console.log("heightfield or trimesh found on scene");
     } else {
-      console.log("collision not found in scene");
+      // console.log("collision not found in scene");
 
       let isHighDensity = false;
       meshRoot.traverse(o => {

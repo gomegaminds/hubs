@@ -661,12 +661,10 @@ AFRAME.registerComponent("media-pager", {
             this.hoverMenu = menu;
             this.nextButton = this.el.querySelector(".next-button [text-button]");
             this.prevButton = this.el.querySelector(".prev-button [text-button]");
-            this.snapButton = this.el.querySelector(".snap-button [text-button]");
             this.pageLabel = this.el.querySelector(".page-label");
 
             this.nextButton.object3D.addEventListener("interact", this.onNext);
             this.prevButton.object3D.addEventListener("interact", this.onPrev);
-            this.snapButton.object3D.addEventListener("interact", this.onSnap);
 
             this.update();
             this.el.emit("pager-loaded");
@@ -732,7 +730,6 @@ AFRAME.registerComponent("media-pager", {
 
         this.nextButton.object3D.removeEventListener("interact", this.onNext);
         this.prevButton.object3D.removeEventListener("interact", this.onPrev);
-        this.snapButton.object3D.removeEventListener("interact", this.onSnap);
 
         window.APP.hubChannel.removeEventListener("permissions_updated", this.update);
 

@@ -35,13 +35,11 @@ export function canMove(entity) {
             entity.components.owner.data &&
             entity.components.owner.data.name === window.APP.store.state.profile.displayName
         ) {
-            console.log("Got match on ", entity.components.owner, "and", window.APP.store.state.profile);
             return true;
         }
     }
 
     if (entity.components["students-can-move"] !== undefined) {
-        console.log("Students can move was true");
         const shouldMove = entity.components["students-can-move"].data.enabled === true;
         return shouldMove;
     } else {
