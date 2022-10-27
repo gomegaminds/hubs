@@ -13,7 +13,6 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { Column } from "../layout/Column";
 import { AppLogo } from "../misc/AppLogo";
 import { FormattedMessage } from "react-intl";
-import useTeacherProfile from "../../mega-src/react-components/auth/useTeacherProfile";
 import ClassRoomEntryModal from "../../mega-src/react-components/room/entry/ClassRoomEntryModal";
 import SessionEntryModal from "../../mega-src/react-components/room/entry/SessionEntryModal";
 
@@ -31,42 +30,8 @@ export function RoomEntryModal({
 
     const [step, setStep] = useState(0);
 
-    const [profile, isProfileLoading, isError, refresh] = useTeacherProfile(
-        "teacherprofile",
-        "read:teacher_profile",
-        false
-    );
-
     const isEditingRoom = window.APP.editMode;
 
-    useEffect(
-        () => {
-            if (!isProfileLoading && !isError && profile) {
-                if (profile.setup == false) {
-                    alert(
-                        "You are logged in as a teacher, but you have not set up your profile yet. Please go to dash.megaminds.world and finish the setup before continuing as a teacher in the room."
-                    );
-                }
-                if (profile.creatortoken) {
-                    console.log("CREATOR TOKEN");
-                    window.APP.hubChannel.signIn(profile.reticulum_token, profile.creatortoken);
-                }
-                setLoaded(true);
-            } else {
-                console.log("No profile found after loading", profile);
-                setLoaded(true);
-            }
-        },
-        [profile, isProfileLoading, isError]
-    );
-
-    if (!loaded) {
-        return <p>Loading...</p>;
-    }
-
-    if (!profile && isEditingRoom) {
-        return <p>Loading...</p>;
-    }
 
     if (isEditingRoom) {
         return (

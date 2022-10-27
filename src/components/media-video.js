@@ -10,7 +10,6 @@ import { proxiedUrlFor } from "../utils/media-url-utils";
 import { buildAbsoluteURL } from "url-toolkit";
 import { SOUND_CAMERA_TOOL_TOOK_SNAPSHOT } from "../systems/sound-effects-system";
 import { applyPersistentSync } from "../utils/permissions-utils";
-import { refreshMediaMirror, getCurrentMirroredMedia } from "../utils/mirror-utils";
 import { detect } from "detect-browser";
 import semver from "semver";
 import { createPlaneBufferGeometry } from "../utils/three-utils";
@@ -393,9 +392,6 @@ AFRAME.registerComponent("media-video", {
             } else {
                 this.el.emit("video-loading");
                 ({ texture, audioSourceEl } = await this.createVideoTextureAudioSourceEl());
-                if (getCurrentMirroredMedia() === this.el) {
-                    await refreshMediaMirror();
-                }
             }
 
             this.hasAudioTracks = hasAudioTracks(audioSourceEl);

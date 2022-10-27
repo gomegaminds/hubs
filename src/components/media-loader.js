@@ -138,10 +138,6 @@ AFRAME.registerComponent("media-loader", {
     handleLinkedElRemoved(e) {
         if (e.detail.name === "media-loader") {
             this.data.linkedEl.removeEventListener("componentremoved", this.handleLinkedElRemoved);
-
-            // this should be revisited if we ever use media linking for something other than media mirroring UX --
-            // right now it is assumed if there is a linkedEl, this is the currently active mirrored media
-            closeExistingMediaMirror();
         }
     },
 
