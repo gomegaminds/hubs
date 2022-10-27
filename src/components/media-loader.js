@@ -1,6 +1,7 @@
 import { computeObjectAABB, getBox, getScaleCoefficient } from "../utils/auto-box-collider";
 import {
     resolveUrl,
+    fetchContentType,
     getDefaultResolveQuality,
     injectCustomShaderChunks,
     addMeshScaleAnimation,
@@ -33,10 +34,6 @@ waitForDOMContentLoaded().then(() => {
         loadingObject = gltf;
     });
 });
-
-const fetchContentType = (url) => {
-    return fetch(url, { method: "HEAD" }).then((r) => r.headers.get("content-type"));
-};
 
 AFRAME.registerComponent("media-loader", {
     schema: {
@@ -90,10 +87,8 @@ AFRAME.registerComponent("media-loader", {
         const box = new THREE.Box3();
         return function(fitToBox, moveTheParentNotTheMesh) {
             this.el.object3D.updateMatrices();
+            this.el.object3D.updateMatrix();
             const mesh = this.el.getObject3D("mesh");
-            if (!mesh) {
-                return;
-            }
             mesh.updateMatrices();
             if (moveTheParentNotTheMesh) {
                 if (fitToBox) {
@@ -273,9 +268,8 @@ AFRAME.registerComponent("media-loader", {
 
         const finish = () => {
             this.animating = false;
-            const mesh = this.el.getObject3D("mesh");
 
-            if (physicsShape && mesh) {
+            if (physicsShape) {
                 el.setAttribute("shape-helper", {
                     type: physicsShape,
                     minHalfExtent: 0.04,
@@ -290,9 +284,7 @@ AFRAME.registerComponent("media-loader", {
             }
 
             // TODO this does duplicate work in some cases, but finish() is the only consistent place to do it
-            if (mesh) {
-                this.contentBounds = getBox(this.el, mesh).getSize(new THREE.Vector3());
-            }
+            this.contentBounds = getBox(this.el, this.el.getObject3D("mesh")).getSize(new THREE.Vector3());
 
             el.emit("media-loaded");
             if (el.eid && entityExists(APP.world, el.eid)) {
@@ -551,16 +543,29 @@ AFRAME.registerComponent("media-loader", {
                 this.el.removeAttribute("audio-zone-source");
                 this.el.removeAttribute("media-pdf");
                 this.el.removeAttribute("media-pager");
+
+                /*
+                if (this.el.id === "naf-srbtzrv") {
+                    this.el.addEventListener(
+                        "model-loaded",
+                        (resp) => {
+                            console.log("Got model loaded for teddy", resp);
+                            this.onMediaLoaded(SHAPE.HULL, true);
+                            addAnimationComponents(this.el);
+                        },
+                        { once: false }
+                    );
+                }
+                */
                 this.el.addEventListener(
                     "model-loaded",
                     () => {
                         setTimeout(() => {
-                            // Set timeout to prevent race conditions on sketchfab models that cannot grab mesh immediatley
                             this.onMediaLoaded(SHAPE.HULL, true);
                             addAnimationComponents(this.el);
-                        }, 350);
+                        }, 1000);
                     },
-                    { once: true }
+                    { once: false }
                 );
                 this.el.addEventListener("model-error", this.onError, { once: true });
                 if (this.data.mediaOptions.hasOwnProperty("applyGravity")) {
@@ -640,12 +645,12 @@ AFRAME.registerComponent("media-pager", {
     schema: {
         index: { default: 0 },
         maxIndex: { default: 0 },
-        takeOwnership: { default: true },
     },
 
     init() {
         this.onNext = this.onNext.bind(this);
         this.onPrev = this.onPrev.bind(this);
+        this.onSnap = this.onSnap.bind(this);
         this.update = this.update.bind(this);
 
         this.el.setAttribute("hover-menu__pager", { template: "#pager-hover-menu", isFlat: true });
@@ -656,10 +661,12 @@ AFRAME.registerComponent("media-pager", {
             this.hoverMenu = menu;
             this.nextButton = this.el.querySelector(".next-button [text-button]");
             this.prevButton = this.el.querySelector(".prev-button [text-button]");
+            this.snapButton = this.el.querySelector(".snap-button [text-button]");
             this.pageLabel = this.el.querySelector(".page-label");
 
             this.nextButton.object3D.addEventListener("interact", this.onNext);
             this.prevButton.object3D.addEventListener("interact", this.onPrev);
+            this.snapButton.object3D.addEventListener("interact", this.onSnap);
 
             this.update();
             this.el.emit("pager-loaded");
@@ -692,24 +699,29 @@ AFRAME.registerComponent("media-pager", {
         if (this.prevButton && this.nextButton) {
             const pinnableElement = this.el.components["media-loader"].data.linkedEl || this.el;
             const isPinned = pinnableElement.components.pinnable && pinnableElement.components.pinnable.data.pinned;
-            // For now until protect mode
-            this.prevButton.object3D.visible = this.nextButton.object3D.visible = true;
-            // !isPinned || window.APP.hubChannel.can("pin_objects");
+            this.prevButton.object3D.visible = this.nextButton.object3D.visible =
+                !isPinned || window.APP.hubChannel.can("pin_objects");
         }
     },
 
     onNext() {
-        // if (this.data.takeOwnership && this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl)) return;
+        if (this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl))
+            return;
         const newIndex = Math.min(this.data.index + 1, this.data.maxIndex);
         this.el.setAttribute("media-pdf", "index", newIndex);
         this.el.setAttribute("media-pager", "index", newIndex);
     },
 
     onPrev() {
-        // if (this.data.takeOwnership && this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl)) return;
+        if (this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl))
+            return;
         const newIndex = Math.max(this.data.index - 1, 0);
         this.el.setAttribute("media-pdf", "index", newIndex);
         this.el.setAttribute("media-pager", "index", newIndex);
+    },
+
+    onSnap() {
+        this.el.emit("pager-snap-clicked");
     },
 
     remove() {
@@ -720,6 +732,7 @@ AFRAME.registerComponent("media-pager", {
 
         this.nextButton.object3D.removeEventListener("interact", this.onNext);
         this.prevButton.object3D.removeEventListener("interact", this.onPrev);
+        this.snapButton.object3D.removeEventListener("interact", this.onSnap);
 
         window.APP.hubChannel.removeEventListener("permissions_updated", this.update);
 
