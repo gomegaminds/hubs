@@ -29,28 +29,28 @@ export const PanningModelType = Object.freeze({
 
 export const AvatarAudioDefaults = Object.freeze({
   audioType: AudioType.PannerNode,
-  distanceModel: DistanceModelType.Inverse,
+  distanceModel: DistanceModelType.Exponential,
   panningModel: PanningModelType.HRTF,
-  rolloffFactor: 5,
-  refDistance: 5,
-  maxDistance: 5,
-  coneInnerAngle: 180,
+  rolloffFactor: 4,
+  refDistance: 3,
+  maxDistance: 3.5,
+  coneInnerAngle: 120,
   coneOuterAngle: 360,
-  coneOuterGain: 0.9,
+  coneOuterGain: 0.3,
   gain: 1.0
 });
 
 export const MediaAudioDefaults = Object.freeze({
   audioType: AudioType.PannerNode,
-  distanceModel: DistanceModelType.Inverse,
+  distanceModel: DistanceModelType.Exponential,
   panningModel: PanningModelType.HRTF,
   rolloffFactor: 5,
-  refDistance: 5,
-  maxDistance: 5,
-  coneInnerAngle: 360,
-  coneOuterAngle: 0,
-  coneOuterGain: 0.9,
-  gain: 0.5
+  refDistance: 2.5,
+  maxDistance: 3.5,
+  coneInnerAngle: 120,
+  coneOuterAngle: 360,
+  coneOuterGain: 0.2,
+  gain: 0.6
 });
 
 export const TargetAudioDefaults = Object.freeze({

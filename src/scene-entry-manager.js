@@ -331,11 +331,25 @@ export default class SceneEntryManager {
 
             const files = e.dataTransfer.files;
 
-            if (url) {
-                spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
+            if (window.APP.hub.user_data && window.APP.hub.user_data.toggle_media !== undefined) {
+                if (window.APP.hub.user_data.toggle_media === true) {
+                    if (url) {
+                        spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
+                    } else {
+                        for (const file of files) {
+                            spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
+                        }
+                    }
+                } else {
+                    return;
+                }
             } else {
-                for (const file of files) {
-                    spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
+                if (url) {
+                    spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
+                } else {
+                    for (const file of files) {
+                        spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
+                    }
                 }
             }
         });

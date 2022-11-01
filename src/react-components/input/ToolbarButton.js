@@ -76,19 +76,3 @@ export const ToolbarButton = forwardRef(
     }
 );
 
-ToolbarButton.propTypes = {
-    icon: PropTypes.node,
-    label: PropTypes.node,
-    selected: PropTypes.bool,
-    preset: PropTypes.oneOf(presets),
-    statusColor: PropTypes.oneOf(statusColors),
-    large: PropTypes.bool,
-    className: PropTypes.string,
-    iconContainerClassName: PropTypes.string,
-    children: PropTypes.node,
-    type: PropTypes.oneOf(types),
-};
-
-ToolbarButton.defaultProps = {
-    preset: "basic",
-};

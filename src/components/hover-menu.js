@@ -41,8 +41,7 @@ AFRAME.registerComponent("hover-menu", {
 
     applyHoverState() {
         if (!this.menu) return;
-        const allowed = !this.data.withPermission || window.APP.hubChannel.canOrWillIfCreator(this.data.withPermission);
-        this.menu.object3D.visible = allowed && this.hovering;
+        this.menu.object3D.visible = true && this.hovering;
         if (this.data.dim && this.el.object3DMap.mesh && this.el.object3DMap.mesh.material) {
             this.el.object3DMap.mesh.material.color.setScalar(this.menu.object3D.visible ? 0.5 : 1);
         }

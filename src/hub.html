@@ -376,7 +376,7 @@
                             scale="0.1 0.1 0.1"
                             position="-0.3 -0.125 0"
                             class="ui video-seek-back-button"
-                            visible="false"
+                            visible="true"
                         ></a-entity>
                         <a-entity
                             is-remote-hover-target
@@ -386,7 +386,7 @@
                             scale="0.15 0.15 0.15"
                             position="0 -0.125 0"
                             class="ui video-playpause-button"
-                            visible="false"
+                            visible="true"
                         ></a-entity>
                         <a-entity
                             is-remote-hover-target
@@ -396,7 +396,7 @@
                             scale="0.1 0.1 0.1"
                             position="0.3 -0.125 0"
                             class="ui video-seek-forward-button"
-                            visible="false"
+                            visible="true"
                         ></a-entity>
                     </a-entity>
                 </a-entity>
@@ -432,9 +432,6 @@
 
             <template id="photo-hover-menu">
                 <a-entity class="ui interactable-ui hover-container" visible="false">
-                    <a-entity mixin="rounded-twitter-text-action-button ui" is-remote-hover-target tags="singleActionButton: true; isHoverMenuChild: true;" tweet-media-button position="0 0.285 0.001">
-                        <a-entity text="value:tweet; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
-                    </a-entity>
                 </a-entity>
             </template>
 

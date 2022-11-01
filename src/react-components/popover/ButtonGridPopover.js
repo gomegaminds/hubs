@@ -31,16 +31,3 @@ export function ButtonGridPopover({ fullscreen, items, closePopover }) {
   );
 }
 
-ButtonGridPopover.propTypes = {
-  fullscreen: PropTypes.bool,
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      icon: PropTypes.elementType.isRequired,
-      color: PropTypes.string,
-      label: PropTypes.element.isRequired,
-      onSelect: PropTypes.func
-    })
-  ).isRequired,
-  closePopover: PropTypes.func.isRequired
-};
