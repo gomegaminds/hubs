@@ -70,6 +70,8 @@ import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
 import { TeacherPopoverContainer } from "../mega-src/react-components/room/popovers/TeacherPopoverContainer";
 import { ObjectMenu } from "../mega-src/react-components/room/ObjectMenu";
+import { SidebarMenu } from "../mega-src/react-components/room/SidebarMenu";
+import { KeyHintsNormal } from "../mega-src/react-components/room/KeyHintsNormal";
 import { TopMenu } from "../mega-src/react-components/room/TopMenu";
 import { ChatSystem } from "../mega-src/react-components/room/ChatSystem";
 import { HelpPopover } from "../mega-src/react-components/room/popovers/HelpPopover";
@@ -242,8 +244,6 @@ class UIRoot extends Component {
     }
 
     componentDidMount() {
-        window.addEventListener("focus_chat", this.onFocusChat);
-
         this.props.scene.addEventListener("loaded", this.onSceneLoaded);
         this.props.scene.addEventListener("share_video_enabled", this.onShareVideoEnabled);
         this.props.scene.addEventListener("share_video_disabled", this.onShareVideoDisabled);
@@ -306,7 +306,6 @@ class UIRoot extends Component {
         this.props.store.removeEventListener("statechanged", this.storeUpdated);
         window.removeEventListener("concurrentload", this.onConcurrentLoad);
         window.removeEventListener("activity_detected", this.onActivityDetected);
-        window.removeEventListener("focus_chat", this.onFocusChat);
     }
 
     storeUpdated = () => {
@@ -521,18 +520,6 @@ class UIRoot extends Component {
             };
         });
     }
-
-    onFocusChat = (e) => {
-        if (!this.props.hub.user_data || (this.props.hub.user_data && this.props.hub.user_data.toggle_chat)) {
-            // User data has not been set yet, default is enabled so we toggle chat
-            this.setSidebar("chat", {
-                chatInputEffect: (input) => {
-                    input.focus();
-                    input.value = e.detail.prefix;
-                },
-            });
-        }
-    };
 
     isInModalOrOverlay = () => {
         if (
@@ -771,6 +758,7 @@ class UIRoot extends Component {
                                 <>
                                     <TopMenu sessionId={this.props.sessionId} presences={this.props.presences} />
                                     <ObjectMenu />
+                                    <SidebarMenu />
                                     {!this.state.dialog && renderEntryFlow ? entryDialog : undefined}
                                     <TipContainer
                                         hide={this.props.activeObject}
@@ -806,7 +794,12 @@ class UIRoot extends Component {
                             modal={this.state.dialog}
                             toolbarLeft={
                                 <>
-                                    <ChatSystem />
+                                    <ChatSystem
+                                        canChat={
+                                            isTeacher ||
+                                            (this.props.hub.user_data && this.props.hub.user_data.toggle_chat)
+                                        }
+                                    />
                                 </>
                             }
                             toolbarCenter={
@@ -815,8 +808,7 @@ class UIRoot extends Component {
                                         {entered && (
                                             <>
                                                 <div className="toolbarGroup">
-                                                    {this.props.hub &&
-                                                        this.props.hub.user_data &&
+                                                    {this.props.hub.user_data &&
                                                         this.props.hub.user_data.toggle_voice && (
                                                             <AudioPopoverContainer scene={this.props.scene} />
                                                         )}
@@ -854,10 +846,31 @@ class UIRoot extends Component {
                                                 </div>
                                                 {!isMobile && (
                                                     <div className="toolbarGroup">
-                                                        <SharePopoverContainer
-                                                            scene={this.props.scene}
-                                                            hubChannel={this.props.hubChannel}
-                                                        />
+                                                        {this.props.hub.user_data &&
+                                                        this.props.hub.user_data.toggle_share !== undefined ? (
+                                                            <>
+                                                                {this.props.hub.user_data.toggle_share === true ? (
+                                                                    <SharePopoverContainer
+                                                                        scene={this.props.scene}
+                                                                        hubChannel={this.props.hubChannel}
+                                                                    />
+                                                                ) : (
+                                                                    <>
+                                                                        {isTeacher && (
+                                                                            <SharePopoverContainer
+                                                                                scene={this.props.scene}
+                                                                                hubChannel={this.props.hubChannel}
+                                                                            />
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            <SharePopoverContainer
+                                                                scene={this.props.scene}
+                                                                hubChannel={this.props.hubChannel}
+                                                            />
+                                                        )}
                                                         {(isTeacher ||
                                                             this.props.hubChannel.canOrWillIfCreator(
                                                                 "spawn_drawing"
@@ -880,10 +893,37 @@ class UIRoot extends Component {
                                                                 preset="accent1"
                                                             />
                                                         )}
-                                                        {(isTeacher ||
-                                                            this.props.hubChannel.canOrWillIfCreator(
-                                                                "spawn_and_move_media"
-                                                            )) && (
+
+                                                        {this.props.hub.user_data &&
+                                                        this.props.hub.user_data.toggle_stickynote !== undefined ? (
+                                                            <>
+                                                                {this.props.hub.user_data.toggle_stickynote === true ? (
+                                                                    <StickyNotePopover
+                                                                        scene={this.props.scene}
+                                                                        hubChannel={this.props.hubChannel}
+                                                                        mediaSearchStore={this.props.mediaSearchStore}
+                                                                        showNonHistoriedDialog={
+                                                                            this.showNonHistoriedDialog
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <>
+                                                                        {isTeacher && (
+                                                                            <StickyNotePopover
+                                                                                scene={this.props.scene}
+                                                                                hubChannel={this.props.hubChannel}
+                                                                                mediaSearchStore={
+                                                                                    this.props.mediaSearchStore
+                                                                                }
+                                                                                showNonHistoriedDialog={
+                                                                                    this.showNonHistoriedDialog
+                                                                                }
+                                                                            />
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        ) : (
                                                             <StickyNotePopover
                                                                 scene={this.props.scene}
                                                                 hubChannel={this.props.hubChannel}
@@ -891,10 +931,37 @@ class UIRoot extends Component {
                                                                 showNonHistoriedDialog={this.showNonHistoriedDialog}
                                                             />
                                                         )}
-                                                        {(isTeacher ||
-                                                            this.props.hubChannel.canOrWillIfCreator(
-                                                                "spawn_and_move_media"
-                                                            )) && (
+
+                                                        {this.props.hub.user_data &&
+                                                        this.props.hub.user_data.toggle_media !== undefined ? (
+                                                            <>
+                                                                {this.props.hub.user_data.toggle_media === true ? (
+                                                                    <PlacePopoverContainer
+                                                                        scene={this.props.scene}
+                                                                        hubChannel={this.props.hubChannel}
+                                                                        mediaSearchStore={this.props.mediaSearchStore}
+                                                                        showNonHistoriedDialog={
+                                                                            this.showNonHistoriedDialog
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <>
+                                                                        {isTeacher && (
+                                                                            <PlacePopoverContainer
+                                                                                scene={this.props.scene}
+                                                                                hubChannel={this.props.hubChannel}
+                                                                                mediaSearchStore={
+                                                                                    this.props.mediaSearchStore
+                                                                                }
+                                                                                showNonHistoriedDialog={
+                                                                                    this.showNonHistoriedDialog
+                                                                                }
+                                                                            />
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        ) : (
                                                             <PlacePopoverContainer
                                                                 scene={this.props.scene}
                                                                 hubChannel={this.props.hubChannel}
@@ -920,6 +987,9 @@ class UIRoot extends Component {
                                                                 hubChannel={this.props.hubChannel}
                                                                 mediaSearchStore={this.props.mediaSearchStore}
                                                                 showNonHistoriedDialog={this.showNonHistoriedDialog}
+                                                                onViewRoomPermissions={() =>
+                                                                    this.setSidebar("room-permissions")
+                                                                }
                                                                 onViewTeleportMenu={() =>
                                                                     this.setSidebar("teleport-menu")
                                                                 }
@@ -934,6 +1004,10 @@ class UIRoot extends Component {
                                     <ChatSystem
                                         isMobile={true}
                                         hideMobile={() => this.setState({ mobileChat: false })}
+                                        canChat={
+                                            isTeacher ||
+                                            (this.props.hub.user_data && this.props.hub.user_data.toggle_chat)
+                                        }
                                     />
                                 )
                             }
@@ -1014,6 +1088,7 @@ function UIRootHooksWrapper(props) {
         <ChatContextProvider messageDispatch={props.messageDispatch}>
             <ObjectListProvider scene={props.scene}>
                 <Toaster />
+                <KeyHintsNormal />
                 <UIRoot breakpoint={breakpoint} {...props} />
             </ObjectListProvider>
         </ChatContextProvider>

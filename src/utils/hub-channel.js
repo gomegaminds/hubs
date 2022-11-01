@@ -30,6 +30,7 @@ const VALID_PERMISSIONS = HUB_CREATOR_PERMISSIONS.concat([
     "tweet",
     "spawn_camera",
     "spawn_drawing",
+    "spawn_stickynote",
     "spawn_and_move_media",
     "pin_objects",
     "spawn_emoji",
