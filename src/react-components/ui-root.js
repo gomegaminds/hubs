@@ -5,6 +5,7 @@ import { FormattedMessage } from "react-intl";
 import screenfull from "screenfull";
 import { Toaster } from "react-hot-toast";
 
+import ReactGA from "react-ga4";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import configs from "../utils/configs";
@@ -432,6 +433,13 @@ class UIRoot extends Component {
     };
 
     onAudioReadyButton = async () => {
+        ReactGA.event({
+            category: "entry",
+            action: "enter_classroom",
+            label: "Entered a classroom", // optional
+            nonInteraction: true, // optional, true/false
+        });
+
         if (!this.state.enterInVR) {
             await showFullScreenIfAvailable();
         }

@@ -7,6 +7,7 @@ import configs from "./utils/configs";
 import "./utils/theme";
 import "@babel/polyfill";
 
+import ReactGA from "react-ga4";
 
 /*
 console.log(
@@ -673,7 +674,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
         scene.emit("hub_updated", { hub });
 
         if (!isEmbed) {
-           // console.log("Page is not embedded so environment initialization will start immediately");
+            // console.log("Page is not embedded so environment initialization will start immediately");
             loadEnvironmentAndConnect();
         } else {
             console.log("Page is embedded so environment initialization will be deferred");
@@ -730,7 +731,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const detectedOS = detectOS(navigator.userAgent);
     const browser = detect();
-    
+
     // HACK - it seems if we don't initialize the mic track up-front, voices can drop out on iOS
     // safari when initializing it later.
     if (["iOS", "Mac OS"].includes(detectedOS) && ["safari", "ios"].includes(browser.name)) {
@@ -744,6 +745,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const hubId = getCurrentHubId();
     // console.log(`Hub ID: ${hubId}`);
+
+    ReactGA.initialize("G-GCVLB2BSYP");
+    ReactGA.send({ hitType: "pageview", page: hubId });
 
     const shouldRedirectToSignInPage =
         // Default room won't work if account is required to access
