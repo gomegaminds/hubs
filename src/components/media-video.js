@@ -134,7 +134,7 @@ AFRAME.registerComponent("media-video", {
 
                 this.networkedEl.addEventListener("pinned", this.updateHoverMenu);
                 this.networkedEl.addEventListener("unpinned", this.updateHoverMenu);
-                window.APP.hubChannel.addEventListener("permissions_updated", this.updateHoverMenu);
+                // window.APP.hubChannel.addEventListener("permissions_updated", this.updateHoverMenu);
 
                 // For scene-owned videos, take ownership after a random delay if nobody
                 // else has so there is a timekeeper. Do not due this on iOS because iOS has an
@@ -737,7 +737,7 @@ AFRAME.registerComponent("media-video", {
         const mediaLoader = this.el.components["media-loader"].data;
         const pinnableElement = mediaLoader.linkedEl || this.el;
         const isPinned = pinnableElement.components.pinnable && pinnableElement.components.pinnable.data.pinned;
-        this.playbackControls.object3D.visible = !this.data.hidePlaybackControls && !!this.video;
+        this.playbackControls.object3D.visible = true;
         this.timeLabel.object3D.visible = !this.data.hidePlaybackControls;
         this.volumeLabel.object3D.visible = this.volumeUpButton.object3D.visible = this.volumeDownButton.object3D.visible =
             this.hasAudioTracks && !this.data.hidePlaybackControls && !!this.video;
@@ -747,7 +747,7 @@ AFRAME.registerComponent("media-video", {
         const mayModifyPlayHead =
             !!this.video && !this.videoIsLive && (!isPinned || window.APP.hubChannel.can("pin_objects"));
 
-        this.playPauseButton.object3D.visible = this.seekForwardButton.object3D.visible = this.seekBackButton.object3D.visible = mayModifyPlayHead;
+        this.playPauseButton.object3D.visible = true;
 
         if (this.videoIsLive) {
             this.timeLabel.setAttribute("text", "value", "LIVE");
@@ -842,7 +842,7 @@ AFRAME.registerComponent("media-video", {
             this.networkedEl.removeEventListener("unpinned", this.updateHoverMenu);
         }
 
-        window.APP.hubChannel.removeEventListener("permissions_updated", this.updateHoverMenu);
+        // window.APP.hubChannel.removeEventListener("permissions_updated", this.updateHoverMenu);
 
         if (this.video) {
             this.video.removeEventListener("pause", this.onPauseStateChange);
