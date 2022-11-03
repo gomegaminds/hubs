@@ -714,6 +714,7 @@ class UIRoot extends Component {
                         entryDialog={entryDialog}
                         hub={this.props.hub}
                         hubChannel={this.props.hubChannel}
+                        isMobile={isMobile}
                         mediaSearchStore={this.props.mediaSearchStore}
                         showNonHistoriedDialog={this.showNonHistoriedDialog}
                         scene={this.props.scene}
@@ -1096,7 +1097,7 @@ function UIRootHooksWrapper(props) {
         <ChatContextProvider messageDispatch={props.messageDispatch}>
             <ObjectListProvider scene={props.scene}>
                 <Toaster />
-                <KeyHintsNormal />
+                {!isMobile && <KeyHintsNormal />}
                 <UIRoot breakpoint={breakpoint} {...props} />
             </ObjectListProvider>
         </ChatContextProvider>
