@@ -5,8 +5,8 @@ import { spawnChatMessage } from "./react-components/chat-message";
 import { SOUND_CHAT_MESSAGE, SOUND_QUACK, SOUND_SPECIAL_QUACK } from "./systems/sound-effects-system";
 import ducky from "./assets/models/DuckyMesh.glb";
 import { EventTarget } from "event-target-shim";
-import { ExitReason } from "./react-components/room/ExitedRoomScreen";
-import { LogMessageType } from "./react-components/room/ChatSidebar";
+import { ExitReason } from "./mega-src/react-components/misc/messages";
+import { LogMessageType } from "./mega-src/react-components/misc/messages";
 import { getLastWorldPosition } from "./utils/three-utils";
 import { createNetworkedEntity } from "./systems/netcode";
 

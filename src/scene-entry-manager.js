@@ -1,7 +1,7 @@
 import qsTruthy from "./utils/qs_truthy";
 import nextTick from "./utils/next-tick";
 import { hackyMobileSafariTest } from "./utils/detect-touchscreen";
-import { SignInMessages } from "./react-components/auth/SignInModal";
+import { SignInMessages } from "./mega-src/react-components/misc/messages";
 import { createNetworkedEntity } from "./systems/netcode";
 
 const isBotMode = qsTruthy("bot");

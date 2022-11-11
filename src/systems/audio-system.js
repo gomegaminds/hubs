@@ -1,4 +1,4 @@
-import { LogMessageType } from "../react-components/room/ChatSidebar";
+import { LogMessageType } from "../mega-src/react-components/misc/messages";
 import { GAIN_TIME_CONST, SourceType } from "../components/audio-params";
 
 let delayedReconnectTimeout = null;

@@ -163,7 +163,6 @@ import { Router, Route } from "react-router-dom";
 import { createBrowserHistory, createMemoryHistory } from "history";
 import { pushHistoryState } from "./utils/history";
 import Root from "./mega-src/react-components/Root";
-import { ExitedRoomScreenContainer } from "./react-components/room/ExitedRoomScreenContainer";
 import AuthChannel from "./utils/auth-channel";
 import HubChannel from "./utils/hub-channel";
 import LinkChannel from "./utils/link-channel";
@@ -258,11 +257,10 @@ import detectConcurrentLoad from "./utils/concurrent-load-detector";
 
 import qsTruthy from "./utils/qs_truthy";
 import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
-import { ExitReason } from "./react-components/room/ExitedRoomScreen";
-import { OAuthScreenContainer } from "./react-components/auth/OAuthScreenContainer";
-import { SignInMessages } from "./react-components/auth/SignInModal";
+import { ExitReason } from "./mega-src/react-components/misc/messages";
+import { SignInMessages } from "./mega-src/react-components/misc/messages";
 import { ThemeProvider } from "./react-components/styles/theme";
-import { LogMessageType } from "./react-components/room/ChatSidebar";
+import { LogMessageType } from "./mega-src/react-components/misc/messages";
 
 const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
@@ -346,10 +344,10 @@ function mountUI(props = {}) {
                 <Router history={history}>
                     <Route
                         render={(routeProps) =>
-                            props.showOAuthScreen ? (
-                                <OAuthScreenContainer oauthInfo={props.oauthInfo} />
-                            ) : props.roomUnavailableReason ? (
-                                <ExitedRoomScreenContainer reason={props.roomUnavailableReason} />
+                            props.roomUnavailableReason ? (
+                                <div>
+                                    <p>{props.roomUnavailableReason}</p>
+                                </div>
                             ) : (
                                 <Auth0Provider
                                     domain="megaminds-prod.us.auth0.com"

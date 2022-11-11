@@ -1,6 +1,5 @@
 import pinnedEntityToGltf from "./pinned-entity-to-gltf";
 import { getPromotionTokenForFile } from "./media-utils";
-import { SignInMessages } from "../react-components/auth/SignInModal";
 
 export default class PinningHelper {
   constructor(hubChannel, authChannel, store, performConditionalSignIn) {
