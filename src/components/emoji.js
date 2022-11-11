@@ -40,6 +40,7 @@ export const emojis = [
     };
 });
 
+
 export function spawnEmojiInFrontOfUser({ particleEmitterConfig }) {
     const { entity } = addMedia(empty_model, "#interactable-emoji");
 

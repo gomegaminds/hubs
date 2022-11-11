@@ -5,6 +5,7 @@ import { getCurrentHubId, updateSceneCopresentState, createHubChannelParams } fr
 import "./utils/debug-log";
 import configs from "./utils/configs";
 import "./utils/theme";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "@babel/polyfill";
 
 import ReactGA from "react-ga4";
@@ -33,6 +34,7 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 import "./react-components/styles/global.scss";
+import "./mega-src/react-components/styles/global.css";
 import "./assets/stylesheets/globals.scss";
 import "./assets/stylesheets/hub.scss";
 import loadingEnvironment from "./assets/models/LoadingEnvironment.glb";
@@ -160,7 +162,7 @@ import React from "react";
 import { Router, Route } from "react-router-dom";
 import { createBrowserHistory, createMemoryHistory } from "history";
 import { pushHistoryState } from "./utils/history";
-import UIRoot from "./react-components/ui-root";
+import Root from "./mega-src/react-components/Root";
 import { ExitedRoomScreenContainer } from "./react-components/room/ExitedRoomScreenContainer";
 import AuthChannel from "./utils/auth-channel";
 import HubChannel from "./utils/hub-channel";
@@ -358,7 +360,7 @@ function mountUI(props = {}) {
                                     useRefreshTokens
                                     cacheLocation="localstorage"
                                 >
-                                    <UIRoot
+                                    <Root
                                         {...{
                                             scene,
                                             isBotMode,

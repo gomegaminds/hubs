@@ -15,30 +15,6 @@
     <title>Room | App by Company</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"> 
-    <style>
-        /* Ease the transition to the load screen by displaying a default overlay */
-        #preload-overlay {
-            pointer-events: none;
-            transition: opacity 0.5s linear;
-            opacity: 1;
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            top: 0;
-            background: var(--loading-screen-background, radial-gradient(50% 50% at 50% 50%, #FFFFFF 0%, #EEEEEE 100%));
-        }
-
-        #preload-overlay.loaded {
-            opacity: 0;
-        }
-
-        @media (prefers-reduced-motion) {
-            #preload-overlay {
-                transition: none;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -688,7 +664,6 @@
     </a-scene>
 
     <div id="ui-root"></div>
-    <div id="preload-overlay"></div>
 </body>
 
 </html>

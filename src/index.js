@@ -11,7 +11,7 @@ import "./react-components/styles/global.scss";
 import { ThemeProvider } from "./react-components/styles/theme";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
-import { EntryFlow } from "./mega-src/react-components/entry/EntryFlow";
+import FirstTimeFlow from "./mega-src/react-components/entry/FirstTimeFlow";
 
 registerTelemetry("/home", "Hubs Home Page");
 
@@ -37,7 +37,7 @@ function Root() {
                                 <HomePage />
                             </Route>
                             <Route exact path="/entry">
-                                <EntryFlow />
+                                <FirstTimeFlow />
                             </Route>
                         </HashRouter>
                     </AuthContextProvider>
