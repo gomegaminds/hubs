@@ -9,7 +9,6 @@ import type { AElement, AScene } from "aframe";
 import HubChannel from "./utils/hub-channel";
 import MediaDevicesManager from "./utils/media-devices-manager";
 
-import { EffectComposer, EffectPass } from "postprocessing";
 import {
   Audio,
   AudioListener,
@@ -21,7 +20,6 @@ import {
   WebGLRenderer
 } from "three";
 import { AudioSettings, SourceType } from "./components/audio-params";
-import { createEffectsComposer } from "./effects";
 import { DialogAdapter } from "./naf-dialog-adapter";
 import { mainTick } from "./systems/hubs-systems";
 import { waitForPreloads } from "./utils/preload";
