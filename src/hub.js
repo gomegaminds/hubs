@@ -63,8 +63,6 @@ import "./hub-components";
 import ReactDOM from "react-dom";
 import React from "react";
 import { Router, Route } from "react-router-dom";
-import { createBrowserHistory, createMemoryHistory } from "history";
-import { pushHistoryState } from "./utils/history";
 import Root from "./mega-src/react-components/Root";
 import AuthChannel from "./utils/auth-channel";
 import HubChannel from "./utils/hub-channel";
@@ -484,7 +482,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const hubChannel = new HubChannel(store, hubId);
     window.APP.hubChannel = hubChannel;
 
-    const entryManager = new SceneEntryManager(hubChannel, authChannel, history);
+    const entryManager = new SceneEntryManager(hubChannel, authChannel);
     window.APP.entryManager = entryManager;
 
     APP.dialog.on(DIALOG_CONNECTION_CONNECTED, () => {
@@ -826,14 +824,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const titleParts = document.title.split(" | "); // Assumes title has | trailing site name
             titleParts[0] = hub.name;
             document.title = titleParts.join(" | ");
-
-            // Re-write the slug in the browser history
-            const pathParts = history.location.pathname.split("/");
-            const oldSlug = pathParts[1];
-            const { search, state } = history.location;
-            const pathname = history.location.pathname.replace(`/${oldSlug}`, `/${hub.slug}`);
-
-            history.replace({ pathname, search, state });
 
             messageDispatch.receive({
                 type: "hub_name_changed",
