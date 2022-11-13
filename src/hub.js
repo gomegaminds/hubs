@@ -75,7 +75,6 @@ import { handleExitTo2DInterstitial, exit2DInterstitialAndEnterVR } from "./util
 import { getAvatarSrc } from "./utils/avatar-utils.js";
 import MessageDispatch from "./message-dispatch";
 import SceneEntryManager from "./scene-entry-manager";
-import Subscriptions from "./subscriptions";
 import { createInWorldLogMessage } from "./react-components/chat-message";
 
 import "./systems/nav";
@@ -88,7 +87,6 @@ import "./systems/pen-tools";
 import "./systems/userinput/userinput";
 import "./systems/userinput/userinput-debug";
 import "./systems/ui-hotkeys";
-import "./systems/tips";
 import "./systems/interactions";
 import "./systems/hubs-systems";
 import "./systems/listed-media";
@@ -130,7 +128,6 @@ import { getAvailableVREntryTypes, VR_DEVICE_AVAILABILITY, ONLY_SCREEN_AVAILABLE
 import detectConcurrentLoad from "./utils/concurrent-load-detector";
 
 import qsTruthy from "./utils/qs_truthy";
-import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
 import { ExitReason } from "./mega-src/react-components/misc/messages";
 import { SignInMessages } from "./mega-src/react-components/misc/messages";
 import { LogMessageType } from "./mega-src/react-components/misc/messages";
@@ -178,25 +175,23 @@ function mountUI(props = {}) {
     const scene = document.querySelector("a-scene");
 
     ReactDOM.render(
-        <WrappedIntlProvider>
-            <Auth0Provider
-                domain="megaminds-prod.us.auth0.com"
-                clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
-                redirectUri={window.location.origin}
-                audience="https://api.megaminds.world"
-                scope="openid profile email read:classrooms read:teacher_profile create:submission"
-                useRefreshTokens
-                cacheLocation="localstorage"
-            >
-                <Root
-                    {...{
-                        scene,
-                        store,
-                        ...props,
-                    }}
-                />
-            </Auth0Provider>
-        </WrappedIntlProvider>,
+        <Auth0Provider
+            domain="megaminds-prod.us.auth0.com"
+            clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
+            redirectUri={window.location.origin}
+            audience="https://api.megaminds.world"
+            scope="openid profile email read:classrooms read:teacher_profile create:submission"
+            useRefreshTokens
+            cacheLocation="localstorage"
+        >
+            <Root
+                {...{
+                    scene,
+                    store,
+                    ...props
+                }}
+            />
+        </Auth0Provider>,
         document.getElementById("ui-root")
     );
 }
@@ -208,34 +203,12 @@ export function remountUI(props) {
 
 export async function getSceneUrlForHub(hub) {
     let sceneUrl;
-    let isLegacyBundle; // Deprecated
     if (hub.scene) {
-        isLegacyBundle = false;
         sceneUrl = hub.scene.model_url;
-    } else if (hub.scene === null) {
-        // delisted/removed scene
-        sceneUrl = loadingEnvironment;
     } else {
-        const defaultSpaceTopic = hub.topics[0];
-        const glbAsset = defaultSpaceTopic.assets.find(a => a.asset_type === "glb");
-        const bundleAsset = defaultSpaceTopic.assets.find(a => a.asset_type === "gltf_bundle");
-        sceneUrl = (glbAsset || bundleAsset).src || loadingEnvironment;
-        const hasExtension = /\.gltf/i.test(sceneUrl) || /\.glb/i.test(sceneUrl);
-        isLegacyBundle = !(glbAsset || hasExtension);
+        sceneUrl = loadingEnvironment;
     }
 
-    if (qsTruthy("debugLocalScene") && sceneUrl?.startsWith("blob:")) {
-        // we skip doing this if you haven't entered because refreshing the page will invalidate blob urls and break loading
-        sceneUrl = document.querySelector("a-scene").is("entered") ? sceneUrl : loadingEnvironment;
-    } else if (isLegacyBundle) {
-        // Deprecated
-        const res = await fetch(sceneUrl);
-        const data = await res.json();
-        const baseURL = new URL(THREE.LoaderUtils.extractUrlBase(sceneUrl), window.location.href);
-        sceneUrl = new URL(data.assets[0].src, baseURL).href;
-    } else {
-        sceneUrl = proxiedUrlFor(sceneUrl);
-    }
     return sceneUrl;
 }
 
@@ -528,10 +501,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     ReactGA.initialize("G-GCVLB2BSYP");
     ReactGA.send({ hitType: "pageview", page: hubId });
 
-    const subscriptions = new Subscriptions(hubId);
-    APP.subscriptions = subscriptions;
-    subscriptions.register();
-
     const scene = document.querySelector("a-scene");
     window.APP.scene = scene;
 
@@ -584,7 +553,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     remountUI({
         authChannel,
         hubChannel,
-        subscriptions,
         enterScene: entryManager.enterScene,
         exitScene: reason => {
             entryManager.exitScene();
@@ -660,22 +628,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Reticulum global channel
     APP.retChannel = socket.channel(`ret`, { hub_id: hubId });
-    APP.retChannel
-        .join()
-        .receive("ok", data => {
-            subscriptions.setVapidPublicKey(data.vapid_public_key);
-        })
-        .receive("error", res => {
-            subscriptions.setVapidPublicKey(null);
-            console.error(res);
-        });
-
-    const pushSubscriptionEndpoint = await subscriptions.getCurrentEndpoint();
 
     APP.hubChannelParamsForPermsToken = permsToken => {
         return createHubChannelParams({
             profile: store.state.profile,
-            pushSubscriptionEndpoint,
             permsToken,
             isMobile,
             isMobileVR,
@@ -826,14 +782,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const permsToken = data.perms_token;
             hubChannel.setPermissionsFromToken(permsToken);
-
-            subscriptions.setHubChannel(hubChannel);
-            subscriptions.setSubscribed(data.subscriptions.web_push);
-
-            remountUI({
-                hubIsBound: data.hub_requires_oauth,
-                initialIsFavorited: data.subscriptions.favorites
-            });
 
             await presenceSync.promise;
             handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, permsToken, hubChannel, events);

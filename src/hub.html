@@ -29,7 +29,7 @@
         local-audio-analyser
         mega-screenshot="width: 1280; height:720;"
         class="grab-cursor step-canvas"
-        networked-scene="audio: true; debug: true; connectOnLoad: false;"
+        networked-scene="audio: true; connectOnLoad: false;"
         mute-mic="eventSrc: a-scene; toggleEvents: action_mute"
         action-to-event__mute="path: /actions/muteMic; event: action_mute;"
         personal-space-bubble="debug: false;"
@@ -340,29 +340,10 @@
             </template>
 
 
-            <template id="hubs-destination-hover-menu">
-                <a-entity class="ui interactable-ui hover-container" visible="false">
-                    <a-entity mixin="rounded-text-action-button ui" is-remote-hover-target tags="singleActionButton: true; isHoverMenuChild: true;" open-media-button position="0 -0.125 0.001">
-                        <a-entity text="value:value; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
-                    </a-entity>
-                </a-entity>
-            </template>
-
-            <template id="avatar-link-hover-menu">
-                <a-entity class="ui interactable-ui hover-container" visible="false">
-                    <a-entity mixin="rounded-text-action-button ui" is-remote-hover-target tags="singleActionButton: true; isHoverMenuChild: true;" open-media-button position="0 -0.125 0.001">
-                        <a-entity text="textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
-                    </a-entity>
-                    <a-entity mixin="rounded-text-action-button ui" is-remote-hover-target tags="singleActionButton: true; isHoverMenuChild: true;" remix-avatar-button position="0 -0.35 0.001" visible="false">
-                        <a-entity text="textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
-                    </a-entity>
-                </a-entity>
-            </template>
-
             <template id="link-hover-menu">
                 <a-entity class="ui interactable-ui hover-container" visible="false">
-                    <a-entity mixin="rounded-text-action-button ui" is-remote-hover-target tags="singleActionButton: true; isHoverMenuChild: true;" open-media-button position="0 0 0.001">
-                        <a-entity text="value:open link; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
+                    <a-entity mixin="rounded-text-action-button ui" is-remote-hover-target tags="singleActionButton: true; isHoverMenuChild: true;" link-button position="0 0 0.001">
+                        <a-entity text="value:Open Link; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
                     </a-entity>
                 </a-entity>
             </template>
@@ -611,8 +592,6 @@
             <a-entity id="objects-scene"></a-entity>
         </a-entity>
 
-        <a-entity class="ui interactable-ui vr-notice" follow-in-fov="target: #avatar-pov-node; offset: 0 0 -0.8; angle: 39;" visible="false">
-        </a-entity>
         <a-entity id="scene-preview-node">
         </a-entity>
     </a-scene>

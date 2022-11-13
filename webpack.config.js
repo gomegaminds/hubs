@@ -620,14 +620,6 @@ module.exports = async (env, argv) => {
             new CopyWebpackPlugin({
                 patterns: [
                     {
-                        from: "src/hub.service.js",
-                        to: "hub.service.js"
-                    }
-                ]
-            }),
-            new CopyWebpackPlugin({
-                patterns: [
-                    {
                         from: "src/schema.toml",
                         to: "schema.toml"
                     }

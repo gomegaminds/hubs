@@ -19,7 +19,6 @@ import { WaypointSystem } from "./waypoint-system";
 import { CharacterControllerSystem } from "./character-controller-system";
 import { waitForDOMContentLoaded } from "../utils/async-utils";
 import { CursorPoseTrackingSystem } from "./cursor-pose-tracking";
-import { MenuAnimationSystem } from "./menu-animation-system";
 import { AudioSettingsSystem } from "./audio-settings-system";
 import { AudioSystem } from "./audio-system";
 import { ShadowSystem } from "./shadow-system";
@@ -92,7 +91,6 @@ AFRAME.registerSystem("hubs-systems", {
         this.characterController = new CharacterControllerSystem(this.el);
         this.waypointSystem = new WaypointSystem(this.el, this.characterController);
         this.cursorPoseTrackingSystem = new CursorPoseTrackingSystem();
-        this.menuAnimationSystem = new MenuAnimationSystem();
         this.audioSettingsSystem = new AudioSettingsSystem(this.el);
         this.animationMixerSystem = new AnimationMixerSystem();
         this.boneVisibilitySystem = new BoneVisibilitySystem();
@@ -203,7 +201,6 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     hubsSystems.cameraSystem.tick(hubsSystems.el, dt);
     cameraToolSystem(world);
     hubsSystems.waypointSystem.tick(t, dt);
-    hubsSystems.menuAnimationSystem.tick(t);
     hubsSystems.uvScrollSystem.tick(dt);
     hubsSystems.shadowSystem.tick();
     videoMenuSystem(world, aframeSystems.userinput);

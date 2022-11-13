@@ -9,16 +9,7 @@ import { renderAsEntity } from "./utils/jsx-entity";
 import { Networked } from "./bit-components";
 import { addComponent } from "bitecs";
 
-AFRAME.GLTFModelPlus.registerComponent("duck", "duck", el => {
-    el.setAttribute("duck", "");
-    el.setAttribute("quack", { quackPercentage: 0.1 });
-});
-AFRAME.GLTFModelPlus.registerComponent("quack", "quack");
 AFRAME.GLTFModelPlus.registerComponent("sound", "sound");
-AFRAME.GLTFModelPlus.registerComponent("css-class", "css-class");
-AFRAME.GLTFModelPlus.registerComponent("interactable", "css-class", (el, componentName) => {
-    el.setAttribute(componentName, "interactable");
-});
 AFRAME.GLTFModelPlus.registerComponent("super-spawner", "super-spawner", (el, componentName, componentData) => {
     //TODO: Do not automatically add these components
     el.setAttribute("is-remote-hover-target", "");
@@ -305,7 +296,6 @@ AFRAME.GLTFModelPlus.registerComponent("spawner", "spawner", (el, componentName,
         animate: false,
         moveTheParentNotTheMesh: true
     });
-    el.setAttribute("css-class", "interactable");
     el.setAttribute("super-spawner", {
         src: sanitizeUrl(componentData.src),
         resolve: true,

@@ -2,7 +2,6 @@ import appLogo from "../assets/images/app-logo.png";
 import appLogoDark from "../assets/images/app-logo-dark.png";
 import companyLogo from "../assets/images/company-logo.png";
 import sceneEditorLogo from "../assets/images/editor-logo.png";
-import { getLocale, getMessage } from "./i18n";
 
 // Read configs from global variable if available, otherwise use the process.env injected from build.
 const configs = {};
@@ -112,18 +111,6 @@ configs.integration = integration => {
   const availableIntegrations = configs.AVAILABLE_INTEGRATIONS;
   // AVAILABLE_INTEGRATIONS has no properties defined on the dev server, but does support all integrations.
   return !availableIntegrations.hasOwnProperty(integration) || availableIntegrations[integration];
-};
-
-configs.translation = key => {
-  const locale = getLocale();
-  const translationsConfig = (configs.APP_CONFIG && configs.APP_CONFIG.translations) || {};
-
-  return (
-    (translationsConfig[locale] && translationsConfig[locale][key]) ||
-    (translationsConfig.en && translationsConfig.en[key]) ||
-    getMessage(key) ||
-    ""
-  );
 };
 
 export default configs;
