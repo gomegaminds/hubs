@@ -1,9 +1,10 @@
+import { LightProbeGenerator } from "three/examples/jsm/lights/LightProbeGenerator";
+
 const {
   AmbientLight,
   BackSide,
   BoxBufferGeometry,
   CubeCamera,
-  LightProbeGenerator,
   LinearFilter,
   Mesh,
   Object3D,

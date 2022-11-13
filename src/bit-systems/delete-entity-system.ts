@@ -13,8 +13,17 @@ import { easeOutQuadratic } from "../utils/easing";
 export type Coroutine = Generator<Promise<void>, void, unknown>;
 
 const END_SCALE = new Vector3().setScalar(0.001);
-function* RemoveEntity(world: HubsWorld, eid: number): Coroutine {
+function* animateThenRemoveEntity(world: HubsWorld, eid: number): Coroutine {
   const obj = world.eid2obj.get(eid)!;
+  yield* animate({
+    properties: [[obj.scale.clone(), END_SCALE]],
+    durationMS: 400,
+    easing: easeOutQuadratic,
+    fn: ([scale]: [Vector3]) => {
+      obj.scale.copy(scale);
+      obj.matrixNeedsUpdate = true;
+    }
+  });
   removeEntity(world, eid);
 }
 
@@ -27,7 +36,7 @@ const coroutines = new Map();
 function deleteTheDeletableAncestor(world: HubsWorld, eid: number) {
   const ancestor = findAncestorEntity(world, eid, (e: number) => hasComponent(world, Deletable, e));
   if (ancestor && !coroutines.has(ancestor)) {
-    coroutines.set(ancestor, coroutine(RemoveEntity(world, ancestor)));
+    coroutines.set(ancestor, coroutine(animateThenRemoveEntity(world, ancestor)));
   }
 }
 

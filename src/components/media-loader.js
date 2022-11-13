@@ -1,11 +1,11 @@
 import { computeObjectAABB, getBox, getScaleCoefficient } from "../utils/auto-box-collider";
 import {
-    resolveUrl,
-    fetchContentType,
-    getDefaultResolveQuality,
-    injectCustomShaderChunks,
-    addMeshScaleAnimation,
-    closeExistingMediaMirror,
+  resolveUrl,
+  fetchContentType,
+  getDefaultResolveQuality,
+  injectCustomShaderChunks,
+  addMeshScaleAnimation,
+  closeExistingMediaMirror
 } from "../utils/media-utils";
 import {
     isNonCorsProxyDomain,

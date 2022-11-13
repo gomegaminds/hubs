@@ -347,6 +347,22 @@ module.exports = async (env, argv) => {
       headers: devServerHeaders,
       hot: liveReload,
       liveReload: liveReload,
+<<<<<<< HEAD
+=======
+      historyApiFallback: {
+        rewrites: [
+          { from: /^\/link/, to: "/link.html" },
+          { from: /^\/avatars/, to: "/avatar.html" },
+          { from: /^\/scenes/, to: "/scene.html" },
+          { from: /^\/signin/, to: "/signin.html" },
+          { from: /^\/discord/, to: "/discord.html" },
+          { from: /^\/cloud/, to: "/cloud.html" },
+          { from: /^\/verify/, to: "/verify.html" },
+          { from: /^\/tokens/, to: "/tokens.html" },
+          { from: /^\/whats-new/, to: "/whats-new.html" }
+        ]
+      },
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
       setupMiddlewares: (middlewares, { app }) => {
         // Local CORS proxy
         app.all("/cors-proxy/*", (req, res) => {
@@ -498,6 +514,7 @@ module.exports = async (env, argv) => {
           oneOf: [
             { resourceQuery: /inline/, type: "asset/inline" },
             {
+<<<<<<< HEAD
               test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|svg|wav|woff2|webm|3dl|cube)$/,
               type: "asset/resource",
               generator: {
@@ -514,6 +531,53 @@ module.exports = async (env, argv) => {
                   return rootPath + "[name]-[contenthash].[ext]";
                 }
               }
+=======
+              loader: "@svgr/webpack",
+              options: {
+                titleProp: true,
+                replaceAttrValues: { "#000": "currentColor" },
+                exportType: "named",
+                svgo: true,
+                svgoConfig: {
+                  plugins: [
+                    {
+                      name: "preset-default",
+                      params: {
+                        overrides: {
+                          removeViewBox: false,
+                          mergePaths: false,
+                          convertShapeToPath: false,
+                          removeHiddenElems: false
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          oneOf: [
+            { resourceQuery: /inline/, type: "asset/inline" },
+            {
+              test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|wav|woff2|webm|3dl|cube)$/,
+              type: "asset/resource",
+              generator: {
+                // move required assets to output dir and add a hash for cache busting
+                // Make asset paths relative to /src
+                filename: function ({ filename }) {
+                  let rootPath = path.dirname(filename) + path.sep;
+                  if (rootPath.startsWith("src" + path.sep)) {
+                    const parts = rootPath.split(path.sep);
+                    parts.shift();
+                    rootPath = parts.join(path.sep);
+                  }
+                  // console.log(path, name, contenthash, ext);
+                  return rootPath + "[name]-[contenthash].[ext]";
+                }
+              }
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
             }
           ]
         },
@@ -625,6 +689,25 @@ module.exports = async (env, argv) => {
           }
         ]
       }),
+<<<<<<< HEAD
+=======
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "src/hub.service.js",
+            to: "hub.service.js"
+          }
+        ]
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "src/schema.toml",
+            to: "schema.toml"
+          }
+        ]
+      }),
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
       // Extract required css and add a content hash.
       new MiniCssExtractPlugin({
         filename: "assets/stylesheets/[name]-[contenthash].css"

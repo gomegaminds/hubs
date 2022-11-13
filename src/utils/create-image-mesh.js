@@ -1,6 +1,5 @@
 import { createPlaneBufferGeometry } from "../utils/three-utils";
 import { errorTexture } from "../utils/error-texture";
-import { Layers } from "../camera-layers";
 
 export const AlphaMode = Object.freeze({
   Blend: "blend",
@@ -46,9 +45,7 @@ export function create360ImageMesh(texture) {
   material.map = texture;
   material.needsUpdate = true;
 
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.layers.set(Layers.CAMERA_LAYER_FX_MASK);
-  return mesh;
+  return new THREE.Mesh(geometry, material);
 }
 
 export function createImageMesh(texture, ratio, alphaMode = AlphaMode.Opaque, alphaCutoff = 0.5) {
@@ -75,7 +72,5 @@ export function createImageMesh(texture, ratio, alphaMode = AlphaMode.Opaque, al
   material.map = texture;
   material.needsUpdate = true;
 
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.layers.set(Layers.CAMERA_LAYER_FX_MASK);
-  return mesh;
+  return new THREE.Mesh(geometry, material);
 }

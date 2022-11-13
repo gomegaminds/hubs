@@ -2,7 +2,6 @@ import anime from "animejs";
 import MovingAverage from "moving-average";
 import qsTruthy from "../utils/qs_truthy";
 import { findAncestorWithComponent } from "../utils/scene-graph";
-import { THREE } from "aframe";
 import nextTick from "../utils/next-tick";
 import { createPlaneBufferGeometry, setMatrixWorld } from "../utils/three-utils";
 import { textureLoader } from "../utils/media-utils";

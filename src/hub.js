@@ -3,6 +3,13 @@ import { BrowserTracing } from "@sentry/tracing";
 
 import { getCurrentHubId, updateSceneCopresentState, createHubChannelParams } from "./utils/hub-utils";
 import configs from "./utils/configs";
+<<<<<<< HEAD
+=======
+import "./utils/theme";
+
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -33,7 +40,9 @@ import "./utils/aframe-overrides";
 // But we don't want to use THREE.Cache because
 // web browser cache should work well.
 // So we disable it here.
+import * as THREE from "three";
 THREE.Cache.enabled = false;
+THREE.Object3D.DefaultMatrixAutoUpdate = false;
 
 import { patchWebGLRenderingContext } from "./utils/webgl";
 patchWebGLRenderingContext();
@@ -56,7 +65,12 @@ import "./phoenix-adapter";
 
 import nextTick from "./utils/next-tick";
 import { addAnimationComponents } from "./utils/animation";
+<<<<<<< HEAD
 import { DialogAdapter, DIALOG_CONNECTION_ERROR_FATAL, DIALOG_CONNECTION_CONNECTED } from "./naf-dialog-adapter";
+=======
+import Cookies from "js-cookie";
+import { DIALOG_CONNECTION_ERROR_FATAL, DIALOG_CONNECTION_CONNECTED } from "./naf-dialog-adapter";
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 import "./change-hub";
 
 import "./components/scene-components";
@@ -155,11 +169,12 @@ import "./systems/audio-gain-system";
 
 import "./gltf-component-mappings";
 
-import { App } from "./App";
+import { App } from "./app";
 import MediaDevicesManager from "./utils/media-devices-manager";
 import PinningHelper from "./utils/pinning-helper";
 import { sleep } from "./utils/async-utils";
 import { platformUnsupported } from "./support";
+<<<<<<< HEAD
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
 window.APP = new App();
@@ -169,6 +184,14 @@ window.APP.RENDER_ORDER = {
     HUD_ICONS: 2,
     CURSOR: 3,
 };
+=======
+import { renderAsEntity } from "./utils/jsx-entity";
+import { VideoMenuPrefab } from "./prefabs/video-menu";
+
+window.APP = new App();
+renderAsEntity(APP.world, VideoMenuPrefab());
+renderAsEntity(APP.world, VideoMenuPrefab());
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
 const store = window.APP.store;
 store.update({ preferences: { shouldPromptForRefresh: false } }); // Clear flag that prompts for refresh from preference screen
@@ -184,6 +207,7 @@ if (isEmbed && !qs.get("embed_token")) {
     throw new Error("no embed token");
 }
 
+<<<<<<< HEAD
 THREE.Object3D.DefaultMatrixAutoUpdate = false;
 
 // import "./components/owned-object-limiter";
@@ -191,6 +215,13 @@ THREE.Object3D.DefaultMatrixAutoUpdate = false;
 // import "./components/set-unowned-body-kinematic";
 // import "./components/scalable-when-grabbed";
 // import "./components/networked-counter";
+=======
+import "./components/owned-object-limiter";
+import "./components/owned-object-cleanup-timeout";
+import "./components/set-unowned-body-kinematic";
+import "./components/scalable-when-grabbed";
+import "./components/networked-counter";
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 import "./components/event-repeater";
 import "./components/set-yxz-order";
 
@@ -211,9 +242,18 @@ import detectConcurrentLoad from "./utils/concurrent-load-detector";
 
 import qsTruthy from "./utils/qs_truthy";
 import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
+<<<<<<< HEAD
 import { ExitReason } from "./mega-src/react-components/misc/messages";
 import { SignInMessages } from "./mega-src/react-components/misc/messages";
 import { LogMessageType } from "./mega-src/react-components/misc/messages";
+=======
+import { ExitReason } from "./react-components/room/ExitedRoomScreen";
+import { OAuthScreenContainer } from "./react-components/auth/OAuthScreenContainer";
+import { SignInMessages } from "./react-components/auth/SignInModal";
+import { ThemeProvider } from "./react-components/styles/theme";
+import { LogMessageType } from "./react-components/room/ChatSidebar";
+import "./load-media-on-paste-or-drop";
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
 const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
@@ -248,10 +288,14 @@ function setupLobbyCamera() {
 let uiProps = {};
 
 // Hub ID and slug are the basename
+<<<<<<< HEAD
 let routerBaseName = document.location.pathname
     .split("/")
     .slice(0, 2)
     .join("/");
+=======
+let routerBaseName = document.location.pathname.split("/").slice(0, 2).join("/");
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
 if (document.location.pathname.includes("hub.html")) {
     routerBaseName = "/";
@@ -463,9 +507,15 @@ function onConnectionError(entryManager, connectError) {
 // TODO: Find a home for this
 // TODO: Naming. Is this an "event bus"?
 const events = emitter();
+<<<<<<< HEAD
 function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, permsToken) {
     const scene = document.querySelector("a-scene");
     const isRejoin = NAF.connection.isConnected();
+=======
+function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data) {
+  const scene = document.querySelector("a-scene");
+  const isRejoin = NAF.connection.isConnected();
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
     if (isRejoin) {
         // Slight hack, to ensure correct presence state we need to re-send the entry event
@@ -482,17 +532,46 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
         return;
     }
 
+<<<<<<< HEAD
     // Turn off NAF for embeds as an optimization, so the user's browser isn't getting slammed
     // with NAF traffic on load.
     if (isEmbed) {
         hubChannel.allowNAFTraffic(false);
     }
+=======
+    // Send complete sync on phoenix re-join.
+    // TODO: We should be able to safely remove this completeSync now that
+    //       NAF occupancy is driven from phoenix presence state.
+    NAF.connection.entities.completeSync(null, true);
+    return;
+  }
+
+  // Turn off NAF for embeds as an optimization, so the user's browser isn't getting slammed
+  // with NAF traffic on load.
+  if (isEmbed) {
+    hubChannel.allowNAFTraffic(false);
+  }
+
+  const hub = data.hubs[0];
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
     const hub = data.hubs[0];
     let embedToken = hub.embed_token;
 
+<<<<<<< HEAD
     if (!embedToken) {
         const embedTokenEntry = store.state.embedTokens && store.state.embedTokens.find((t) => t.hubId === hub.hub_id);
+=======
+  remountUI({
+    messageDispatch: messageDispatch,
+    onSendMessage: messageDispatch.dispatch,
+    onLoaded: () => store.executeOnLoadActions(scene),
+    onMediaSearchResultEntrySelected: (entry, selectAction) =>
+      scene.emit("action_selected_media_result_entry", { entry, selectAction }),
+    onMediaSearchCancelled: entry => scene.emit("action_media_search_cancelled", entry),
+    onAvatarSaved: entry => scene.emit("action_avatar_saved", entry)
+  });
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 
         if (embedTokenEntry) {
             embedToken = embedTokenEntry.embedToken;
@@ -541,9 +620,35 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
 
             objectsEl.setAttribute("gltf-model-plus", { src: objectsUrl, useCache: false, inflate: true });
 
+<<<<<<< HEAD
             if (!isBotMode) {
                 objectsScene.appendChild(objectsEl);
             }
+=======
+    const loadEnvironmentAndConnect = () => {
+      console.log("Loading environment and connecting to dialog servers");
+
+      updateEnvironmentForHub(hub, entryManager);
+
+      // Disconnect in case this is a re-entry
+      APP.dialog.disconnect();
+      APP.dialog.connect({
+        serverUrl: `wss://${hub.host}:${hub.port}`,
+        roomId: hub.hub_id,
+        serverParams: { host: hub.host, port: hub.port, turn: hub.turn },
+        scene,
+        clientId: data.session_id,
+        forceTcp: qs.get("force_tcp"),
+        forceTurn: qs.get("force_turn"),
+        iceTransportPolicy: qs.get("force_tcp") || qs.get("force_turn") ? "relay" : "all"
+      });
+      scene.addEventListener(
+        "adapter-ready",
+        ({ detail: adapter }) => {
+          adapter.hubChannel = hubChannel;
+          adapter.events = events;
+          adapter.session_id = data.session_id;
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
         },
         { once: true }
     );
@@ -654,9 +759,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     const detectedOS = detectOS(navigator.userAgent);
     const browser = detect();
 
+<<<<<<< HEAD
     // HACK - it seems if we don't initialize the mic track up-front, voices can drop out on iOS
     // safari when initializing it later.
     if (["iOS", "Mac OS"].includes(detectedOS) && ["safari", "ios"].includes(browser.name)) {
+=======
+    // Disconnect old socket after a delay to ensure this user is always registered in presence.
+    await sleep(10000);
+    oldSocket.teardown();
+    console.log("[reconnect] Reconnection successful.");
+  };
+
+  const onRetDeploy = (function () {
+    let pendingNotification = null;
+    const hasPendingNotification = function () {
+      return !!pendingNotification;
+    };
+
+    const handleNextMessage = (function () {
+      let isLocked = false;
+      return async function handleNextMessage() {
+        if (isLocked || !pendingNotification) return;
+
+        isLocked = true;
+        const currentNotification = Object.assign({}, pendingNotification);
+        pendingNotification = null;
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
         try {
             await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (e) {
@@ -806,6 +934,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.body.classList.add("vr-mode");
 
+<<<<<<< HEAD
         availableVREntryTypesPromise.then((availableVREntryTypes) => {
             // Don't stretch canvas on cardboard, since that's drawing the actual VR view :)
             if ((!isMobile && !isMobileVR) || availableVREntryTypes.cardboard !== VR_DEVICE_AVAILABILITY.yes) {
@@ -883,6 +1012,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     scene.addEventListener("hub_closed", () => {
         scene.exitVR();
+=======
+      await presenceSync.promise;
+      handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data);
+    })
+    .receive("error", res => {
+      if (res.reason === "closed") {
+>>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
         entryManager.exitScene();
         remountUI({ roomUnavailableReason: ExitReason.closed });
     });

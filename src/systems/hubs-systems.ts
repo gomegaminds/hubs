@@ -51,7 +51,6 @@ import { deleteEntitySystem } from "../bit-systems/delete-entity-system";
 import type { HubsSystems } from "aframe";
 import { Camera, Scene, WebGLRenderer } from "three";
 import { HubsWorld } from "../app";
-import { EffectComposer } from "postprocessing";
 
 declare global {
   interface Window {
@@ -224,15 +223,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
 
   networkSendSystem(world);
 
-  scene.updateMatrixWorld();
-
-  renderer.info.reset();
-  if (APP.fx.composer) {
-    APP.fx.composer.render();
-  } else {
-    renderer.render(scene, camera);
-  }
-
+  renderer.render(scene, camera);
   // tock()s on components and system will fire here. (As well as any other time render() is called without unbinding onAfterRender)
   // TODO inline invoking tocks instead of using onAfterRender registered in a-scene
 }

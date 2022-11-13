@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { injectIntl, FormattedMessage } from "react-intl";
 import classNames from "classnames";
-import "three/examples/js/controls/OrbitControls";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { createDefaultEnvironmentMap } from "hubs/src/components/environment-map";
 import { loadGLTF } from "hubs/src/components/gltf-model-plus";
@@ -10,6 +10,9 @@ import { disposeNode, findNode } from "hubs/src/utils/three-utils";
 import { ensureAvatarMaterial, MAT_NAME } from "hubs/src/utils/avatar-utils";
 import { createImageBitmap, disposeImageBitmap } from "hubs/src/utils/image-bitmap-utils";
 import styles from "hubs/src/assets/stylesheets/avatar-preview.scss";
+
+import warningIconUrl from "../assets/images/warning_icon.png";
+import warningIcon2xUrl from "../assets/images/warning_icon@2x.png";
 
 const TEXTURE_PROPS = {
   base_map: ["map"],
@@ -75,7 +78,7 @@ class AvatarPreview extends Component {
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(55, this.canvas.clientWidth / this.canvas.clientHeight, 0.1, 1000);
-    this.controls = new THREE.OrbitControls(this.camera, this.canvas);
+    this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.enablePan = false;
 
     const light = new THREE.DirectionalLight(0xf7f6ef, 1);
@@ -299,13 +302,9 @@ class AvatarPreview extends Component {
             <div className="loader-center" />
           </div>
         )}
-        {this.props.avatarGltfUrl && (this.state.error && !this.state.loading) && (
+        {this.props.avatarGltfUrl && this.state.error && !this.state.loading && (
           <div className="error">
-            <img
-              src="hubs/src/assets/images/warning_icon.png"
-              srcSet="hubs/src/assets/images/warning_icon@2x.png 2x"
-              className="error-icon"
-            />
+            <img src={warningIconUrl} srcSet={`${warningIcon2xUrl} 2x`} className="error-icon" />
             <FormattedMessage id="avatar-preview.loading-failed" />
           </div>
         )}
