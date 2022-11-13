@@ -1,11 +1,11 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import Store from "./storage/store";
 import { HomeRoot } from "./mega-src/react-components/home/HomeRoot";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
-import FirstTimeFlow from "./mega-src/react-components/entry/FirstTimeFlow";
+import FirstTimeFlow from "./mega-src/react-components/home/FirstTimeFlow";
 
 const store = new Store();
 window.APP = { store };
@@ -22,15 +22,14 @@ function Root() {
             cacheLocation="localstorage"
         >
             <HashRouter>
-                <Route exact path="/">
-                    <HomeRoot />
-                </Route>
-                <Route exact path="/entry">
-                    <FirstTimeFlow />
-                </Route>
+                <Routes>
+                    <Route exact path="/" element={<HomeRoot />}></Route>
+                    <Route path="/entry" element={<FirstTimeFlow />}></Route>
+                </Routes>
             </HashRouter>
         </Auth0Provider>
     );
 }
 
-ReactDOM.render(<Root />, document.getElementById("home-root"));
+const root = ReactDOM.createRoot(document.getElementById("home-root"));
+root.render(<Root />);

@@ -168,10 +168,12 @@ if (document.location.pathname.includes("hub.html")) {
     routerBaseName = "/";
 }
 
+let root;
+
 function mountUI(props = {}) {
     const scene = document.querySelector("a-scene");
 
-    ReactDOM.render(
+    root.render(
         <Auth0Provider
             domain="megaminds-prod.us.auth0.com"
             clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
@@ -188,8 +190,7 @@ function mountUI(props = {}) {
                     ...props
                 }}
             />
-        </Auth0Provider>,
-        document.getElementById("Root")
+        </Auth0Provider>
     );
 }
 
@@ -214,7 +215,6 @@ export async function updateEnvironmentForHub(hub, entryManager) {
     const sceneUrl = await getSceneUrlForHub(hub);
 
     const sceneErrorHandler = () => {
-        remountUI({ roomUnavailableReason: ExitReason.sceneError });
         entryManager.exitScene();
     };
 
@@ -321,7 +321,6 @@ function onConnectionError(entryManager, connectError) {
     console.error("An error occurred while attempting to connect to networked scene:", connectError);
     // hacky until we get return codes
     const isFull = connectError.msg && connectError.msg.match(/\bfull\b/i);
-    remountUI({ roomUnavailableReason: isFull ? ExitReason.full : ExitReason.connectError });
     entryManager.exitScene();
 }
 
@@ -440,6 +439,7 @@ function redirectToEntryFlow() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    root = ReactDOM.createRoot(document.getElementById("Root"));
     if (!store.state.profile?.displayName) {
         redirectToEntryFlow();
     }
@@ -492,7 +492,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     APP.dialog.on(DIALOG_CONNECTION_ERROR_FATAL, () => {
         // TODO: Change the wording of the connect error to match dialog connection error
         // TODO: Tell the user that dialog is broken, but don't completely end the experience
-        remountUI({ roomUnavailableReason: ExitReason.connectError });
         APP.entryManager.exitScene();
     });
 
@@ -513,18 +512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         enterScene: entryManager.enterScene,
         exitScene: reason => {
             entryManager.exitScene();
-            remountUI({ roomUnavailableReason: reason || ExitReason.exited });
         }
-    });
-
-    scene.addEventListener("leave_room_requested", () => {
-        entryManager.exitScene();
-        remountUI({ roomUnavailableReason: ExitReason.left });
-    });
-
-    scene.addEventListener("hub_closed", () => {
-        entryManager.exitScene();
-        remountUI({ roomUnavailableReason: ExitReason.closed });
     });
 
     getReticulumMeta().then(reticulumMeta => {
@@ -535,7 +523,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             (qs.get("required_ret_version") !== reticulumMeta.version ||
                 qs.get("required_ret_pool") !== reticulumMeta.pool)
         ) {
-            remountUI({ roomUnavailableReason: ExitReason.versionMismatch });
             setTimeout(() => document.location.reload(), 5000);
             entryManager.exitScene();
             return;
@@ -579,7 +566,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (e.code === NORMAL_CLOSURE && !isReloading) {
             entryManager.exitScene();
-            remountUI({ roomUnavailableReason: ExitReason.disconnected });
         }
     });
 
@@ -746,13 +732,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         .receive("error", res => {
             if (res.reason === "closed") {
                 entryManager.exitScene();
-                remountUI({ roomUnavailableReason: ExitReason.closed });
             } else if (res.reason === "oauth_required") {
                 entryManager.exitScene();
                 remountUI({ oauthInfo: res.oauth_info, showOAuthScreen: true });
             } else if (res.reason === "join_denied") {
                 entryManager.exitScene();
-                remountUI({ roomUnavailableReason: ExitReason.denied });
             }
 
             console.error(res);

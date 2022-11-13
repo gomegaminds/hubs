@@ -181,6 +181,9 @@ module.exports = async (env, argv) => {
         cache: {
             type: "filesystem"
         },
+        stats: {
+            children: true
+        },
         resolve: {
             alias: {
                 // aframe and networked-aframe are still using commonjs modules. three and bitecs are peer dependanciees
@@ -437,8 +440,6 @@ module.exports = async (env, argv) => {
                             "react",
                             "react-dom",
                             "prop-types",
-                            "raven-js",
-                            "react-intl",
                             "classnames",
                             "react-router",
                             "@fortawesome/fontawesome-svg-core",

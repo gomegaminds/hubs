@@ -40,6 +40,14 @@ export default class SceneEntryManager {
             this.mediaDevicesManager = APP.mediaDevicesManager;
             this._setupBlocking();
         });
+
+        this.scene.addEventListener("leave_room_requested", () => {
+            entryManager.exitScene();
+        });
+
+        this.scene.addEventListener("hub_closed", () => {
+            entryManager.exitScene();
+        });
     };
 
     hasEntered = () => {

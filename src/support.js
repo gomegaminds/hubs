@@ -9,7 +9,7 @@ and polyfilling.
 */
 
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import copy from "copy-to-clipboard";
 import { detectOS } from "detect-browser";
 
@@ -35,8 +35,8 @@ function getPlatformSupport() {
             supported:
                 syntaxSupported(CATCH_SYNTAX) &&
                 syntaxSupported(SPREAD_SYNTAX) &&
-                syntaxSupported(SHORTHAND_INITIALIZER),
-        },
+                syntaxSupported(SHORTHAND_INITIALIZER)
+        }
     ];
 }
 
@@ -57,26 +57,26 @@ function isInAppBrowser() {
 }
 
 export function platformUnsupported() {
-    return getPlatformSupport().some((s) => !s.supported) || isInAppBrowser();
+    return getPlatformSupport().some(s => !s.supported) || isInAppBrowser();
 }
 
 class Support extends React.Component {
     state = { showDetails: false, hasCopied: false };
-    toggleDetails = (e) => {
+    toggleDetails = e => {
         e.preventDefault();
-        this.setState((state) => {
+        this.setState(state => {
             state.showDetails = !state.showDetails;
             return state;
         });
     };
-    onCopyClicked = (e) => {
+    onCopyClicked = e => {
         e.preventDefault();
         copy(document.location);
         this.setState({ hasCopied: true });
     };
     render() {
         const platformSupport = getPlatformSupport();
-        const allSupported = platformSupport.every((s) => s.supported);
+        const allSupported = platformSupport.every(s => s.supported);
         const inAppBrowser = isInAppBrowser();
 
         if (allSupported && !inAppBrowser) return null;
@@ -110,7 +110,7 @@ class Support extends React.Component {
                         )}
                         <br />
                         <br />
-                        <input type="text" readOnly onFocus={(e) => e.target.select()} value={document.location} />
+                        <input type="text" readOnly onFocus={e => e.target.select()} value={document.location} />
                         <a className="copy-link" href="#" onClick={this.onCopyClicked}>
                             {this.state.hasCopied ? "copied!" : "copy"}
                         </a>
@@ -123,12 +123,14 @@ class Support extends React.Component {
                     {this.state.showDetails && (
                         <table>
                             <tbody>
-                                {platformSupport.sort((a, b) => (a.supported && !b.supported ? 1 : -1)).map((s) => (
-                                    <tr key={s.name}>
-                                        <td>{s.name}</td>
-                                        <td>{s.supported ? "supported" : "unsupported"}</td>
-                                    </tr>
-                                ))}
+                                {platformSupport
+                                    .sort((a, b) => (a.supported && !b.supported ? 1 : -1))
+                                    .map(s => (
+                                        <tr key={s.name}>
+                                            <td>{s.name}</td>
+                                            <td>{s.supported ? "supported" : "unsupported"}</td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     )}
@@ -139,5 +141,6 @@ class Support extends React.Component {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    ReactDOM.render(<Support />, document.getElementById("support-root"));
+    const root = ReactDOM.createRoot(document.getElementById("support-root"));
+    root.render(<Support />);
 });
