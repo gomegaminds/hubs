@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import styles from "../assets/stylesheets/presence-log.scss";
 import classNames from "classnames";
 import { injectIntl } from "react-intl";
 import { formatSystemMessage } from "./room/ChatSidebar";
@@ -27,13 +26,6 @@ class PresenceLog extends Component {
     }
 
     domForEntry = (e) => {
-        const entryClasses = {
-            [styles.presenceLogEntry]: true,
-            [styles.presenceLogEntryWithButton]: (e.type === "chat" || e.type === "image") && e.maySpawn,
-            [styles.presenceLogChat]: e.type === "chat",
-            [styles.expired]: !!e.expired,
-        };
-
         const presenceContext = e.sessionId ? getPresenceContextForSession(this.props.presences, e.sessionId) : {};
         const isBot = !!presenceContext.discord;
 
@@ -43,7 +35,6 @@ class PresenceLog extends Component {
                     <ChatMessage
                         key={e.key}
                         name={e.name}
-                        className={classNames(entryClasses)}
                         body={e.body}
                         maySpawn={e.maySpawn}
                         sessionId={e.sessionId}
@@ -53,21 +44,12 @@ class PresenceLog extends Component {
                     />
                 );
             case "image":
-                return (
-                    <ImageMessage
-                        key={e.key}
-                        name={e.name}
-                        className={classNames(entryClasses, styles.media)}
-                        body={e.body}
-                        maySpawn={e.maySpawn}
-                    />
-                );
+                return <ImageMessage key={e.key} name={e.name} body={e.body} maySpawn={e.maySpawn} />;
             case "photo":
                 return (
                     <PhotoMessage
                         key={e.key}
                         name={e.name}
-                        className={classNames(entryClasses, styles.media)}
                         body={e.body}
                         maySpawn={e.maySpawn}
                         hubId={this.props.hubId}
@@ -78,7 +60,6 @@ class PresenceLog extends Component {
                     <VideoMessage
                         key={e.key}
                         name={e.name}
-                        className={classNames(entryClasses, styles.media)}
                         body={e.body}
                         maySpawn={e.maySpawn}
                         hubId={this.props.hubId}
@@ -89,7 +70,7 @@ class PresenceLog extends Component {
 
                 return (
                     systemMessage && (
-                        <div key={e.key} className={classNames(entryClasses)}>
+                        <div key={e.key}>
                             <div>{systemMessage}</div>
                         </div>
                     )
@@ -99,12 +80,7 @@ class PresenceLog extends Component {
     };
 
     render() {
-        const presenceClasses = {
-            [styles.presenceLog]: true,
-            [styles.presenceLogInRoom]: this.props.inRoom,
-        };
-
-        return <div className={classNames(presenceClasses)}>{this.props.entries.map(this.domForEntry)}</div>;
+        return <div>{this.props.entries.map(this.domForEntry)}</div>;
     }
 }
 

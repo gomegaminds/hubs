@@ -2,18 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
-import registerTelemetry from "./telemetry";
 import Store from "./storage/store";
-import "./utils/theme";
 import { HomeRoot } from "./mega-src/react-components/home/HomeRoot";
 import { AuthContextProvider } from "./react-components/auth/AuthContext";
-import "./react-components/styles/global.scss";
-import { ThemeProvider } from "./react-components/styles/theme";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
 import FirstTimeFlow from "./mega-src/react-components/entry/FirstTimeFlow";
-
-registerTelemetry("/home", "Hubs Home Page");
 
 const store = new Store();
 window.APP = { store };
@@ -30,18 +24,16 @@ function Root() {
                 useRefreshTokens
                 cacheLocation="localstorage"
             >
-                <ThemeProvider store={store}>
-                    <AuthContextProvider store={store}>
-                        <HashRouter>
-                            <Route exact path="/">
-                                <HomeRoot />
-                            </Route>
-                            <Route exact path="/entry">
-                                <FirstTimeFlow />
-                            </Route>
-                        </HashRouter>
-                    </AuthContextProvider>
-                </ThemeProvider>
+                <AuthContextProvider store={store}>
+                    <HashRouter>
+                        <Route exact path="/">
+                            <HomeRoot />
+                        </Route>
+                        <Route exact path="/entry">
+                            <FirstTimeFlow />
+                        </Route>
+                    </HashRouter>
+                </AuthContextProvider>
             </Auth0Provider>
         </WrappedIntlProvider>
     );

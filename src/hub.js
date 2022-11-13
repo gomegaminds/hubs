@@ -2,21 +2,11 @@ import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 
 import { getCurrentHubId, updateSceneCopresentState, createHubChannelParams } from "./utils/hub-utils";
-import "./utils/debug-log";
 import configs from "./utils/configs";
-import "./utils/theme";
+
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@babel/polyfill";
 
 import ReactGA from "react-ga4";
-
-/*
-console.log(
-    `App version: ${
-        configs.IS_LOCAL_OR_CUSTOM_CLIENT ? `MEGAMINDS ${process.env.BUILD_VERSION})` : process.env.BUILD_VERSION || "?"
-    }`
-);
-*/
 
 if (process.env.NODE_ENV !== "development") {
     Sentry.init({
@@ -33,10 +23,7 @@ if (process.env.NODE_ENV !== "development") {
     console.log("Development environment found. Skipping sentry initialization");
 }
 
-import "./react-components/styles/global.scss";
 import "./mega-src/react-components/styles/global.css";
-import "./assets/stylesheets/globals.scss";
-import "./assets/stylesheets/hub.scss";
 import loadingEnvironment from "./assets/models/LoadingEnvironment.glb";
 
 import "aframe";
@@ -48,14 +35,8 @@ import "./utils/aframe-overrides";
 // So we disable it here.
 THREE.Cache.enabled = false;
 
-import "./utils/logging";
 import { patchWebGLRenderingContext } from "./utils/webgl";
 patchWebGLRenderingContext();
-
-// It seems we need to use require to import modules
-// under the three/examples/js to avoid tree shaking
-// in webpack production mode.
-require("three/examples/js/loaders/GLTFLoader");
 
 import "networked-aframe/src/index";
 import "webrtc-adapter";
@@ -75,7 +56,6 @@ import "./phoenix-adapter";
 
 import nextTick from "./utils/next-tick";
 import { addAnimationComponents } from "./utils/animation";
-import Cookies from "js-cookie";
 import { DialogAdapter, DIALOG_CONNECTION_ERROR_FATAL, DIALOG_CONNECTION_CONNECTED } from "./naf-dialog-adapter";
 import "./change-hub";
 
@@ -85,11 +65,8 @@ import "./components/bone-mute-state-indicator";
 import "./components/bone-visibility";
 import "./components/open-media-button";
 import "./components/fader";
-// import "./components/in-world-hud";
 import "./components/emoji";
-// import "./components/emoji-hud";
 import "./components/virtual-gamepad-controls";
-import "./components/screenshot";
 import "./components/ik-controller";
 import "./components/hand-controls2";
 import "./components/hoverable-visuals";
@@ -97,37 +74,21 @@ import "./components/hover-visuals";
 import "./components/offset-relative-to";
 import "./components/player-info";
 import "./components/name-tag";
-// import "./components/debug";
 import "./components/hand-poses";
-// import "./components/hud-controller";
 import "./components/icon-button";
-import "./components/text-button";
-// import "./components/block-button";
-// import "./components/mute-button";
-// import "./components/kick-button";
-// import "./components/close-vr-notice-button";
-// import "./components/leave-room-button";
 import "./components/visible-if-permitted";
 import "./components/visibility-on-content-types";
 import "./components/hide-when-pinned-and-forbidden";
-// import "./mega-src/components/gizmo-helper";
 
-// Classroom Editor Stuff
+import "./mega-src/components/screenshot";
 import "./mega-src/components/students-can-move";
 import "./mega-src/components/locked";
 import "./mega-src/components/owner";
 import "./mega-src/components/auto-rotate";
 import "./mega-src/components/question";
-// import "./mega-src/components/aframe/geometry";
-// import "./mega-src/components/toggle-menu";
-// import "./mega-src/components/menu-system/close-button";
-// import "./mega-src/components/lock";
-// import "./mega-src/components/focus-button";
 import "./mega-src/systems/CSS2DRenderingSystem";
 // import "./mega-src/systems/CSS3DRenderingSystem";
 
-// import "./components/visibility-while-frozen";
-import "./components/stats-plus";
 import "./components/networked-avatar";
 import "./components/media-video";
 import "./components/media-pdf";
@@ -136,13 +97,12 @@ import "./components/pinch-to-move";
 import "./components/pitch-yaw-rotator";
 import "./components/position-at-border";
 import "./components/pinnable";
-// import "../mega-src/components/protectable";
-// import "../mega-src/components/protect-networked-object-button";
+
 import "./components/unmute-video-button";
 import "./components/visible-to-owner";
-import "./components/emit-state-change";
 import "./components/action-to-event";
 import "./components/action-to-remove";
+
 import "./components/emit-scene-event-on-remove";
 import "./components/follow-in-fov";
 import "./components/hover-menu";
@@ -165,7 +125,6 @@ import { pushHistoryState } from "./utils/history";
 import Root from "./mega-src/react-components/Root";
 import AuthChannel from "./utils/auth-channel";
 import HubChannel from "./utils/hub-channel";
-import LinkChannel from "./utils/link-channel";
 import { disableiOSZoom } from "./utils/disable-ios-zoom";
 import { proxiedUrlFor } from "./utils/media-url-utils";
 import { traverseMeshesAndAddShapes } from "./utils/physics-utils";
@@ -179,11 +138,9 @@ import { createInWorldLogMessage } from "./react-components/chat-message";
 import "./systems/nav";
 import "./systems/frame-scheduler";
 import "./systems/personal-space-bubble";
-// import "./systems/app-mode";
 import "./systems/permissions";
 import "./systems/exit-on-blur";
 import "./systems/auto-pixel-ratio";
-// import "./systems/idle-detector";
 import "./systems/pen-tools";
 import "./systems/userinput/userinput";
 import "./systems/userinput/userinput-debug";
@@ -191,7 +148,6 @@ import "./systems/ui-hotkeys";
 import "./systems/tips";
 import "./systems/interactions";
 import "./systems/hubs-systems";
-// import "./systems/capture-system";
 import "./systems/listed-media";
 import "./systems/linked-media";
 import "./systems/audio-debug-system";
@@ -216,8 +172,7 @@ window.APP.RENDER_ORDER = {
 
 const store = window.APP.store;
 store.update({ preferences: { shouldPromptForRefresh: false } }); // Clear flag that prompts for refresh from preference screen
-const mediaSearchStore = window.APP.mediaSearchStore;
-const OAUTH_FLOW_PERMS_TOKEN_KEY = "ret-oauth-flow-perms-token";
+
 const NOISY_OCCUPANT_COUNT = 30; // Above this # of occupants, we stop posting join/leaves/renames
 
 const qs = new URLSearchParams(location.search);
@@ -250,7 +205,6 @@ import "./components/body-helper";
 import "./components/shape-helper";
 
 import registerNetworkSchemas from "./network-schemas";
-import registerTelemetry from "./telemetry";
 
 import { getAvailableVREntryTypes, VR_DEVICE_AVAILABILITY, ONLY_SCREEN_AVAILABLE } from "./utils/vr-caps-detect";
 import detectConcurrentLoad from "./utils/concurrent-load-detector";
@@ -259,42 +213,17 @@ import qsTruthy from "./utils/qs_truthy";
 import { WrappedIntlProvider } from "./react-components/wrapped-intl-provider";
 import { ExitReason } from "./mega-src/react-components/misc/messages";
 import { SignInMessages } from "./mega-src/react-components/misc/messages";
-import { ThemeProvider } from "./react-components/styles/theme";
 import { LogMessageType } from "./mega-src/react-components/misc/messages";
 
 const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
-let isOAuthModal = false;
-
-// OAuth popup handler
-// TODO: Replace with a new oauth callback route that has this postMessage script.
-/*
-try {
-  if (window.opener && window.opener.doingTwitterOAuth) {
-    window.opener.postMessage("oauth-successful");
-    isOAuthModal = true;
-    window.close();
-  }
-} catch (e) {
-  console.error("Exception in oauth processing code", e);
-}
-*/
-
 const isBotMode = qsTruthy("bot");
-const isTelemetryDisabled = qsTruthy("disable_telemetry");
 const isDebug = qsTruthy("debug");
 
-if (!isBotMode && !isTelemetryDisabled) {
-    registerTelemetry("/hub", "Room Landing Page");
-}
-
 disableiOSZoom();
-
-if (!isOAuthModal) {
-    detectConcurrentLoad();
-}
+detectConcurrentLoad();
 
 function setupLobbyCamera() {
     // console.log("Setting up lobby camera");
@@ -340,41 +269,38 @@ function mountUI(props = {}) {
 
     ReactDOM.render(
         <WrappedIntlProvider>
-            <ThemeProvider store={store}>
-                <Router history={history}>
-                    <Route
-                        render={(routeProps) =>
-                            props.roomUnavailableReason ? (
-                                <div>
-                                    <p>{props.roomUnavailableReason}</p>
-                                </div>
-                            ) : (
-                                <Auth0Provider
-                                    domain="megaminds-prod.us.auth0.com"
-                                    clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
-                                    redirectUri={window.location.origin}
-                                    audience="https://api.megaminds.world"
-                                    scope="openid profile email read:classrooms read:teacher_profile create:submission"
-                                    useRefreshTokens
-                                    cacheLocation="localstorage"
-                                >
-                                    <Root
-                                        {...{
-                                            scene,
-                                            isBotMode,
-                                            forcedVREntryType,
-                                            store,
-                                            mediaSearchStore,
-                                            ...props,
-                                            ...routeProps,
-                                        }}
-                                    />
-                                </Auth0Provider>
-                            )
-                        }
-                    />
-                </Router>
-            </ThemeProvider>
+            <Router history={history}>
+                <Route
+                    render={(routeProps) =>
+                        props.roomUnavailableReason ? (
+                            <div>
+                                <p>{props.roomUnavailableReason}</p>
+                            </div>
+                        ) : (
+                            <Auth0Provider
+                                domain="megaminds-prod.us.auth0.com"
+                                clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
+                                redirectUri={window.location.origin}
+                                audience="https://api.megaminds.world"
+                                scope="openid profile email read:classrooms read:teacher_profile create:submission"
+                                useRefreshTokens
+                                cacheLocation="localstorage"
+                            >
+                                <Root
+                                    {...{
+                                        scene,
+                                        isBotMode,
+                                        forcedVREntryType,
+                                        store,
+                                        ...props,
+                                        ...routeProps,
+                                    }}
+                                />
+                            </Auth0Provider>
+                        )
+                    }
+                />
+            </Router>
         </WrappedIntlProvider>,
         document.getElementById("ui-root")
     );
@@ -711,10 +637,6 @@ function redirectToEntryFlow() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    if (isOAuthModal) {
-        return;
-    }
-
     if (store.state.profile?.displayName) {
         // console.log("Already has profile!");
     } else {
@@ -858,7 +780,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     entryManager.performConditionalSignIn = performConditionalSignIn;
     entryManager.init();
 
-    const linkChannel = new LinkChannel(store);
     window.dispatchEvent(new CustomEvent("hub_channel_ready"));
 
     const handleEarlyVRMode = () => {
@@ -947,7 +868,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     remountUI({
         authChannel,
         hubChannel,
-        linkChannel,
         subscriptions,
         enterScene: entryManager.enterScene,
         exitScene: (reason) => {
@@ -1119,7 +1039,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         APP.retChannel = await migrateChannelToSocket(APP.retChannel, socket);
         await hubChannel.migrateToSocket(socket, APP.hubChannelParamsForPermsToken());
         authChannel.setSocket(socket);
-        linkChannel.setSocket(socket);
 
         // Disconnect old socket after a delay to ensure this user is always registered in presence.
         await sleep(10000);
@@ -1166,15 +1085,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    const messageDispatch = new MessageDispatch(scene, entryManager, hubChannel, remountUI, mediaSearchStore);
+    const messageDispatch = new MessageDispatch(scene, entryManager, hubChannel, remountUI);
     APP.messageDispatch = messageDispatch;
     document.getElementById("avatar-rig").messageDispatch = messageDispatch;
 
-    const oauthFlowPermsToken = Cookies.get(OAUTH_FLOW_PERMS_TOKEN_KEY);
-    if (oauthFlowPermsToken) {
-        Cookies.remove(OAUTH_FLOW_PERMS_TOKEN_KEY);
-    }
-    const hubPhxChannel = socket.channel(`hub:${hubId}`, APP.hubChannelParamsForPermsToken(oauthFlowPermsToken));
+    const hubPhxChannel = socket.channel(`hub:${hubId}`, APP.hubChannelParamsForPermsToken());
     hubChannel.channel = hubPhxChannel;
     hubChannel.presence = new Presence(hubPhxChannel);
     const { rawOnJoin, rawOnLeave } = denoisePresence(presenceEventsForHub(events));
@@ -1300,7 +1215,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             socket.params().session_id = data.session_id;
             socket.params().session_token = data.session_token;
 
-            const permsToken = oauthFlowPermsToken || data.perms_token;
+            const permsToken = data.perms_token;
             hubChannel.setPermissionsFromToken(permsToken);
 
             subscriptions.setHubChannel(hubChannel);
@@ -1427,5 +1342,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     authChannel.setSocket(socket);
-    linkChannel.setSocket(socket);
 });

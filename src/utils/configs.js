@@ -1,7 +1,6 @@
 import appLogo from "../assets/images/app-logo.png";
 import appLogoDark from "../assets/images/app-logo-dark.png";
 import companyLogo from "../assets/images/company-logo.png";
-import homeHeroBackground from "../assets/images/home-hero-background-unbranded.png";
 import sceneEditorLogo from "../assets/images/editor-logo.png";
 import { getLocale, getMessage } from "./i18n";
 
@@ -90,7 +89,6 @@ if (isLocalDevelopment) {
     logo_dark: appLogoDark,
     company_logo: companyLogo,
     editor_logo: sceneEditorLogo,
-    home_background: homeHeroBackground
   };
 }
 
