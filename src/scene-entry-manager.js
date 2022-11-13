@@ -11,12 +11,6 @@ const isDebug = qsTruthy("debug");
 const qs = new URLSearchParams(location.search);
 
 import { addMedia } from "./utils/media-utils";
-import {
-    isIn2DInterstitial,
-    handleExitTo2DInterstitial,
-    exit2DInterstitialAndEnterVR,
-    forceExitFrom2DInterstitial
-} from "./utils/vr-interstitial";
 import { ObjectContentOrigins } from "./object-types";
 import { getAvatarSrc, getAvatarType } from "./utils/avatar-utils";
 import { SOUND_ENTER_SCENE } from "./systems/sound-effects-system";
@@ -57,18 +51,6 @@ export default class SceneEntryManager {
 
         if (isDebug && NAF.connection.adapter.session) {
             NAF.connection.adapter.session.options.verbose = true;
-        }
-
-        if (enterInVR) {
-            // This specific scene state var is used to check if the user went through the
-            // entry flow and chose VR entry, and is used to preempt VR mode on refreshes.
-            this.scene.addState("vr-entered");
-
-            // HACK - A-Frame calls getVRDisplays at module load, we want to do it here to
-            // force gamepads to become live.
-            "getVRDisplays" in navigator && navigator.getVRDisplays();
-
-            await exit2DInterstitialAndEnterVR(true);
         }
 
         const waypointSystem = this.scene.systems["hubs-systems"].waypointSystem;
@@ -215,6 +197,10 @@ export default class SceneEntryManager {
                 });
             });
 
+            entity.addEventListener("media_resolved", () => {
+                window.APP.pinningHelper.setPinned(entity, true);
+            });
+
             return entity;
         };
 
@@ -227,7 +213,6 @@ export default class SceneEntryManager {
         this.scene.addEventListener("object_spawned", e => {
             this.hubChannel.sendObjectSpawnedEvent(e.detail.objectType);
         });
-
 
         this.scene.addEventListener("action_kick_client", ({ detail: { clientId } }) => {
             this.performConditionalSignIn(
@@ -244,8 +229,6 @@ export default class SceneEntryManager {
                 SignInMessages.muteUser
             );
         });
-
-        this.scene.addEventListener("action_vr_notice_closed", () => forceExitFrom2DInterstitial());
 
         if (!qsTruthy("newLoader")) {
             document.addEventListener("paste", e => {

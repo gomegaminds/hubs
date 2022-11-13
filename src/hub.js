@@ -71,7 +71,6 @@ import HubChannel from "./utils/hub-channel";
 import { disableiOSZoom } from "./utils/disable-ios-zoom";
 import { proxiedUrlFor } from "./utils/media-url-utils";
 import { traverseMeshesAndAddShapes } from "./utils/physics-utils";
-import { handleExitTo2DInterstitial, exit2DInterstitialAndEnterVR } from "./utils/vr-interstitial";
 import { getAvatarSrc } from "./utils/avatar-utils.js";
 import MessageDispatch from "./message-dispatch";
 import SceneEntryManager from "./scene-entry-manager";
@@ -376,17 +375,6 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
         hubChannel.updateScene(entry.url);
     });
 
-    // Handle request for user gesture
-    scene.addEventListener("2d-interstitial-gesture-required", () => {
-        remountUI({
-            showInterstitialPrompt: true,
-            onInterstitialPromptClicked: () => {
-                remountUI({ showInterstitialPrompt: false, onInterstitialPromptClicked: null });
-                scene.emit("2d-interstitial-gesture-complete");
-            }
-        });
-    });
-
     scene.addEventListener(
         "didConnectToNetworkedScene",
         () => {
@@ -396,6 +384,8 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
             const objectsEl = document.createElement("a-entity");
 
             objectsEl.setAttribute("gltf-model-plus", { src: objectsUrl, useCache: false, inflate: true });
+            objectsScene.appendChild(objectsEl);
+            console.log("Did connect, loading objects...", objectsEl);
         },
         { once: true }
     );
@@ -410,60 +400,40 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
     (async () => {
         while (!scene.components["networked-scene"] || !scene.components["networked-scene"].data) await nextTick();
 
-        const loadEnvironmentAndConnect = () => {
-            console.log("Loading environment and connecting to dialog servers");
-
-            updateEnvironmentForHub(hub, entryManager);
-
-            // Disconnect in case this is a re-entry
-            APP.dialog.disconnect();
-            APP.dialog.connect({
-                serverUrl: `wss://${hub.host}:${hub.port}`,
-                roomId: hub.hub_id,
-                serverParams: { host: hub.host, port: hub.port, turn: hub.turn },
-                scene,
-                clientId: data.session_id,
-                forceTcp: qs.get("force_tcp"),
-                forceTurn: qs.get("force_turn"),
-                iceTransportPolicy: qs.get("force_tcp") || qs.get("force_turn") ? "relay" : "all"
-            });
-            scene.addEventListener(
-                "adapter-ready",
-                ({ detail: adapter }) => {
-                    adapter.hubChannel = hubChannel;
-                    adapter.events = events;
-                    adapter.session_id = data.session_id;
-                },
-                { once: true }
-            );
-            scene.components["networked-scene"]
-                .connect()
-                .then(() => {
-                    scene.emit("didConnectToNetworkedScene");
-                })
-                .catch(connectError => {
-                    onConnectionError(entryManager, connectError);
-                });
-        };
-
         window.APP.hub = hub;
         updateUIForHub(hub, hubChannel);
         scene.emit("hub_updated", { hub });
+        updateEnvironmentForHub(hub, entryManager);
 
-        if (!isEmbed) {
-            console.log("Page is not embedded so environment initialization will start immediately");
-            loadEnvironmentAndConnect();
-        } else {
-            console.log("Page is embedded so environment initialization will be deferred");
-            remountUI({
-                onPreloadLoadClicked: () => {
-                    console.log("Preload has been activated");
-                    hubChannel.allowNAFTraffic(true);
-                    remountUI({ showPreload: false });
-                    loadEnvironmentAndConnect();
-                }
+        // Disconnect in case this is a re-entry
+        APP.dialog.disconnect();
+        APP.dialog.connect({
+            serverUrl: `wss://${hub.host}:${hub.port}`,
+            roomId: hub.hub_id,
+            serverParams: { host: hub.host, port: hub.port, turn: hub.turn },
+            scene,
+            clientId: data.session_id,
+            forceTcp: qs.get("force_tcp"),
+            forceTurn: qs.get("force_turn"),
+            iceTransportPolicy: qs.get("force_tcp") || qs.get("force_turn") ? "relay" : "all"
+        });
+        scene.addEventListener(
+            "adapter-ready",
+            ({ detail: adapter }) => {
+                adapter.hubChannel = hubChannel;
+                adapter.events = events;
+                adapter.session_id = data.session_id;
+            },
+            { once: true }
+        );
+        scene.components["networked-scene"]
+            .connect()
+            .then(() => {
+                scene.emit("didConnectToNetworkedScene");
+            })
+            .catch(connectError => {
+                onConnectionError(entryManager, connectError);
             });
-        }
     })();
 }
 
@@ -503,17 +473,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const scene = document.querySelector("a-scene");
     window.APP.scene = scene;
-
-    const onSceneLoaded = () => {
-        const physicsSystem = scene.systems["hubs-systems"].physicsSystem;
-        physicsSystem.setDebug(isDebug || physicsSystem.debug);
-    };
-
-    if (scene.hasLoaded) {
-        onSceneLoaded();
-    } else {
-        scene.addEventListener("loaded", onSceneLoaded, { once: true });
-    }
 
     // If the stored avatar doesn't have a valid src, reset to a legacy avatar.
     const avatarSrc = await getAvatarSrc(store.state.profile.avatarId);
