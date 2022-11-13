@@ -104,6 +104,3 @@ declare module "aframe" {
   }
 }
 <<<<<<< HEAD
-
-=======
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2

@@ -1,10 +1,5 @@
 {
   "printWidth": 120,
-<<<<<<< HEAD
-  "parser": "babylon",
-  "esversion": 6
-=======
   "trailingComma": "none",
   "arrowParens": "avoid"
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
 }

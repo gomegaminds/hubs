@@ -321,7 +321,15 @@ module.exports = async (env, argv) => {
       support: path.join(__dirname, "src", "support.js"),
       index: path.join(__dirname, "src", "index.js"),
       hub: path.join(__dirname, "src", "hub.js"),
+      scene: path.join(__dirname, "src", "scene.js"),
+      avatar: path.join(__dirname, "src", "avatar.js"),
+      link: path.join(__dirname, "src", "link.js"),
+      discord: path.join(__dirname, "src", "discord.js"),
+      cloud: path.join(__dirname, "src", "cloud.js"),
+      signin: path.join(__dirname, "src", "signin.js"),
       verify: path.join(__dirname, "src", "verify.js"),
+      tokens: path.join(__dirname, "src", "tokens.js"),
+      "whats-new": path.join(__dirname, "src", "whats-new.js"),
       "webxr-polyfill": path.join(__dirname, "src", "webxr-polyfill.js")
     },
     output: {
@@ -347,8 +355,6 @@ module.exports = async (env, argv) => {
       headers: devServerHeaders,
       hot: liveReload,
       liveReload: liveReload,
-<<<<<<< HEAD
-=======
       historyApiFallback: {
         rewrites: [
           { from: /^\/link/, to: "/link.html" },
@@ -362,7 +368,6 @@ module.exports = async (env, argv) => {
           { from: /^\/whats-new/, to: "/whats-new.html" }
         ]
       },
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
       setupMiddlewares: (middlewares, { app }) => {
         // Local CORS proxy
         app.all("/cors-proxy/*", (req, res) => {
@@ -511,27 +516,10 @@ module.exports = async (env, argv) => {
           ]
         },
         {
-          oneOf: [
-            { resourceQuery: /inline/, type: "asset/inline" },
+          test: /\.svg$/,
+          include: [path.resolve(__dirname, "src", "react-components")],
+          use: [
             {
-<<<<<<< HEAD
-              test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|svg|wav|woff2|webm|3dl|cube)$/,
-              type: "asset/resource",
-              generator: {
-                // move required assets to output dir and add a hash for cache busting
-                // Make asset paths relative to /src
-                filename: function ({ filename }) {
-                  let rootPath = path.dirname(filename) + path.sep;
-                  if (rootPath.startsWith("src" + path.sep)) {
-                    const parts = rootPath.split(path.sep);
-                    parts.shift();
-                    rootPath = parts.join(path.sep);
-                  }
-                  // console.log(path, name, contenthash, ext);
-                  return rootPath + "[name]-[contenthash].[ext]";
-                }
-              }
-=======
               loader: "@svgr/webpack",
               options: {
                 titleProp: true,
@@ -577,7 +565,6 @@ module.exports = async (env, argv) => {
                   return rootPath + "[name]-[contenthash].[ext]";
                 }
               }
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
             }
           ]
         },
@@ -671,8 +658,42 @@ module.exports = async (env, argv) => {
         inject: "head"
       }),
       htmlPagePlugin({
+        filename: "scene.html",
+        extraChunks: ["support"],
+        chunksSortMode: "manual",
+        inject: "head"
+      }),
+      htmlPagePlugin({
+        filename: "avatar.html",
+        extraChunks: ["support"],
+        chunksSortMode: "manual",
+        inject: "head"
+      }),
+      htmlPagePlugin({
+        filename: "link.html",
+        extraChunks: ["support"],
+        chunksSortMode: "manual"
+      }),
+      htmlPagePlugin({
+        filename: "discord.html"
+      }),
+      htmlPagePlugin({
+        filename: "whats-new.html",
+        inject: "head"
+      }),
+      htmlPagePlugin({
+        filename: "cloud.html",
+        inject: "head"
+      }),
+      htmlPagePlugin({
+        filename: "signin.html"
+      }),
+      htmlPagePlugin({
         filename: "verify.html"
       }),
+      htmlPagePlugin({
+        filename: "tokens.html"
+      }),
       new CopyWebpackPlugin({
         patterns: [
           {
@@ -689,25 +710,6 @@ module.exports = async (env, argv) => {
           }
         ]
       }),
-<<<<<<< HEAD
-=======
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: "src/hub.service.js",
-            to: "hub.service.js"
-          }
-        ]
-      }),
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: "src/schema.toml",
-            to: "schema.toml"
-          }
-        ]
-      }),
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
       // Extract required css and add a content hash.
       new MiniCssExtractPlugin({
         filename: "assets/stylesheets/[name]-[contenthash].css"

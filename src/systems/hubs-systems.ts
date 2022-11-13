@@ -14,6 +14,7 @@ import { HapticFeedbackSystem } from "./haptic-feedback-system";
 import { SoundEffectsSystem } from "./sound-effects-system";
 import { ScenePreviewCameraSystem } from "./scene-preview-camera-system";
 import { InteractionSfxSystem } from "./interaction-sfx-system";
+import { SpriteSystem } from "./sprites";
 import { CameraSystem } from "./camera-system";
 import { WaypointSystem } from "./waypoint-system";
 import { CharacterControllerSystem } from "./character-controller-system";
@@ -24,6 +25,7 @@ import { AudioSettingsSystem } from "./audio-settings-system";
 import { AudioSystem } from "./audio-system";
 import { ShadowSystem } from "./shadow-system";
 import { InspectYourselfSystem } from "./inspect-yourself-system";
+import { EmojiSystem } from "./emoji-system";
 import { AudioZonesSystem } from "./audio-zones-system";
 import { GainSystem } from "./audio-gain-system";
 import { EnvironmentSystem } from "./environment-system";
@@ -87,6 +89,7 @@ AFRAME.registerSystem("hubs-systems", {
     this.audioSystem = new AudioSystem(this.el);
     this.soundEffectsSystem = new SoundEffectsSystem(this.el);
     this.scenePreviewCameraSystem = new ScenePreviewCameraSystem();
+    this.spriteSystem = new SpriteSystem(this.el);
     this.cameraSystem = new CameraSystem(this.el.camera, this.el.renderer);
     this.drawingMenuSystem = new DrawingMenuSystem(this.el);
     this.characterController = new CharacterControllerSystem(this.el);
@@ -99,6 +102,7 @@ AFRAME.registerSystem("hubs-systems", {
     this.uvScrollSystem = new UVScrollSystem();
     this.shadowSystem = new ShadowSystem(this.el);
     this.inspectYourselfSystem = new InspectYourselfSystem();
+    this.emojiSystem = new EmojiSystem(this.el);
     this.audioZonesSystem = new AudioZonesSystem();
     this.gainSystem = new GainSystem();
     this.environmentSystem = new EnvironmentSystem(this.el);
@@ -178,6 +182,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     hubsSystems.soundEffectsSystem
   );
   hubsSystems.superSpawnerSystem.tick();
+  hubsSystems.emojiSystem.tick(t, aframeSystems.userinput);
   hubsSystems.cursorPoseTrackingSystem.tick();
   hubsSystems.hoverMenuSystem.tick();
   hubsSystems.positionAtBorderSystem.tick();
@@ -204,6 +209,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
   cameraToolSystem(world);
   hubsSystems.waypointSystem.tick(t, dt);
   hubsSystems.menuAnimationSystem.tick(t);
+  hubsSystems.spriteSystem.tick(t, dt);
   hubsSystems.uvScrollSystem.tick(dt);
   hubsSystems.shadowSystem.tick();
   videoMenuSystem(world, aframeSystems.userinput);
