@@ -8,7 +8,6 @@ const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const TOML = require("@iarna/toml");
 const fetch = require("node-fetch");
 const packageLock = require("./package-lock.json");
 const request = require("request");
@@ -102,99 +101,6 @@ function deepModuleDependencyTest(modulesArr) {
     };
 }
 
-function createDefaultAppConfig() {
-    const schemaPath = path.join(__dirname, "src", "schema.toml");
-    const schemaString = fs.readFileSync(schemaPath).toString();
-
-    let appConfigSchema;
-
-    try {
-        appConfigSchema = TOML.parse(schemaString);
-    } catch (e) {
-        console.error("Error parsing schema.toml on line " + e.line + ", column " + e.column + ": " + e.message);
-        throw e;
-    }
-
-    const appConfig = {};
-
-    for (const [categoryName, category] of Object.entries(appConfigSchema)) {
-        appConfig[categoryName] = {};
-
-        // Enable all features with a boolean type
-        if (categoryName === "features") {
-            for (const [key, schema] of Object.entries(category)) {
-                if (key === "require_account_for_join" || key === "disable_room_creation") {
-                    appConfig[categoryName][key] = false;
-                } else {
-                    appConfig[categoryName][key] = schema.type === "boolean" ? true : null;
-                }
-            }
-        }
-    }
-
-    const themesPath = path.join(__dirname, "themes.json");
-
-    if (fs.existsSync(themesPath)) {
-        const themesString = fs.readFileSync(themesPath).toString();
-        const themes = JSON.parse(themesString);
-        appConfig.theme.themes = themes;
-    }
-
-    return appConfig;
-}
-
-async function fetchAppConfigAndEnvironmentVars() {
-    const { internalIpV4 } = await import("internal-ip");
-
-    if (!fs.existsSync(".ret.credentials")) {
-        throw new Error("Not logged in to Hubs Cloud. Run `npm run login` first.");
-    }
-
-    const { host, token } = JSON.parse(fs.readFileSync(".ret.credentials"));
-
-    const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-    };
-
-    // Load the Hubs Cloud instance's app config in development
-    const appConfigsResponse = await fetch(`https://${host}/api/v1/app_configs`, { headers });
-
-    if (!appConfigsResponse.ok) {
-        throw new Error(`Error fetching Hubs Cloud config "${appConfigsResponse.statusText}"`);
-    }
-
-    const appConfig = await appConfigsResponse.json();
-    if (appConfig.theme?.themes) {
-        appConfig.theme.themes = JSON.parse(appConfig.theme.themes);
-    }
-
-    // dev.reticulum.io doesn't run ita
-    if (host === "dev.reticulum.io") {
-        return appConfig;
-    }
-
-    const hubsConfigsResponse = await fetch(`https://${host}/api/ita/configs/hubs`, { headers });
-
-    const hubsConfigs = await hubsConfigsResponse.json();
-
-    if (!hubsConfigsResponse.ok) {
-        throw new Error(`Error fetching Hubs Cloud config "${hubsConfigsResponse.statusText}"`);
-    }
-
-    const { shortlink_domain, thumbnail_server } = hubsConfigs.general;
-
-    const localIp = process.env.HOST_IP || (await internalIpV4()) || "localhost";
-
-    process.env.RETICULUM_SERVER = host;
-    process.env.SHORTLINK_DOMAIN = shortlink_domain;
-    process.env.CORS_PROXY_SERVER = `hubs.local:8080/cors-proxy`;
-    process.env.THUMBNAIL_SERVER = thumbnail_server;
-    process.env.NON_CORS_PROXY_DOMAINS = `${localIp},hubs.local,localhost`;
-
-    return appConfig;
-}
-
 function htmlPagePlugin({ filename, extraChunks = [], chunksSortMode, inject }) {
     const chunkName = filename.match(/(.+).html/)[1];
     const options = {
@@ -229,26 +135,11 @@ module.exports = async (env, argv) => {
     dotenv.config({ path: ".env" });
     dotenv.config({ path: ".defaults.env" });
 
-    let appConfig = undefined;
-
     /**
      * Initialize the Webpack build envrionment for the provided environment.
      */
 
     if (argv.mode !== "production" || env.bundleAnalyzer) {
-        if (env.loadAppConfig || process.env.LOAD_APP_CONFIG) {
-            if (!env.localDev) {
-                // Load and set the app config and environment variables from the remote server.
-                // A Hubs Cloud server or dev.reticulum.io can be used.
-                appConfig = await fetchAppConfigAndEnvironmentVars();
-            }
-        } else {
-            if (!env.localDev) {
-                // Use the default app config with all features enabled.
-                appConfig = createDefaultAppConfig();
-            }
-        }
-
         if (env.localDev) {
             const localDevHost = "hubs.local";
             // Local Dev Environment (npm run local)
@@ -617,14 +508,6 @@ module.exports = async (env, argv) => {
             htmlPagePlugin({
                 filename: "verify.html"
             }),
-            new CopyWebpackPlugin({
-                patterns: [
-                    {
-                        from: "src/schema.toml",
-                        to: "schema.toml"
-                    }
-                ]
-            }),
             // Extract required css and add a content hash.
             new MiniCssExtractPlugin({
                 filename: "assets/stylesheets/[name]-[contenthash].css"
@@ -644,8 +527,7 @@ module.exports = async (env, argv) => {
                     GA_TRACKING_ID: process.env.GA_TRACKING_ID,
                     POSTGREST_SERVER: process.env.POSTGREST_SERVER,
                     UPLOADS_HOST: process.env.UPLOADS_HOST,
-                    BASE_ASSETS_PATH: process.env.BASE_ASSETS_PATH,
-                    APP_CONFIG: appConfig
+                    BASE_ASSETS_PATH: process.env.BASE_ASSETS_PATH
                 })
             })
         ]

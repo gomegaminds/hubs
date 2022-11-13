@@ -1,16 +1,12 @@
 import { addComponent, defineQuery, enterQuery, exitQuery, hasComponent, removeComponent, removeEntity } from "bitecs";
 import { AEntity, Networked, NetworkedMediaFrame, NetworkedTransform, NetworkedVideo, Owned } from "../bit-components";
-import { CameraPrefab, CubeMediaFramePrefab } from "../prefabs/camera-tool";
+import { CubeMediaFramePrefab } from "../prefabs/camera-tool";
 import { MediaPrefab } from "../prefabs/media";
 import { defineNetworkSchema } from "../utils/bit-utils";
 import { renderAsEntity } from "../utils/jsx-entity";
 
 const prefabs = new Map(
   Object.entries({
-    camera: {
-      permission: "spawn_camera",
-      template: CameraPrefab
-    },
     cube: {
       template: CubeMediaFramePrefab
     },

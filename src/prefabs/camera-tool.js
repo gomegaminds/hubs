@@ -1,23 +1,18 @@
 /** @jsx createElementEntity */
-import cameraModelSrc from "../assets/camera_tool.glb";
-import buttonSrc from "../assets/hud/button.9.png";
 import { cloneModelFromCache, loadModel } from "../components/gltf-model-plus";
-import { Layers } from "../components/layers";
+import { Layers } from "../camera-layers";
 import { COLLISION_LAYERS } from "../constants";
 import { BUTTON_TYPES } from "../systems/single-action-button-system";
 import { createElementEntity, createRef } from "../utils/jsx-entity";
 import { textureLoader } from "../utils/media-utils";
 import { preload } from "../utils/preload";
 
-const buttonTexture = textureLoader.load(buttonSrc);
-
 // eslint-disable-next-line react/prop-types
-export function Button({ text, width, height, texture = buttonTexture, type = BUTTON_TYPES.DEFAULT, ...props }) {
+export function Button({ text, width, height, type = BUTTON_TYPES.DEFAULT, ...props }) {
   const labelRef = createRef();
   return (
     <entity
       name={"Button"}
-      slice9={{ size: [width, height], insets: [64, 66, 64, 66], texture }}
       cursorRaycastable
       remoteHoverTarget
       hoverButton={{ type }}
@@ -47,7 +42,6 @@ const RENDER_WIDTH = 1280;
 const RENDER_HEIGHT = 720;
 
 // We intentionally do not remove this model from the GLTF Cache
-preload(loadModel(cameraModelSrc, null, true));
 
 export function CameraPrefab() {
   const snapMenuRef = createRef();
@@ -121,8 +115,6 @@ export function CameraPrefab() {
         position={[0, 0.4, 0]}
         scale={[-2, 2, 2]}
       />
-
-      <entity name="Camera Model" model={{ model: cloneModelFromCache(cameraModelSrc).scene }} scale={[2, 2, 2]} />
 
       <entity ref={cameraRef} object3D={camera} position={[0, 0, 0.05]} rotation={[0, Math.PI, 0]} />
 

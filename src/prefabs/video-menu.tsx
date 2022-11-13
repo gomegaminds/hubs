@@ -5,8 +5,8 @@ import { AlphaMode } from "../utils/create-image-mesh";
 import { createElementEntity, createRef } from "../utils/jsx-entity";
 
 import { textureLoader } from "../utils/media-utils";
-import playImageUrl from "../assets/images/sprites/notice/play.png";
-import pauseImageUrl from "../assets/images/sprites/notice/pause.png";
+import playImageUrl from "../mega-src/assets/images/play.png";
+import pauseImageUrl from "../mega-src/assets/images/pause.png";
 
 const playTexture = textureLoader.load(playImageUrl);
 const pauseTexture = textureLoader.load(pauseImageUrl);

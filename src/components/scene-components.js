@@ -3,7 +3,6 @@ import "./ambient-light";
 import "./animation-mixer";
 import "./audio-feedback";
 import "./billboard";
-import "./slice9";
 import "./directional-light";
 import "./gltf-model-plus";
 import "./heightfield";

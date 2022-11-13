@@ -79,8 +79,8 @@
                     <a-entity class="right-controller"></a-entity>
 
                     <a-entity name-tag tags="ignoreSpaceBubble: true;" position="0 0 0" layers="mask: 256; recursive: true;" billboard="onlyY: true;">
-                        <a-entity class="nametag-background" slice9="width: 1; height: 0.2; left: 64; top: 64; right: 66; bottom: 66; opacity: 0.5; alphaTest: 0.1; src: nametag;">
-                            <a-entity class="nametag-status-border" visible="false" slice9="width: 0.45; height: 0.2; left: 64; top: 64; right: 66; bottom: 66; transparent: false; alphaTest: 0.1; src: nametag-border;"></a-entity>
+                        <a-entity class="nametag-background">
+                            <a-entity class="nametag-status-border" visible="false" ></a-entity>
                             <a-entity class="nametag-text" text="side: double; textAlign: center; color: #ddd; fontSize: 0.1;" text-raycast-hack position="0 0.025 0.001"></a-entity>
                         </a-entity>
                         <a-entity
@@ -264,7 +264,7 @@
             <template id="pager-hover-menu">
                 <a-entity class="ui interactable-ui hover-container" visible="false">
                     <a-entity class="prev-button" position="-0.35 0 0">
-                        <a-entity is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button" slice9="width: 0.2">
+                        <a-entity is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button">
                             <a-entity
                                 icon-button="image: prev.png; hoverImage: prev.png;"
                                 scale="0.075 0.075 0.075"
@@ -274,7 +274,7 @@
                     </a-entity>
                     <a-entity class="page-label" position="0 -0.2 0" text="value:.; textAlign:center;" text-raycast-hack></a-entity>
                     <a-entity class="next-button" position="0.35 0 0">
-                        <a-entity is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button" slice9="width: 0.2">
+                        <a-entity is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button">
                             <a-entity
                                 icon-button="image: next.png; hoverImage: next.png;"
                                 scale="0.075 0.075 0.075"
@@ -359,81 +359,22 @@
                     position="0 0 0.1"
                     visibility-while-frozen="visible: false; withinDistance: 100; requireHoverOnNonMobile: false;"
                 >
-                    <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" slice9="width: 0.4" unmute-video-button position="0 -0.5 0.001">
+                    <a-entity is-remote-hover-target tags="singleActionButton:true;" mixin="rounded-text-button" unmute-video-button position="0 -0.5 0.001">
                         <a-entity text="value:unmute; textAlign:center;" text-raycast-hack position="0 0 0.02"></a-entity>
                     </a-entity>
                 </a-entity>
             </template>
 
             <a-mixin id="rounded-text-button"
-                slice9="
-                    width: 0.45;
-                    height: 0.2;
-                    left: 64;
-                    top: 64;
-                    right: 66;
-                    bottom: 66;
-                    transparent: false;
-                    alphaTest: 0.1;
-                    src: button"
             ></a-mixin>
 
             <a-mixin id="rounded-button"
-                slice9="
-                    width: 0.2;
-                    height: 0.2;
-                    left: 64;
-                    top: 64;
-                    right: 66;
-                    bottom: 66;
-                    transparent: false;
-                    alphaTest: 0.1;
-                    src: button"
             ></a-mixin>
 
             <a-mixin id="rounded-text-action-button"
-                slice9="
-                    width: 0.45;
-                    height: 0.2;
-                    left: 64;
-                    top: 64;
-                    right: 66;
-                    bottom: 66;
-                    transparent: false;
-                    alphaTest: 0.1;
-                    src: action-button"
             ></a-mixin>
 
             <a-mixin id="rounded-action-button"
-                slice9="
-                    width: 0.2;
-                    height: 0.2;
-                    left: 64;
-                    top: 64;
-                    right: 66;
-                    bottom: 66;
-                    transparent: false;
-                    alphaTest: 0.1;
-                    src: action-button"
-            ></a-mixin>
-
-            <a-mixin id="rounded-twitter-text-action-button"
-                text-button="
-                    textHoverColor: #fff;
-                    textColor: #fff;
-                    backgroundColor: #1da1f2;
-                    backgroundHoverColor: #2db1ff;
-                    "
-                slice9="
-                    width: 0.45;
-                    height: 0.2;
-                    left: 64;
-                    top: 64;
-                    right: 66;
-                    bottom: 66;
-                    transparent: false;
-                    alphaTest: 0.1;
-                    src: button"
             ></a-mixin>
         </a-assets>
 
