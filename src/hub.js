@@ -191,7 +191,7 @@ function mountUI(props = {}) {
                 }}
             />
         </Auth0Provider>,
-        document.getElementById("ui-root")
+        document.getElementById("Root")
     );
 }
 
