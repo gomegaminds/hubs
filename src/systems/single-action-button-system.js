@@ -83,7 +83,6 @@ function applyTheme() {
         textHoverColor: new THREE.Color(0xffffff),
     };
 }
-onThemeChanged(applyTheme);
 applyTheme();
 
 const hoverComponents = [HoveredRemoteRight, HoveredRemoteLeft, HoveredHandRight, HoveredHandLeft];

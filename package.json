@@ -17,14 +17,9 @@
     "start": "webpack serve --mode=development --env loadAppConfig=1",
     "dev": "webpack serve --mode=development --env remoteDev=1 --progress",
     "local": "webpack serve --mode=development --env localDev=1",
-<<<<<<< HEAD
-    "build": "rimraf ./dist && webpack --mode=production",
-    "bundle-analyzer": "webpack-dev-server --mode=production --env.dev --env.bundleAnalyzer",
-=======
     "check": "tsc",
     "build": "npm run check && rimraf ./dist && webpack --mode=production",
     "bundle-analyzer": "webpack serve --mode=production --env dev=1 --env bundleAnalyzer=1",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "doc": "node ./scripts/doc/build.js",
     "prettier": "prettier --write '*.js' 'src/**/*.js'",
     "lint:js": "eslint '*.js' 'scripts/**/*.js' 'src/**/*.js'",
@@ -123,6 +118,7 @@
     "nipplejs": "github:mozillareality/nipplejs#mr-social-client/master",
     "node-ensure": "0.0.0",
     "normalize.css": "^8.0.1",
+    "path-browserify": "^1.0.1",
     "pdfjs-dist": "^2.14.305",
     "phoenix": "github:gfodor/phoenix-js#master",
     "postprocessing": "^6.29.1",
@@ -155,15 +151,10 @@
     "screenfull": "^4.0.1",
     "sdp-transform": "^2.14.1",
     "semver": "^7.3.2",
-<<<<<<< HEAD
     "shepherd.js": "^10.0.1",
-    "three": "github:mozillareality/three.js#hubs-patches-141",
-    "three-ammo": "github:infinitelee/three-ammo",
-    "three-gltf-extensions": "^0.0.13",
-=======
     "three": "github:mozillareality/three.js#c40ae76f114346b33616f72edf43b4eef26d338d",
     "three-ammo": "github:mozillareality/three-ammo",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
+    "three-gltf-extensions": "^0.0.13",
     "three-mesh-bvh": "^0.3.7",
     "three-pathfinding": "^1.1.0",
     "three-to-ammo": "github:infinitelee/three-to-ammo",
@@ -177,16 +168,10 @@
     "zip-loader": "^1.1.0"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "@babel/core": "^7.18.9",
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-object-rest-spread": "7.18.9",
-=======
     "@babel/core": "^7.18.13",
     "@babel/eslint-parser": "^7.18.9",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-object-rest-spread": "^7.18.9",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "@babel/plugin-proposal-optional-chaining": "7.18.9",
     "@babel/preset-env": "^7.18.10",
     "@babel/preset-react": "^7.18.6",
@@ -196,30 +181,13 @@
     "@formatjs/cli": "^5.0.6",
     "@formatjs/cli-lib": "^5.1.0",
     "@iarna/toml": "^2.2.5",
-<<<<<<< HEAD
-    "@svgr/webpack": "^6.3.1",
-    "@types/aframe": "^1.2.0",
-    "@types/three": "^0.146.0",
-=======
-    "@storybook/addon-actions": "^6.5.9",
-    "@storybook/addon-essentials": "^6.5.9",
-    "@storybook/addon-links": "^6.5.9",
-    "@storybook/builder-webpack5": "^6.5.9",
-    "@storybook/manager-webpack5": "^6.5.9",
-    "@storybook/react": "^6.5.9",
-    "@storybook/storybook-deployer": "^2.8.12",
     "@svgr/webpack": "^6.3.1",
     "@types/three": "^0.141.0",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "@types/webxr": "^0.5.0",
     "acorn": "^8.8.0",
     "ava": "^4.3.1",
     "babel-loader": "^8.2.5",
     "babel-plugin-react-intl": "^8.2.21",
-<<<<<<< HEAD
-    "babel-plugin-transform-react-jsx-img-import": "^0.1.4",
-=======
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "copy-webpack-plugin": "^11.0.0",
     "cors": "^2.8.5",
     "css-loader": "^6.7.1",
@@ -229,10 +197,6 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-<<<<<<< HEAD
-=======
-    "eslint-plugin-storybook": "^0.6.1",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "esm": "^3.2.25",
     "fast-plural-rules": "1.0.2",
     "file-loader": "^6.2.0",
@@ -250,15 +214,9 @@
     "node-fetch": "^2.6.7",
     "npm-scripts-info": "0.3.9",
     "ora": "^6.1.2",
-<<<<<<< HEAD
-    "path-browserify": "^1.0.1",
-    "phoenix-channels": "^1.0.0",
-    "prettier": "^2.7.1",
-=======
     "phoenix-channels": "^1.0.0",
     "prettier": "^2.7.1",
     "process": "^0.11.10",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "protoo-client": "^4.0.6",
     "raw-loader": "^4.0.2",
     "react-is": "^18.2.0",
@@ -269,11 +227,7 @@
     "selfsigned": "^2.0.1",
     "shelljs": "^0.8.5",
     "spritesheet-js": "github:mozillareality/spritesheet.js#hubs/master",
-<<<<<<< HEAD
     "stream-browserify": "^3.0.0",
-=======
-    "storybook-addon-designs": "^6.3.1",
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
     "style-loader": "^3.3.1",
     "stylelint": "^14.9.1",
     "stylelint-config-recommended-scss": "^7.0.0",

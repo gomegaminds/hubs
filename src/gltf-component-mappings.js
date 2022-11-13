@@ -9,7 +9,7 @@ import { renderAsEntity } from "./utils/jsx-entity";
 import { Networked } from "./bit-components";
 import { addComponent } from "bitecs";
 
-AFRAME.GLTFModelPlus.registerComponent("duck", "duck", (el) => {
+AFRAME.GLTFModelPlus.registerComponent("duck", "duck", el => {
     el.setAttribute("duck", "");
     el.setAttribute("quack", { quackPercentage: 0.1 });
 });
@@ -28,14 +28,14 @@ AFRAME.GLTFModelPlus.registerComponent("super-spawner", "super-spawner", (el, co
 });
 AFRAME.GLTFModelPlus.registerComponent("gltf-model-plus", "gltf-model-plus");
 AFRAME.GLTFModelPlus.registerComponent("media-loader", "media-loader");
-AFRAME.GLTFModelPlus.registerComponent("body", "body-helper", (el) => {
+AFRAME.GLTFModelPlus.registerComponent("body", "body-helper", el => {
     //This is only required for migration of old environments with super-spawners
     //will no longer be needed when spawners are added via Spoke instead.
     el.setAttribute("body-helper", {
         mass: 0,
         type: TYPE.STATIC,
         collisionFilterGroup: COLLISION_LAYERS.INTERACTABLES,
-        collisionFilterMask: COLLISION_LAYERS.DEFAULT_SPAWNER,
+        collisionFilterMask: COLLISION_LAYERS.DEFAULT_SPAWNER
     });
 });
 AFRAME.GLTFModelPlus.registerComponent("ammo-shape", "shape-helper");
@@ -84,7 +84,7 @@ AFRAME.GLTFModelPlus.registerComponent(
                 fit: FIT.MANUAL,
                 offset: componentData.position,
                 halfExtents: { x: scale.x / 2, y: scale.y / 2, z: scale.z / 2 },
-                orientation: { x: orientation.x, y: orientation.y, z: orientation.z, w: orientation.w },
+                orientation: { x: orientation.x, y: orientation.y, z: orientation.z, w: orientation.w }
             });
         };
     })()
@@ -96,14 +96,14 @@ AFRAME.GLTFModelPlus.registerComponent("visible", "visible", (el, componentName,
         el.setAttribute(componentName, componentData);
     }
 });
-AFRAME.GLTFModelPlus.registerComponent("spawn-point", "spawn-point", (el) => {
+AFRAME.GLTFModelPlus.registerComponent("spawn-point", "spawn-point", el => {
     el.setAttribute("waypoint", {
         canBeSpawnPoint: true,
         canBeOccupied: false,
         canBeClicked: false,
         willDisableMotion: false,
         willDisableTeleporting: false,
-        willMaintainWorldUp: true,
+        willMaintainWorldUp: true
     });
 });
 
@@ -118,7 +118,7 @@ AFRAME.GLTFModelPlus.registerComponent("waypoint", "waypoint", (el, componentNam
             attachTemplateToLocal: false,
             owner: "scene",
             persistent: true,
-            networkId: components.networked.id,
+            networkId: components.networked.id
         });
     }
     el.setAttribute("waypoint", componentData);
@@ -129,11 +129,7 @@ import { createElementEntity } from "./utils/jsx-entity";
 /** @jsx createElementEntity */ createElementEntity;
 
 AFRAME.GLTFModelPlus.registerComponent("media-frame", "media-frame", (el, _componentName, componentData) => {
-<<<<<<< HEAD
-    const eid = renderAsEntity(APP.world, <entity media-frame={componentData} />);
-=======
-  const eid = renderAsEntity(APP.world, <entity mediaFrame={componentData} />);
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
+    const eid = renderAsEntity(APP.world, <entity mediaFrame={componentData} />);
 
     addComponent(APP.world, Networked, eid);
 
@@ -146,13 +142,12 @@ AFRAME.GLTFModelPlus.registerComponent("media-frame", "media-frame", (el, _compo
 });
 
 AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, componentData) => {
-
     if (componentData.id) {
         el.setAttribute("networked", {
             template: "#interactable-media",
             owner: "scene",
             persistent: true,
-            networkId: componentData.id,
+            networkId: componentData.id
         });
     }
 
@@ -162,7 +157,7 @@ AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, com
         resolve: true,
         fileIsOwned: true,
         animate: false,
-        contentSubtype: componentData.contentSubtype,
+        contentSubtype: componentData.contentSubtype
     };
 
     if (componentData.version) {
@@ -176,7 +171,6 @@ AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, com
         el.setAttribute("media-pager", { index: componentData.pageIndex });
     }
 
-
     if (componentData.paused !== undefined) {
         el.setAttribute("media-video", { videoPaused: componentData.paused });
     }
@@ -188,7 +182,6 @@ AFRAME.GLTFModelPlus.registerComponent("media", "media", (el, componentName, com
 
 async function mediaInflator(el, componentName, componentData, components) {
     let isControlled = true;
-
 
     if (componentName === "link" && (components.video || components.image)) {
         // video/image component will set link url specified in link component.
@@ -206,7 +199,7 @@ async function mediaInflator(el, componentName, componentData, components) {
             template: templateName,
             owner: "scene",
             persistent: true,
-            networkId: components.networked.id,
+            networkId: components.networked.id
         });
     }
 
@@ -251,7 +244,7 @@ async function mediaInflator(el, componentName, componentData, components) {
                 coneInnerAngle: componentData.coneInnerAngle,
                 coneOuterAngle: componentData.coneOuterAngle,
                 coneOuterGain: componentData.coneOuterGain,
-                gain: componentData.volume,
+                gain: componentData.volume
             });
             APP.sourceType.set(el, SourceType.MEDIA_VIDEO);
 
@@ -277,7 +270,7 @@ async function mediaInflator(el, componentName, componentData, components) {
         fileIsOwned: true,
         animate: false,
         mediaOptions,
-        moveTheParentNotTheMesh: true,
+        moveTheParentNotTheMesh: true
     });
 }
 
@@ -299,7 +292,7 @@ AFRAME.GLTFModelPlus.registerComponent("video", "video", mediaInflator, (name, p
 });
 AFRAME.GLTFModelPlus.registerComponent("link", "link", mediaInflator);
 
-AFRAME.GLTFModelPlus.registerComponent("hoverable", "is-remote-hover-target", (el) => {
+AFRAME.GLTFModelPlus.registerComponent("hoverable", "is-remote-hover-target", el => {
     el.setAttribute("is-remote-hover-target", "");
     el.setAttribute("tags", { isHandCollisionTarget: true });
 });
@@ -310,21 +303,21 @@ AFRAME.GLTFModelPlus.registerComponent("spawner", "spawner", (el, componentName,
         resolve: true,
         fileIsOwned: true,
         animate: false,
-        moveTheParentNotTheMesh: true,
+        moveTheParentNotTheMesh: true
     });
     el.setAttribute("css-class", "interactable");
     el.setAttribute("super-spawner", {
         src: sanitizeUrl(componentData.src),
         resolve: true,
         template: "#interactable-media",
-        mediaOptions: componentData.mediaOptions || {},
+        mediaOptions: componentData.mediaOptions || {}
     });
     el.setAttribute("hoverable-visuals", "");
     el.setAttribute("body-helper", {
         mass: 0,
         type: TYPE.STATIC,
         collisionFilterGroup: COLLISION_LAYERS.INTERACTABLES,
-        collisionFilterMask: COLLISION_LAYERS.DEFAULT_SPAWNER,
+        collisionFilterMask: COLLISION_LAYERS.DEFAULT_SPAWNER
     });
     el.setAttribute("is-remote-hover-target", "");
     el.setAttribute("tags", { isHandCollisionTarget: true });
@@ -338,9 +331,9 @@ const publicComponents = {
                 mappedProperty: "paused",
                 getMappedValue(value) {
                     return !!value;
-                },
-            },
-        },
+                }
+            }
+        }
     },
     "loop-animation": {
         mappedComponent: "loop-animation",
@@ -349,34 +342,18 @@ const publicComponents = {
                 mappedProperty: "paused",
                 getMappedValue(value) {
                     return !!value;
-                },
-            },
-        },
-    },
+                }
+            }
+        }
+    }
 };
 
 AFRAME.GLTFModelPlus.registerComponent(
-<<<<<<< HEAD
     "trigger-volume",
     "trigger-volume",
     (el, componentName, componentData, components, indexToEntityMap) => {
-        const {
-            size,
-            target,
-            enterComponent,
-            enterProperty,
-            enterValue,
-            leaveComponent,
-            leaveProperty,
-            leaveValue,
-        } = componentData;
-=======
-  "trigger-volume",
-  "trigger-volume",
-  (el, componentName, componentData, components, indexToEntityMap) => {
-    const { size, target, enterComponent, enterProperty, enterValue, leaveComponent, leaveProperty, leaveValue } =
-      componentData;
->>>>>>> 0a02497eedd21a10a690767a192147ec8e1065d2
+        const { size, target, enterComponent, enterProperty, enterValue, leaveComponent, leaveProperty, leaveValue } =
+            componentData;
 
         let enterComponentMapping, leaveComponentMapping, targetEntity;
 
@@ -398,7 +375,7 @@ AFRAME.GLTFModelPlus.registerComponent(
             enterValue: enterComponentMapping.getMappedValue(enterValue),
             leaveComponent: leaveComponentMapping.mappedComponent,
             leaveProperty: leaveComponentMapping.mappedProperty,
-            leaveValue: leaveComponentMapping.getMappedValue(leaveValue),
+            leaveValue: leaveComponentMapping.getMappedValue(leaveValue)
         });
     }
 );
@@ -410,16 +387,16 @@ AFRAME.GLTFModelPlus.registerComponent("heightfield", "heightfield", (el, compon
         fit: FIT.MANUAL,
         heightfieldDistance: componentData.distance,
         offset: componentData.offset,
-        heightfieldData: componentData.data,
+        heightfieldData: componentData.data
     });
 });
 
-AFRAME.GLTFModelPlus.registerComponent("trimesh", "trimesh", (el) => {
+AFRAME.GLTFModelPlus.registerComponent("trimesh", "trimesh", el => {
     el.setAttribute("shape-helper__trimesh", {
         type: SHAPE.MESH,
         margin: 0.01,
         fit: FIT.ALL,
-        includeInvisible: true,
+        includeInvisible: true
     });
 });
 
@@ -428,7 +405,7 @@ AFRAME.GLTFModelPlus.registerComponent("particle-emitter", "particle-emitter");
 AFRAME.GLTFModelPlus.registerComponent("networked-drawing-buffer", "networked-drawing-buffer");
 
 AFRAME.GLTFModelPlus.registerComponent("audio-settings", "audio-settings", (el, _componentName, componentData) => {
-    const removeUndefined = (obj) => {
+    const removeUndefined = obj => {
         return Object.entries(obj).reduce((result, [key, value]) => {
             if (value !== undefined) {
                 result[key] = value;
@@ -449,7 +426,7 @@ AFRAME.GLTFModelPlus.registerComponent("audio-settings", "audio-settings", (el, 
             coneInnerAngle: componentData.mediaConeInnerAngle,
             coneOuterAngle: componentData.mediaConeOuterAngle,
             coneOuterGain: componentData.mediaConeOuterGain,
-            gain: componentData.mediaVolume,
+            gain: componentData.mediaVolume
         })
     );
     APP.sceneAudioDefaults.set(
@@ -462,7 +439,7 @@ AFRAME.GLTFModelPlus.registerComponent("audio-settings", "audio-settings", (el, 
             coneInnerAngle: componentData.avatarConeInnerAngle,
             coneOuterAngle: componentData.avatarConeOuterAngle,
             coneOuterGain: componentData.avatarConeOuterGain,
-            gain: componentData.avatarVolume,
+            gain: componentData.avatarVolume
         })
     );
     for (const [el, audio] of APP.audios.entries()) {
@@ -495,7 +472,7 @@ AFRAME.GLTFModelPlus.registerComponent(
             src: srcEl ? "el" : "",
             targetBaseColorMap,
             targetEmissiveMap,
-            srcEl,
+            srcEl
         });
     }
 );
@@ -568,7 +545,7 @@ AFRAME.GLTFModelPlus.registerComponent(
                 coneInnerAngle: componentData.coneInnerAngle,
                 coneOuterAngle: componentData.coneOuterAngle,
                 coneOuterGain: componentData.coneOuterGain,
-                gain: componentData.gain,
+                gain: componentData.gain
             });
             APP.sourceType.set(el, SourceType.AUDIO_TARGET);
 
@@ -582,7 +559,7 @@ AFRAME.GLTFModelPlus.registerComponent(
             minDelay: componentData.minDelay,
             maxDelay: componentData.maxDelay,
             debug: componentData.debug,
-            srcEl,
+            srcEl
         });
     }
 );
@@ -619,7 +596,7 @@ AFRAME.GLTFModelPlus.registerComponent("fog", "fog", (el, _componentName, compon
         fogColor: new THREE.Color(componentData.color),
         fogNear: componentData.near,
         fogFar: componentData.far,
-        fogDensity: componentData.density,
+        fogDensity: componentData.density
     });
 });
 
@@ -630,7 +607,7 @@ AFRAME.GLTFModelPlus.registerComponent(
         // TODO a bit silly to be storing this as an aframe component. Use a glboal store of some sort
         el.setAttribute(componentName, {
             ...componentData,
-            backgroundColor: new THREE.Color(componentData.backgroundColor),
+            backgroundColor: new THREE.Color(componentData.backgroundColor)
         });
     }
 );
