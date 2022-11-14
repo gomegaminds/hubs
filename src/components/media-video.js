@@ -111,17 +111,14 @@ AFRAME.registerComponent("media-video", {
             this.volumeDownButton = this.el.querySelector(".video-volume-down-button");
             this.seekForwardButton = this.el.querySelector(".video-seek-forward-button");
             this.seekBackButton = this.el.querySelector(".video-seek-back-button");
-            this.snapButton = this.el.querySelector(".video-snap-button");
             this.timeLabel = this.el.querySelector(".video-time-label");
             this.volumeLabel = this.el.querySelector(".video-volume-label");
-            this.linkButton = this.el.querySelector(".video-link-button");
 
             this.playPauseButton.object3D.addEventListener("interact", this.togglePlaying);
             this.seekForwardButton.object3D.addEventListener("interact", this.seekForward);
             this.seekBackButton.object3D.addEventListener("interact", this.seekBack);
             this.volumeUpButton.object3D.addEventListener("interact", this.volumeUp);
             this.volumeDownButton.object3D.addEventListener("interact", this.volumeDown);
-            this.snapButton.object3D.addEventListener("interact", this.snap);
 
             this.updateVolumeLabel();
             this.updateHoverMenu();
@@ -733,10 +730,6 @@ AFRAME.registerComponent("media-video", {
             this.volumeDownButton.object3D.visible =
                 this.hasAudioTracks && !this.data.hidePlaybackControls && !!this.video;
 
-        this.snapButton.object3D.visible =
-            !!this.video &&
-            !this.data.contentType.startsWith("audio/") &&
-            window.APP.hubChannel.can("spawn_and_move_media");
         this.seekForwardButton.object3D.visible = !!this.video && !this.videoIsLive;
 
         const mayModifyPlayHead =
@@ -746,8 +739,6 @@ AFRAME.registerComponent("media-video", {
             this.seekForwardButton.object3D.visible =
             this.seekBackButton.object3D.visible =
                 mayModifyPlayHead;
-
-        this.linkButton.object3D.visible = !!mediaLoader.mediaOptions.href;
 
         if (this.videoIsLive) {
             this.timeLabel.setAttribute("text", "value", "LIVE");
@@ -856,7 +847,6 @@ AFRAME.registerComponent("media-video", {
             this.volumeDownButton.object3D.removeEventListener("interact", this.volumeDown);
             this.seekForwardButton.object3D.removeEventListener("interact", this.seekForward);
             this.seekBackButton.object3D.removeEventListener("interact", this.seekBack);
-            this.snapButton.object3D.removeEventListener("interact", this.snap);
         }
 
         window.APP.store.removeEventListener("statechanged", this.onPreferenceChanged);

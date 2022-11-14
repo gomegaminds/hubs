@@ -39,6 +39,9 @@
             <a-asset-item id="drawing-pen" src="./assets/models/DrawingPen.glb"></a-asset-item>
             <a-asset-item id="arrow" src="./assets/models/jumpboost_arrow.glb"></a-asset-item>
             <a-asset-item id="spawn-point" src="./assets/models/spawn-point.glb"></a-asset-item>
+            <a-asset-item id="playImage" src="./mega-src/assets/images/aframe/play-solid.png"></a-asset-item>
+            <a-asset-item id="pauseImage" src="./mega-src/assets/images/aframe/pause-solid.png"></a-asset-item>
+
 
 
             <template id="template-waypoint-avatar">
@@ -294,7 +297,6 @@
                     <a-entity
                         is-remote-hover-target
                         tags="singleActionButton: true; isHoverMenuChild: true;"
-                        icon-button="image: volume_down.png; hoverImage: volume_down-hover.png;"
                         scale="0.075 0.075 0.075"
                         position="-0.275 0.14 0"
                         class="ui video-volume-down-button"
@@ -302,7 +304,6 @@
                     <a-entity
                         is-remote-hover-target
                         tags="singleActionButton: true; isHoverMenuChild: true;"
-                        icon-button="image: volume_up.png; hoverImage: volume_up-hover.png;"
                         scale="0.075 0.075 0.075"
                         position="0.275 0.14 0"
                         class="ui video-volume-up-button"
@@ -311,7 +312,6 @@
                         <a-entity
                             is-remote-hover-target
                             tags="singleActionButton: true; isHoverMenuChild: true;"
-                            icon-button="image: seek_back.png; hoverImage: seek_back-hover.png;"
                             scale="0.1 0.1 0.1"
                             position="-0.3 -0.125 0"
                             class="ui video-seek-back-button"
@@ -320,16 +320,16 @@
                         <a-entity
                             is-remote-hover-target
                             tags="singleActionButton: true; isHoverMenuChild: true;"
-                            icon-button="image: pause.png; hoverImage: pause-hover.png; activeImage: play.png; activeHoverImage: play-hover.png"
                             scale="0.15 0.15 0.15"
                             position="0 -0.125 0"
                             class="ui video-playpause-button"
                             visible="true"
-                        ></a-entity>
+                        >
+                        <a-image src="#playIMage"></a-image>
+                        </a-entity>
                         <a-entity
                             is-remote-hover-target
                             tags="singleActionButton: true; isHoverMenuChild: true;"
-                            icon-button="image: seek_fwd.png; hoverImage: seek_fwd-hover.png;"
                             scale="0.1 0.1 0.1"
                             position="0.3 -0.125 0"
                             class="ui video-seek-forward-button"
@@ -537,7 +537,7 @@
         </a-entity>
     </a-scene>
 
-    <div id="Root"></div>
+    <div id="Root" class="root"></div>
 </body>
 
 </html>
