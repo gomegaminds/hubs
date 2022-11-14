@@ -60,7 +60,7 @@ import "./change-hub";
 
 import "./hub-components";
 
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import React from "react";
 import { Router, Route } from "react-router-dom";
 import Root from "./mega-src/react-components/Root";
@@ -72,7 +72,6 @@ import { traverseMeshesAndAddShapes } from "./utils/physics-utils";
 import { getAvatarSrc } from "./utils/avatar-utils.js";
 import MessageDispatch from "./message-dispatch";
 import SceneEntryManager from "./scene-entry-manager";
-import { createInWorldLogMessage } from "./react-components/chat-message";
 
 import "./systems/nav";
 import "./systems/frame-scheduler";
@@ -121,7 +120,6 @@ if (isEmbed && !qs.get("embed_token")) {
 
 import registerNetworkSchemas from "./network-schemas";
 
-import { getAvailableVREntryTypes, VR_DEVICE_AVAILABILITY, ONLY_SCREEN_AVAILABLE } from "./utils/vr-caps-detect";
 import detectConcurrentLoad from "./utils/concurrent-load-detector";
 
 import qsTruthy from "./utils/qs_truthy";
@@ -239,14 +237,14 @@ export async function updateEnvironmentForHub(hub, entryManager) {
                 // console.log(`Scene file initial load took ${Math.round(performance.now() - loadStart)}ms`);
 
                 // Show the canvas once the model has loaded
-                document.querySelector(".a-canvas").classList.remove("a-hidden");
-
-                sceneEl.addState("visible");
-
                 envSystem.updateEnvironment(environmentEl);
 
                 //TODO: check if the environment was made with spoke to determine if a shape should be added
                 traverseMeshesAndAddShapes(environmentEl);
+
+                document.querySelector(".a-canvas").classList.remove("a-hidden");
+
+                sceneEl.addState("visible");
             },
             { once: true }
         );
@@ -765,10 +763,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             sessionId: session_id,
             sent: session_id === socket.params().session_id
         };
-
-        if (scene.is("vr-mode")) {
-            createInWorldLogMessage(incomingMessage);
-        }
 
         messageDispatch.receive(incomingMessage);
     });

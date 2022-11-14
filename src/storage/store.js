@@ -107,7 +107,7 @@ export const SCHEMA = {
 
         preferences: {
             type: "object",
-            additionalProperties: false,
+            additionalProperties: true,
             properties: {
                 shouldPromptForRefresh: { type: "bool", default: false },
                 // Preferred media will be set dynamically
@@ -131,8 +131,9 @@ export const SCHEMA = {
                 // if unset, maxResolution = screen resolution
                 maxResolutionWidth: { type: "number", default: undefined },
                 maxResolutionHeight: { type: "number", default: undefined },
-                globalVoiceVolume: { type: "number", default: 100 },
-                globalMediaVolume: { type: "number", default: 100 },
+                resolutionMultiplier: { type: "string", default: 1 },
+                globalVoiceVolume: { type: "string", default: 100 },
+                globalMediaVolume: { type: "string", default: 100 },
                 globalSFXVolume: { type: "number", default: 100 },
                 snapRotationDegrees: { type: "number", default: 45 },
                 materialQualitySetting: { type: "string", default: defaultMaterialQuality },
@@ -153,7 +154,8 @@ export const SCHEMA = {
                 enableAudioClipping: { type: "bool", default: false },
                 audioClippingThreshold: { type: "number", default: 0.015 },
                 audioPanningQuality: { type: "string", default: defaultAudioPanningQuality() },
-                cursorSize: { type: "number", default: 1 },
+                cursorSize: { type: "string", default: 0.6 },
+                hideHints: { type: "bool", default: false },
                 nametagVisibility: { type: "string", default: "showAll" },
                 nametagVisibilityDistance: { type: "number", default: 5 },
                 avatarVoiceLevels: { type: "object" }
@@ -383,7 +385,7 @@ export default class Store extends EventTarget {
         // Cleanup unsupported properties
         if (!valid) {
             errors.forEach(error => {
-                console.error(`Removing invalid preference from store: ${error.message}`);
+                console.error("Removing invalid preference from store:", error);
                 delete error.instance[error.argument];
             });
         }

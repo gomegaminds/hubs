@@ -7,8 +7,6 @@ import HubsTextureLoader from "../loaders/HubsTextureLoader";
 import { validMaterials } from "../components/hoverable-visuals";
 import { isNonCorsProxyDomain, proxiedUrlFor, guessContentType } from "../utils/media-url-utils";
 import { isIOS as detectIOS } from "./is-mobile";
-import Linkify from "linkify-it";
-import tlds from "tlds";
 import { mediaTypeFor } from "./media-type";
 
 import anime from "animejs";
@@ -24,8 +22,6 @@ export const MediaType = {
 MediaType.ALL = MediaType.MODEL | MediaType.IMAGE | MediaType.VIDEO | MediaType.PDF | MediaType.HTML | MediaType.AUDIO;
 MediaType.ALL_2D = MediaType.IMAGE | MediaType.VIDEO | MediaType.PDF | MediaType.HTML;
 
-const linkify = Linkify();
-linkify.tlds(tlds);
 
 const mediaAPIEndpoint = getReticulumFetchUrl("/api/v1/media");
 const getDirectMediaAPIEndpoint = () => getDirectReticulumFetchUrl("/api/v1/media");
@@ -137,9 +133,6 @@ function getLatestMediaVersionOfSrc(src) {
 }
 
 export function coerceToUrl(urlOrText) {
-    if (!linkify.test(urlOrText)) return urlOrText;
-
-    // See: https://github.com/Soapbox/linkifyjs/blob/master/src/linkify.js#L52
     return urlOrText.indexOf("://") >= 0 ? urlOrText : `https://${urlOrText}`;
 }
 
