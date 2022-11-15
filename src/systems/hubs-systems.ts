@@ -14,6 +14,7 @@ import { HapticFeedbackSystem } from "./haptic-feedback-system";
 import { SoundEffectsSystem } from "./sound-effects-system";
 import { ScenePreviewCameraSystem } from "./scene-preview-camera-system";
 import { InteractionSfxSystem } from "./interaction-sfx-system";
+import { SpriteSystem } from "./sprites";
 import { CameraSystem } from "./camera-system";
 import { WaypointSystem } from "./waypoint-system";
 import { CharacterControllerSystem } from "./character-controller-system";
@@ -86,6 +87,7 @@ AFRAME.registerSystem("hubs-systems", {
         this.audioSystem = new AudioSystem(this.el);
         this.soundEffectsSystem = new SoundEffectsSystem(this.el);
         this.scenePreviewCameraSystem = new ScenePreviewCameraSystem();
+        this.spriteSystem = new SpriteSystem(this.el);
         this.cameraSystem = new CameraSystem(this.el.camera, this.el.renderer);
         this.drawingMenuSystem = new DrawingMenuSystem(this.el);
         this.characterController = new CharacterControllerSystem(this.el);
@@ -201,6 +203,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     hubsSystems.cameraSystem.tick(hubsSystems.el, dt);
     cameraToolSystem(world);
     hubsSystems.waypointSystem.tick(t, dt);
+    hubsSystems.spriteSystem.tick(t, dt);
     hubsSystems.uvScrollSystem.tick(dt);
     hubsSystems.shadowSystem.tick();
     videoMenuSystem(world, aframeSystems.userinput);

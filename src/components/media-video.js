@@ -132,8 +132,6 @@ AFRAME.registerComponent("media-video", {
                 applyPersistentSync(this.networkedEl.components.networked.data.networkId);
                 this.updatePlaybackState();
 
-                this.networkedEl.addEventListener("pinned", this.updateHoverMenu);
-                this.networkedEl.addEventListener("unpinned", this.updateHoverMenu);
                 window.APP.hubChannel.addEventListener("permissions_updated", this.updateHoverMenu);
 
                 // For scene-owned videos, take ownership after a random delay if nobody
@@ -732,8 +730,7 @@ AFRAME.registerComponent("media-video", {
 
         this.seekForwardButton.object3D.visible = !!this.video && !this.videoIsLive;
 
-        const mayModifyPlayHead =
-            !!this.video && !this.videoIsLive && (!isPinned || window.APP.hubChannel.can("pin_objects"));
+        const mayModifyPlayHead = (!!this.video && !this.videoIsLive) || window.APP.hubChannel.can("spawn_and_move_media");
 
         this.playPauseButton.object3D.visible =
             this.seekForwardButton.object3D.visible =
@@ -827,11 +824,6 @@ AFRAME.registerComponent("media-video", {
         APP.supplementaryAttenuation.delete(this.el);
 
         this.removeAudio();
-
-        if (this.networkedEl) {
-            this.networkedEl.removeEventListener("pinned", this.updateHoverMenu);
-            this.networkedEl.removeEventListener("unpinned", this.updateHoverMenu);
-        }
 
         window.APP.hubChannel.removeEventListener("permissions_updated", this.updateHoverMenu);
 

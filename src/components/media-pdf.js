@@ -1,5 +1,4 @@
 import * as pdfjs from "pdfjs-dist";
-import { SOUND_CAMERA_TOOL_TOOK_SNAPSHOT } from "../systems/sound-effects-system";
 import { scaleToAspectRatio } from "../utils/scale-to-aspect-ratio";
 import { errorTexture } from "../utils/error-texture";
 import { createPlaneBufferGeometry } from "../utils/three-utils";
@@ -30,36 +29,18 @@ AFRAME.registerComponent("media-pdf", {
   },
 
   init() {
-    this.snap = this.snap.bind(this);
     this.canvas = document.createElement("canvas");
     this.canvasContext = this.canvas.getContext("2d");
-    this.localSnapCount = 0;
-    this.isSnapping = false;
-    this.onSnapImageLoaded = () => (this.isSnapping = false);
     this.texture = new THREE.CanvasTexture(this.canvas);
 
     this.texture.encoding = THREE.sRGBEncoding;
     this.texture.minFilter = THREE.LinearFilter;
-
-    this.el.addEventListener("pager-snap-clicked", () => this.snap());
   },
 
   play() {
     this.el.components["listed-media"] && this.el.sceneEl.emit("listed_media_changed");
   },
 
-  async snap() {
-    if (this.isSnapping) return;
-    this.isSnapping = true;
-    this.el.sceneEl.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_CAMERA_TOOL_TOOK_SNAPSHOT);
-
-    const blob = await new Promise(resolve => this.canvas.toBlob(resolve));
-    const file = new File([blob], "snap.png", TYPE_IMG_PNG);
-
-    this.localSnapCount++;
-    const { entity } = addAndArrangeMedia(this.el, file, "photo-snapshot", this.localSnapCount, false, 1);
-    entity.addEventListener("image-loaded", this.onSnapImageLoaded, ONCE_TRUE);
-  },
 
   async update(oldData) {
     let texture;

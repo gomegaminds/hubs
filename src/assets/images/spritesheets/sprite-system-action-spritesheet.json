@@ -1,0 +1,30 @@
+{
+    "meta": {
+        "image": "sprite-system-action-spritesheet.png",
+        "size": { "w": 1024, "h": 1024 },
+        "scale": "1"
+    },
+    "frames": {
+        "Background.png": {
+            "frame": { "x": 738, "y": 584, "w": 128, "h": 48 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 128, "h": 48 },
+            "sourceSize": { "w": 128, "h": 48 }
+        },
+        "next.png": {
+            "frame": { "x": 488, "y": 738, "w": 64, "h": 64 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+            "sourceSize": { "w": 64, "h": 64 }
+        },
+        "prev.png": {
+            "frame": { "x": 648, "y": 738, "w": 64, "h": 64 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+            "sourceSize": { "w": 64, "h": 64 }
+        }
+    }
+}

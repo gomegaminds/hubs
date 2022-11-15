@@ -108,13 +108,7 @@
                         <template data-name="Spine">
                             <a-entity is-remote-hover-target personal-space-invader="radius: 0.2; useMaterial: true;" bone-visibility>
                                 <a-entity class="avatar-inspect-collider" avatar-inspect-collider tags="togglesHoveredActionSet: true; ignoreSpaceBubble: true;" is-remote-hover-target inspect-button>
-                                <a-entity tags="ignoreSpaceBubble: true;" class="interactable ui interactable-ui" layers="mask: 256; recursive: true;">
-                                    <a-entity class="freeze-menu">
-                                    </a-entity>
                                 </a-entity>
-
-                                </a-entity>
-                                <a-entity class="chest-image" scale="0.18 0.18 0.18" position="0 -0.025 0.13"></a-entity>
                             </a-entity>
                         </template>
 
@@ -242,13 +236,15 @@
                         <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true" position="0.075 0.125 0.001" class="undo-drawing">
                             <a-entity
                                 icon-button="image: undo-action.png; hoverImage: undo-action.png;"
+                                sprite
                                 scale="0.165 0.165 0.165"
                                 position="0 0 0.001"
                             ></a-entity>
                         </a-entity>
                         <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true" position="0.075 -0.125 0.001" class="delete-drawing">
                             <a-entity
-                                icon-button="image: remove-action.png; hoverImage: remove-action.png;"
+                                icon-button="image: #playImage; hoverImage: pauseImage;"
+                                sprite
                                 scale="0.165 0.165 0.165"
                                 position="0 0 0.001"
                             ></a-entity>
@@ -256,6 +252,7 @@
                         <a-entity mixin="rounded-button" is-remote-hover-target tags="singleActionButton: true" position="-0.125 0 0.001" class="serialize-drawing">
                             <a-entity
                                 icon-button="image: serialize-action.png; hoverImage: serialize-action.png;"
+                                sprite
                                 scale="0.165 0.165 0.165"
                                 position="0 0 0.001"
                             ></a-entity>
@@ -264,36 +261,36 @@
                 </a-entity>
             </template>
 
+            
             <template id="pager-hover-menu">
                 <a-entity class="ui interactable-ui hover-container" visible="false">
-                    <a-entity class="prev-button" position="-0.35 0 0">
-                        <a-entity is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button">
+                        <a-entity class="prev-button" position="-0.35 0 0" is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button" slice9="width: 0.2">
                             <a-entity
+                                sprite
                                 icon-button="image: prev.png; hoverImage: prev.png;"
                                 scale="0.075 0.075 0.075"
                                 position="0 0 0.001"
-                            ></a-entity>
+                                ></a-entity>
                         </a-entity>
-                    </a-entity>
-                    <a-entity class="page-label" position="0 -0.2 0" text="value:.; textAlign:center;" text-raycast-hack></a-entity>
-                    <a-entity class="next-button" position="0.35 0 0">
-                        <a-entity is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button">
+                        <a-entity class="page-label" position="0 -0.2 0" text="value:.; textAlign:center;" text-raycast-hack></a-entity>
+                        <a-entity position="0.35 0 0" class="next-button"  is-remote-hover-target tags="singleActionButton:true; isHoverMenuChild: true;" mixin="rounded-text-button" slice9="width: 0.2">
                             <a-entity
+                                sprite
                                 icon-button="image: next.png; hoverImage: next.png;"
                                 scale="0.075 0.075 0.075"
                                 position="0 0 0.001"
                             ></a-entity>
                         </a-entity>
-                    </a-entity>
                 </a-entity>
             </template>
 
             <!-- TODO: All of these positions are assuming 16:9 - need to actually reposition based on video resolution -->
 
             <template id="video-hover-menu">
-                <a-entity class="ui hover-container" visible="false">
+                <a-entity class="ui hover-container" visible="true">
                     <a-entity class="video-time-label" text="value: 0; anchorX: center; textAlign: center; color: #aaa; fontSize: 0.04;" text-raycast-hack position="0 -0.24 0"></a-entity>
                     <a-entity class="video-volume-label" text="value: 0%; anchorX: center; textAlign: center; color: #ccc; letterSpacing: 0.1; fontSize: 0.06;" text-raycast-hack position="0.0 0.14 0"></a-entity>
+                    <a-entity></a-entity>
                     <a-entity
                         is-remote-hover-target
                         tags="singleActionButton: true; isHoverMenuChild: true;"
@@ -312,28 +309,32 @@
                         <a-entity
                             is-remote-hover-target
                             tags="singleActionButton: true; isHoverMenuChild: true;"
+                            sprite
+                            icon-button="image: seek_back.png; hoverImage: seek_back-hover.png;"
                             scale="0.1 0.1 0.1"
                             position="-0.3 -0.125 0"
                             class="ui video-seek-back-button"
-                            visible="true"
+                            visible="false"
                         ></a-entity>
                         <a-entity
                             is-remote-hover-target
                             tags="singleActionButton: true; isHoverMenuChild: true;"
+                            sprite
+                            icon-button="image: pause.png; hoverImage: pause-hover.png; activeImage: play.png; activeHoverImage: play-hover.png"
                             scale="0.15 0.15 0.15"
                             position="0 -0.125 0"
                             class="ui video-playpause-button"
-                            visible="true"
-                        >
-                        <a-image src="#playIMage"></a-image>
-                        </a-entity>
+                            visible="false"
+                        ></a-entity>
                         <a-entity
                             is-remote-hover-target
                             tags="singleActionButton: true; isHoverMenuChild: true;"
+                            sprite
+                            icon-button="image: seek_fwd.png; hoverImage: seek_fwd-hover.png;"
                             scale="0.1 0.1 0.1"
                             position="0.3 -0.125 0"
                             class="ui video-seek-forward-button"
-                            visible="true"
+                            visible="false"
                         ></a-entity>
                     </a-entity>
                 </a-entity>

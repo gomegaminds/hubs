@@ -5,17 +5,7 @@ import { HoldableButton } from "../bit-components";
 
 // https://github.com/mozilla/hubs/wiki/Hubs-authorization
 export function showHoverEffect(el) {
-    const isFrozen = el.sceneEl.is("frozen");
-    const isPinned = el.components.pinnable && el.components.pinnable.data.pinned;
-    const isSpawner = !!el.components["super-spawner"];
-    const isEmojiSpawner = isSpawner && el.components["super-spawner"].data.template === "#interactable-emoji";
-    const isEmoji = !!el.components.emoji;
-    const canMove =
-        (isEmoji || isEmojiSpawner
-            ? window.APP.hubChannel.can("spawn_emoji")
-            : window.APP.hubChannel.can("spawn_and_move_media")) &&
-        (!isPinned || window.APP.hubChannel.can("pin_objects"));
-    return (isSpawner || !isPinned || isFrozen) && canMove;
+    return canMove;
 }
 
 export function canMove(entity) {
@@ -52,10 +42,10 @@ function indexForComponent(component, schema) {
     const componentName = fullComponent ? component : component.component;
 
     if (fullComponent) {
-        return schema.components.findIndex((schemaComponent) => schemaComponent === componentName);
+        return schema.components.findIndex(schemaComponent => schemaComponent === componentName);
     } else {
         return schema.components.findIndex(
-            (schemaComponent) =>
+            schemaComponent =>
                 schemaComponent.component === componentName && schemaComponent.property === component.property
         );
     }
@@ -76,8 +66,8 @@ function initializeNonAuthorizedSchemas() {
         if (!schemaDict.hasOwnProperty(template)) continue;
         const schema = schemaDict[template];
         nonAuthorizedSchemas[template] = (schema.nonAuthorizedComponents || [])
-            .map((nonAuthorizedComponent) => indexForComponent(nonAuthorizedComponent, schema))
-            .map((index) => index.toString());
+            .map(nonAuthorizedComponent => indexForComponent(nonAuthorizedComponent, schema))
+            .map(index => index.toString());
     }
 }
 
@@ -166,7 +156,7 @@ function stashPersistentSync(message, entityData) {
             dataType: "u",
             data: entityData,
             clientId: message.clientId,
-            from_session_id: message.from_session_id,
+            from_session_id: message.from_session_id
         };
     } else {
         const currentData = persistentSyncs[entityData.networkId].data;
@@ -219,7 +209,7 @@ export function authorizeOrSanitizeMessage(message) {
         }
 
         if (sanitizedAny || stashedAny) {
-            message.data.d = message.data.d.filter((x) => x != null);
+            message.data.d = message.data.d.filter(x => x != null);
         }
 
         return message;
