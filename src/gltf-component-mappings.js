@@ -489,6 +489,10 @@ AFRAME.GLTFModelPlus.registerComponent("locked", "locked", (el, componentName, c
     el.setAttribute(componentName, componentData);
 });
 
+AFRAME.GLTFModelPlus.registerComponent("description", "description", (el, componentName, componentData) => {
+    el.setAttribute(componentName, componentData);
+});
+
 AFRAME.GLTFModelPlus.registerComponent("question", "question", (el, componentName, componentData) => {
     el.setAttribute(componentName, componentData);
 });

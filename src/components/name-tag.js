@@ -39,7 +39,6 @@ AFRAME.registerComponent("name-tag", {
     init() {
         this.store = window.APP.store;
         this.displayName = null;
-        this.identityName = null;
         this.isTalking = false;
         this.isTyping = false;
         this.isOwner = false;
@@ -62,15 +61,12 @@ AFRAME.registerComponent("name-tag", {
         this.onStateChanged = this.onStateChanged.bind(this);
 
         this.nametag = this.el.object3D;
-        this.nametagIdentityName = this.el.querySelector(".identityName").object3D;
         this.nametagBackground = this.el.querySelector(".nametag-background").object3D;
         this.nametagStatusBorder = this.el.querySelector(".nametag-status-border").object3D;
-        this.recordingBadge = this.el.querySelector(".recordingBadge").object3D;
-        this.modBadge = this.el.querySelector(".modBadge").object3D;
         this.nametagText = this.el.querySelector(".nametag-text").object3D;
 
         this.handRaised = new THREE.Mesh(handRaisedGeometry, handRaisedMaterial);
-        this.handRaised.position.set(0, -0.3, 0.001);
+        this.handRaised.position.set(0, -0.17, 0.001);
         this.el.object3D.add(this.handRaised);
 
         this.nametagVolume = new THREE.Mesh(nametagVolumeGeometry, nametagVolumeMaterial);
@@ -150,8 +146,6 @@ AFRAME.registerComponent("name-tag", {
                     }
                 }
                 this.nametagStatusBorder.visible = this.isTyping || this.isTalking || this.isHandRaised;
-                this.recordingBadge.visible = this.isRecording;
-                this.modBadge.visible = this.isOwner && !this.isRecording;
                 this.handRaised.visible = this.isHandRaised;
 
                 this.neck.getWorldPosition(worldPos);
@@ -196,7 +190,6 @@ AFRAME.registerComponent("name-tag", {
 
     updateFromPresenceMeta(presenceMeta) {
         this.displayName = presenceMeta.profile.displayName;
-        this.identityName = presenceMeta.profile.identityName;
         this.isRecording = !!(presenceMeta.streaming || presenceMeta.recording);
         this.isOwner = !!(presenceMeta.roles && presenceMeta.roles.owner);
         this.isTyping = !!presenceMeta.typing;
@@ -230,12 +223,6 @@ AFRAME.registerComponent("name-tag", {
             this.prevDisplayName = this.displayName;
         }
 
-        if (this.identityName) {
-            if (this.identityName.length > DISPLAY_NAME_LENGTH) {
-                this.identityName = this.identityName.slice(0, DISPLAY_NAME_LENGTH).concat("...");
-            }
-            this.nametagIdentityName.el.setAttribute("text", { value: this.identityName });
-        }
     },
 
     onModelLoading() {

@@ -26,6 +26,7 @@ import "./mega-src/components/auto-rotate";
 import "./mega-src/components/question";
 import "./mega-src/components/mega-image";
 import "./mega-src/components/link-button";
+import "./mega-src/components/description";
 import "./mega-src/systems/CSS2DRenderingSystem";
 // import "./mega-src/systems/CSS3DRenderingSystem";
 

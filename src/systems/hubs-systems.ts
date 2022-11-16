@@ -1,4 +1,5 @@
 import { CursorTargettingSystem } from "./cursor-targetting-system";
+import { MenuAnimationSystem } from "./menu-animation-system";
 import { PositionAtBorderSystem } from "../components/position-at-border";
 import { BoneVisibilitySystem } from "../components/bone-visibility";
 import { AnimationMixerSystem } from "../components/animation-mixer";
@@ -93,6 +94,7 @@ AFRAME.registerSystem("hubs-systems", {
         this.characterController = new CharacterControllerSystem(this.el);
         this.waypointSystem = new WaypointSystem(this.el, this.characterController);
         this.cursorPoseTrackingSystem = new CursorPoseTrackingSystem();
+        this.menuAnimationSystem = new MenuAnimationSystem();
         this.audioSettingsSystem = new AudioSettingsSystem(this.el);
         this.animationMixerSystem = new AnimationMixerSystem();
         this.boneVisibilitySystem = new BoneVisibilitySystem();
@@ -203,6 +205,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     hubsSystems.cameraSystem.tick(hubsSystems.el, dt);
     cameraToolSystem(world);
     hubsSystems.waypointSystem.tick(t, dt);
+    hubsSystems.menuAnimationSystem.tick(t);
     hubsSystems.spriteSystem.tick(t, dt);
     hubsSystems.uvScrollSystem.tick(dt);
     hubsSystems.shadowSystem.tick();

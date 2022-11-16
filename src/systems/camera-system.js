@@ -44,7 +44,7 @@ export function getInspectableAndPivot(el) {
     return { inspectable, pivot };
 }
 
-const decompose = (function() {
+const decompose = (function () {
     const scale = new THREE.Vector3();
     return function decompose(m, p, q) {
         m.decompose(p, q, scale); //ignore scale, like we're dealing with a motor
@@ -52,7 +52,7 @@ const decompose = (function() {
 })();
 
 const IDENTITY = new THREE.Matrix4().identity();
-const orbit = (function() {
+const orbit = (function () {
     const owq = new THREE.Quaternion();
     const owp = new THREE.Vector3();
     const cwq = new THREE.Quaternion();
@@ -94,17 +94,13 @@ const orbit = (function() {
                 .applyQuaternion(targetQuat)
         );
 
-        targetMatrix.compose(
-            targetPos,
-            targetQuat,
-            targetScale
-        );
+        targetMatrix.compose(targetPos, targetQuat, targetScale);
 
         childMatch(rig, camera, targetMatrix);
     };
 })();
 
-const moveRigSoCameraLooksAtPivot = (function() {
+const moveRigSoCameraLooksAtPivot = (function () {
     const owq = new THREE.Quaternion();
     const owp = new THREE.Vector3();
     const cwq = new THREE.Quaternion();
@@ -166,10 +162,10 @@ const NEXT_MODES = {
     [CAMERA_MODE_FIRST_PERSON]: CAMERA_MODE_THIRD_PERSON_NEAR,
     [CAMERA_MODE_THIRD_PERSON_NEAR]: CAMERA_MODE_THIRD_PERSON_FAR,
     [CAMERA_MODE_THIRD_PERSON_FAR]: CAMERA_MODE_WORLDBUILDING,
-    [CAMERA_MODE_WORLDBUILDING]: CAMERA_MODE_FIRST_PERSON,
+    [CAMERA_MODE_WORLDBUILDING]: CAMERA_MODE_FIRST_PERSON
 };
 
-const ensureLightsAreSeenByCamera = function(o) {
+const ensureLightsAreSeenByCamera = function (o) {
     if (o.isLight) {
         o.layers.enable(Layers.CAMERA_LAYER_INSPECT);
     }
@@ -177,12 +173,12 @@ const ensureLightsAreSeenByCamera = function(o) {
 
 const firstPersonOnlyLayer = new THREE.Layers();
 firstPersonOnlyLayer.set(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
-const enableInspectLayer = function(o) {
+const enableInspectLayer = function (o) {
     // Ignore first person only meshes
     if (o.layers.test(firstPersonOnlyLayer)) return;
     o.layers.enable(Layers.CAMERA_LAYER_INSPECT);
 };
-const disableInspectLayer = function(o) {
+const disableInspectLayer = function (o) {
     // Ignore first person only meshes
     if (o.layers.test(firstPersonOnlyLayer)) return;
     o.layers.disable(Layers.CAMERA_LAYER_INSPECT);
@@ -190,7 +186,7 @@ const disableInspectLayer = function(o) {
 
 function getAudio(o) {
     let audio;
-    o.traverse((c) => {
+    o.traverse(c => {
         if (!audio && c.type === "Audio") {
             audio = c;
         }
@@ -219,23 +215,8 @@ export class CameraSystem {
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_UI);
 
-        // xr.updateCamera gets called every render to copy the active cameras properties to the XR cameras. We also want to copy layers.
-        // TODO this logic should either be moved into THREE or removed when we ditch aframe camera system
-        const xrManager = renderer.xr;
-        const updateXRCamera = xrManager.updateCamera;
-        xrManager.updateCamera = function(camera) {
-            updateXRCamera(camera);
-            const xrCamera = xrManager.getCamera();
-            xrCamera.layers.mask = camera.layers.mask;
-            if (xrCamera.cameras.length) {
-                xrCamera.cameras[0].layers.set(Layers.CAMERA_LAYER_XR_LEFT_EYE);
-                xrCamera.cameras[0].layers.mask |= camera.layers.mask;
-                xrCamera.cameras[1].layers.set(Layers.CAMERA_LAYER_XR_RIGHT_EYE);
-                xrCamera.cameras[1].layers.mask |= camera.layers.mask;
-            }
-        };
-
         waitForDOMContentLoaded().then(() => {
+            this.scene = AFRAME.scenes[0];
             this.avatarPOV = document.getElementById("avatar-pov-node");
             this.avatarRig = document.getElementById("avatar-rig");
             this.viewingRig = document.getElementById("viewing-rig");
@@ -249,32 +230,11 @@ export class CameraSystem {
         });
     }
 
-    nextMode() {
-        if (this.mode === CAMERA_MODE_INSPECT) {
-            this.uninspect();
-            return;
-        }
-
-        if (!enableThirdPersonMode) return;
-        if (this.mode === CAMERA_MODE_SCENE_PREVIEW) return;
-
-        this.mode = NEXT_MODES[this.mode] || 0;
-    }
-
-    enableWorldBuildingCamera() {
-        // TODO: Implement worldbuilding mode
-        this.mode = CAMERA_MODE_WORLDBUILDING;
-        const el = window.APP.scene.sceneEl.object3D;
-
-        let camera = new THREE.PerspectiveCamera(45, 1920 / 1080, 1, 1000);
-        this.viewingCamera = camera;
-        this.worldBuildingControls = new OrbitControls(this.viewingCamera, window.APP.scene.renderer.domElement);
-        this.worldBuildingControls.target = new THREE.Vector3(0, 0, 0);
-        this.worldBuildingControls.update();
-    }
-
     inspect(el, distanceMod, fireChangeEvent = true) {
         const { inspectable, pivot } = getInspectableAndPivot(el);
+
+        this.scene.classList.add("hand-cursor");
+        this.scene.classList.remove("no-cursor");
 
         this.verticalDelta = 0;
         this.horizontalDelta = 0;
@@ -282,23 +242,15 @@ export class CameraSystem {
         if (this.mode === CAMERA_MODE_INSPECT) {
             return;
         }
-        const scene = AFRAME.scenes[0];
-        scene.object3D.traverse(ensureLightsAreSeenByCamera);
-        scene.classList.add("hand-cursor");
-        scene.classList.remove("no-cursor");
+        this.scene.object3D.traverse(ensureLightsAreSeenByCamera);
         this.snapshot.mode = this.mode;
         this.mode = CAMERA_MODE_INSPECT;
         this.inspectable = inspectable;
         this.pivot = pivot;
 
-        const camera = scene.is("vr-mode") ? scene.renderer.xr.getCamera() : scene.camera;
-        this.snapshot.mask = camera.layers.mask;
-        if (!this.lightsEnabled) {
-            this.hideEverythingButThisObject(inspectable);
-        } else {
-            camera.layers.disable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
-            camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
-        }
+        this.snapshot.mask = this.scene.camera.layers.mask;
+        this.scene.camera.layers.disable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
+        this.scene.camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
 
         this.viewingCamera.updateMatrices();
         this.snapshot.matrixWorld.copy(this.viewingRig.object3D.matrixWorld);
@@ -309,11 +261,13 @@ export class CameraSystem {
             this.snapshot.audio.updateMatrices();
             this.snapshot.audioTransform.copy(this.snapshot.audio.matrixWorld);
             scene.audioListener.updateMatrices();
-            this.audioSourceTargetTransform.makeTranslation(0, 0, -0.25).premultiply(scene.audioListener.matrixWorld);
+            this.audioSourceTargetTransform
+                .makeTranslation(0, 0, -0.25)
+                .premultiply(this.scene.audioListener.matrixWorld);
             setMatrixWorld(this.snapshot.audio, this.audioSourceTargetTransform);
         }
 
-        this.ensureListenerIsParentedCorrectly(scene);
+        this.ensureListenerIsParentedCorrectly(this.scene);
 
         moveRigSoCameraLooksAtPivot(
             this.viewingRig.object3D,
@@ -322,20 +276,15 @@ export class CameraSystem {
             this.pivot,
             distanceMod || 1
         );
-
-        if (fireChangeEvent) {
-            scene.emit("inspect-target-changed");
-        }
     }
 
     uninspect(fireChangeEvent = true) {
-        if (this.mode !== CAMERA_MODE_INSPECT) return;
-        const scene = AFRAME.scenes[0];
-        if (scene.is("entered")) {
-            scene.classList.remove("hand-cursor");
-            scene.classList.add("no-cursor");
+        if (this.scene.is("entered")) {
+            this.scene.classList.remove("hand-cursor");
+            this.scene.classList.add("no-cursor");
         }
-        this.showEverythingAsNormal();
+        if (this.mode !== CAMERA_MODE_INSPECT) return;
+        this.scene.camera.layers.mask = this.snapshot.mask;
         this.inspectable = null;
         this.pivot = null;
         if (this.snapshot.audio) {
@@ -348,67 +297,25 @@ export class CameraSystem {
             setMatrixWorld(this.viewingRig.object3D, this.snapshot.matrixWorld);
         }
         this.snapshot.mode = null;
-        this.tick(AFRAME.scenes[0]);
-
-        if (fireChangeEvent) {
-            scene.emit("inspect-target-changed");
-        }
-    }
-
-    toggleLights() {
-        this.lightsEnabled = !this.lightsEnabled;
-        localStorage.setItem("show-background-while-inspecting", this.lightsEnabled.toString());
-
-        if (this.mode === CAMERA_MODE_INSPECT && this.inspectable) {
-            if (this.lightsEnabled) {
-                this.showEverythingAsNormal();
-                const scene = AFRAME.scenes[0];
-                const camera = scene.is("vr-mode") ? scene.renderer.xr.getCamera() : scene.camera;
-                camera.layers.disable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
-                camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
-            } else {
-                this.hideEverythingButThisObject(this.inspectable);
-            }
-        }
-
-        AFRAME.scenes[0].emit("inspect-lights-changed");
+        this.tick(this.scene);
     }
 
     ensureListenerIsParentedCorrectly(scene) {
-        if (scene.audioListener && this.avatarPOV) {
-            if (this.mode === CAMERA_MODE_INSPECT && scene.audioListener.parent !== this.avatarPOV.object3D) {
-                this.avatarPOV.object3D.add(scene.audioListener);
+        if (this.scene.audioListener && this.avatarPOV) {
+            if (this.mode === CAMERA_MODE_INSPECT && this.scene.audioListener.parent !== this.avatarPOV.object3D) {
+                this.avatarPOV.object3D.add(this.scene.audioListener);
             } else if (
                 (this.mode === CAMERA_MODE_FIRST_PERSON ||
                     this.mode === CAMERA_MODE_THIRD_PERSON_NEAR ||
                     this.mode === CAMERA_MODE_THIRD_PERSON_FAR) &&
-                scene.audioListener.parent !== this.viewingCamera
+                this.scene.audioListener.parent !== this.viewingCamera
             ) {
-                this.viewingCamera.add(scene.audioListener);
+                this.viewingCamera.add(this.scene.audioListener);
             }
         }
     }
 
-    hideEverythingButThisObject(o) {
-        this.notHiddenObject = o;
-        o.traverse(enableInspectLayer);
-
-        const scene = AFRAME.scenes[0];
-        const camera = scene.is("vr-mode") ? scene.renderer.xr.getCamera() : scene.camera;
-        camera.layers.set(Layers.CAMERA_LAYER_INSPECT);
-    }
-
-    showEverythingAsNormal() {
-        if (this.notHiddenObject) {
-            this.notHiddenObject.traverse(disableInspectLayer);
-            this.notHiddenObject = null;
-        }
-        const scene = AFRAME.scenes[0];
-        const camera = scene.is("vr-mode") ? scene.renderer.xr.getCamera() : scene.camera;
-        camera.layers.mask = this.snapshot.mask;
-    }
-
-    tick = (function() {
+    tick = (function () {
         const translation = new THREE.Matrix4();
         let uiRoot;
         return function tick(scene, dt) {
@@ -438,7 +345,7 @@ export class CameraSystem {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
                 }
                 this.isInsideMenu = null;
-                scene.emit("select_object_changed", null);
+                scene.emit("right_menu_changed", null);
             }
 
             if (this.userinput.get(paths.actions.startInspecting)) {
@@ -448,13 +355,13 @@ export class CameraSystem {
                 if (hoverEl === this.isInsideMenu) {
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
                     this.isInsideMenu = null;
-                    scene.emit("select_object_changed", null);
+                    scene.emit("right_menu_changed", null);
                 } else if (hoverEl) {
                     // If already selected another object, reset their arrow
                     if (this.isInsideMenu !== null) {
                         this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
                     }
-                    scene.emit("select_object_changed", hoverEl);
+                    scene.emit("right_menu_changed", hoverEl);
                     this.isInsideMenu = hoverEl;
                     this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
                 }
@@ -465,10 +372,6 @@ export class CameraSystem {
                 this.uninspect();
             }
             */
-
-            if (this.userinput.get(paths.actions.nextCameraMode)) {
-                this.nextMode();
-            }
 
             this.ensureListenerIsParentedCorrectly(scene);
 
@@ -548,13 +451,6 @@ export class CameraSystem {
                         dt,
                         panY
                     );
-                }
-            } else if (this.mode === CAMERA_MODE_WORLDBUILDING) {
-                if (this.viewingCamera) {
-                    setMatrixWorld(this.viewingCamera, window.APP.scene.sceneEl.object3D.matrixWorld);
-                }
-                if (this.worldBuildingControls) {
-                    this.worldBuildingControls.update();
                 }
             }
         };

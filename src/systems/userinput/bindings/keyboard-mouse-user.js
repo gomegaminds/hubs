@@ -188,11 +188,6 @@ export const keyboardMouseUserBindings = addSetsToBindings({
       priority: 100
     },
     {
-      src: { value: paths.device.keyboard.key("c") },
-      dest: { value: paths.actions.toggleCamera },
-      xform: xforms.rising
-    },
-    {
       src: { value: paths.device.smartMouse.cursorPose },
       dest: { value: paths.actions.cursor.right.pose },
       xform: xforms.copy
@@ -389,128 +384,6 @@ export const keyboardMouseUserBindings = addSetsToBindings({
       },
       xform: xforms.rising
     },
-    {
-      src: {
-        value: paths.device.mouse.buttonRight
-      },
-      dest: {
-        value: paths.actions.startGazeTeleport
-      },
-      xform: xforms.rising,
-      priority: 100
-    },
-    {
-      src: {
-        value: paths.device.mouse.buttonRight
-      },
-      dest: {
-        value: paths.actions.stopGazeTeleport
-      },
-      xform: xforms.falling,
-      priority: 100
-    },
-    {
-      src: { value: paths.device.keyboard.key("o") },
-      dest: { value: paths.actions.nextCameraMode },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("1")
-      },
-      dest: { value: "/var/notcontrol+1" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+1" },
-      dest: { value: paths.actions.spawnEmoji0 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("2")
-      },
-      dest: { value: "/var/notcontrol+2" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+2" },
-      dest: { value: paths.actions.spawnEmoji1 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("3")
-      },
-      dest: { value: "/var/notcontrol+3" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+3" },
-      dest: { value: paths.actions.spawnEmoji2 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("4")
-      },
-      dest: { value: "/var/notcontrol+4" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+4" },
-      dest: { value: paths.actions.spawnEmoji3 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("5")
-      },
-      dest: { value: "/var/notcontrol+5" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+5" },
-      dest: { value: paths.actions.spawnEmoji4 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("6")
-      },
-      dest: { value: "/var/notcontrol+6" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+6" },
-      dest: { value: paths.actions.spawnEmoji5 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("7")
-      },
-      dest: { value: "/var/notcontrol+7" },
-      xform: xforms.copyIfFalse
-    },
-    {
-      src: { value: "/var/notcontrol+7" },
-      dest: { value: paths.actions.spawnEmoji6 },
-      xform: xforms.rising
-    },
-    {
-      src: { value: paths.device.keyboard.key("i") },
-      dest: { value: paths.actions.startInspectingSelf },
-      xform: xforms.rising
-    }
-
     // Helpful bindings for debugging hands in 2D
     // {
     //   src: {},
@@ -659,23 +532,6 @@ export const keyboardMouseUserBindings = addSetsToBindings({
     }
   ],
 
-  [sets.rightCursorHoldingCamera]: [
-    {
-      src: { value: paths.device.mouse.buttonLeft },
-      dest: { value: paths.actions.cursor.right.drop },
-      xform: xforms.falling,
-      priority: 2
-    },
-    {
-      src: {
-        value: k("wheelWithShift")
-      },
-      dest: { value: paths.actions.cursor.right.scaleGrabbedGrabbable },
-      xform: xforms.noop,
-      priority: 2
-    }
-  ],
-
   [sets.rightCursorHoldingInteractable]: [
     {
       src: {
@@ -720,20 +576,6 @@ export const keyboardMouseUserBindings = addSetsToBindings({
       priority: 2
     }
   ],
-  [sets.rightCursorHoldingUI]: [
-    {
-      src: { value: paths.device.mouse.buttonLeft },
-      dest: { value: paths.actions.cursor.right.drop },
-      xform: xforms.falling,
-      priority: 3
-    },
-    {
-      src: { value: paths.device.keyboard.key("shift") },
-      dest: { value: paths.actions.transformModifier },
-      xform: xforms.copy,
-      priority: 1
-    }
-  ],
   [sets.rightCursorHoveringOnInteractable]: [
     {
       src: { value: paths.device.mouse.buttonLeft },
@@ -759,11 +601,6 @@ export const keyboardMouseUserBindings = addSetsToBindings({
       xform: xforms.any,
       priority: 201
     },
-    {
-      src: { value: paths.device.keyboard.key("x") },
-      dest: { value: paths.actions.cursor.right.deleteEntity },
-      xform: xforms.rising
-    }
   ],
   [sets.rightCursorHoveringOnVideo]: videoBindings,
   [sets.inputFocused]: [
@@ -773,118 +610,6 @@ export const keyboardMouseUserBindings = addSetsToBindings({
       xform: xforms.noop,
       priority: 1000
     },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("1")
-      },
-      dest: { value: "/var/control+1" },
-      xform: xforms.copyIfTrue,
-      priority: 1001
-    },
-    {
-      src: { value: "/var/control+1" },
-      dest: { value: paths.actions.mediaSearch1 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("2")
-      },
-      dest: { value: "/var/control+2" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+2" },
-      dest: { value: paths.actions.mediaSearch2 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("3")
-      },
-      dest: { value: "/var/control+3" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+3" },
-      dest: { value: paths.actions.mediaSearch3 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("4")
-      },
-      dest: { value: "/var/control+4" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+4" },
-      dest: { value: paths.actions.mediaSearch4 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("5")
-      },
-      dest: { value: "/var/control+5" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+5" },
-      dest: { value: paths.actions.mediaSearch5 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("6")
-      },
-      dest: { value: "/var/control+6" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+6" },
-      dest: { value: paths.actions.mediaSearch6 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("7")
-      },
-      dest: { value: "/var/control+7" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+7" },
-      dest: { value: paths.actions.mediaSearch7 },
-      xform: xforms.rising
-    },
-    {
-      src: {
-        bool: paths.device.keyboard.key("control"),
-        value: paths.device.keyboard.key("8")
-      },
-      dest: { value: "/var/control+8" },
-      priority: 1001,
-      xform: xforms.copyIfTrue
-    },
-    {
-      src: { value: "/var/control+8" },
-      dest: { value: paths.actions.mediaSearch8 },
-      xform: xforms.rising
-    }
   ],
 
   [sets.rightCursorHoveringOnUI]: [

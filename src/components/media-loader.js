@@ -535,19 +535,6 @@ AFRAME.registerComponent("media-loader", {
                 this.el.removeAttribute("media-pdf");
                 this.el.removeAttribute("media-pager");
 
-                /*
-                if (this.el.id === "naf-srbtzrv") {
-                    this.el.addEventListener(
-                        "model-loaded",
-                        (resp) => {
-                            console.log("Got model loaded for teddy", resp);
-                            this.onMediaLoaded(SHAPE.HULL, true);
-                            addAnimationComponents(this.el);
-                        },
-                        { once: false }
-                    );
-                }
-                */
                 this.el.addEventListener(
                     "model-loaded",
                     () => {
@@ -652,7 +639,6 @@ AFRAME.registerComponent("media-pager", {
             this.nextButton = this.el.querySelector(".next-button");
             this.prevButton = this.el.querySelector(".prev-button");
             this.pageLabel = this.el.querySelector(".page-label");
-            console.log("got ", this.nextButton, this.prevButton);
 
             this.nextButton.object3D.addEventListener("interact", this.onNext);
             this.prevButton.object3D.addEventListener("interact", this.onPrev);

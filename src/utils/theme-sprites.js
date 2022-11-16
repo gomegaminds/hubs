@@ -8,7 +8,7 @@ function getThemeColorShifter(type) {
     // that has a single saturated color, and convert it to another.
     return async (ctx, w, h) => {
         const data = ctx.getImageData(0, 0, w, h);
-        const color = type === "action" ? "#FF3464" : "#2F80ED";
+        const color = type === "action" ? "#6f6ec4" : "#2F80ED";
         const res = await colorShift(data.data.buffer, [data.data.buffer], { type, color });
         ctx.putImageData(new ImageData(res, w, h), 0, 0);
     };

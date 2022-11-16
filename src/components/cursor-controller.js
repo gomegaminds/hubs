@@ -30,7 +30,6 @@ const NO_HIGHLIGHT = new THREE.Color("#6f6ec4");
 AFRAME.registerComponent("cursor-controller", {
     schema: {
         cursor: { type: "selector" },
-        camera: { type: "selector" },
         far: { default: 50 },
         near: { default: 0.01 },
         defaultDistance: { default: 4 },
@@ -114,7 +113,6 @@ AFRAME.registerComponent("cursor-controller", {
 
     tick2: (() => {
         const rawIntersections = [];
-        const cameraPos = new THREE.Vector3();
         const v = new THREE.Vector3();
 
         return function (t, left) {
@@ -171,7 +169,7 @@ AFRAME.registerComponent("cursor-controller", {
                     : this.data.defaultDistance * playerScale;
             }
 
-            const { cursor, minDistance, far, camera } = this.data;
+            const { cursor, minDistance, far } = this.data;
 
             const cursorModDelta =
                 userinput.get(left ? paths.actions.cursor.left.modDelta : paths.actions.cursor.right.modDelta) || 0;
@@ -190,9 +188,6 @@ AFRAME.registerComponent("cursor-controller", {
 
             cursor.object3D.position.copy(cursorPose.position).addScaledVector(cursorPose.direction, this.distance);
             // The cursor will always be oriented towards the player about its Y axis, so objects held by the cursor will rotate towards the player.
-            getLastWorldPosition(camera.object3D, cameraPos);
-            cameraPos.y = cursor.object3D.position.y;
-            cursor.object3D.lookAt(cameraPos);
             cursor.object3D.matrixNeedsUpdate = true;
         };
     })()

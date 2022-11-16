@@ -115,6 +115,7 @@ function registerNetworkSchemas() {
       "pinnable",
       "students-can-move",
       "locked",
+      "description",
       "owner"
     ],
     nonAuthorizedComponents: [

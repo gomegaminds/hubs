@@ -7,7 +7,7 @@ import {
     HoveredRemoteRight,
     Interacted,
     SingleActionButton,
-    TextButton,
+    TextButton
 } from "../bit-components";
 import { hasAnyComponent } from "../utils/bit-utils";
 import { CAMERA_MODE_INSPECT } from "./camera-system";
@@ -23,7 +23,7 @@ function interact(world, entities, path, interactor) {
             // Delete this when we're done interoping with old world systems
             world.eid2obj.get(eid).dispatchEvent({
                 type: "interact",
-                object3D: interactor,
+                object3D: interactor
             });
         }
     }
@@ -64,7 +64,7 @@ function singleActionButtonSystem(world) {
 
 export const BUTTON_TYPES = {
     DEFAULT: 0,
-    ACTION: 1,
+    ACTION: 1
 };
 
 const buttonStyles = {};
@@ -73,14 +73,14 @@ function applyTheme() {
     buttonStyles[BUTTON_TYPES.DEFAULT] = {
         color: new THREE.Color(0xffffff),
         hoverColor: new THREE.Color(0xaaaaaa),
-        textColor: new THREE.Color("#ff3464"),
-        textHoverColor: new THREE.Color("#ff74a4"),
+        textColor: new THREE.Color("#6f6ec4"),
+        textHoverColor: new THREE.Color("#7e81c6")
     };
     buttonStyles[BUTTON_TYPES.ACTION] = {
-        color: new THREE.Color("#FF3464"),
-        hoverColor: new THREE.Color("#ff74a4"),
+        color: new THREE.Color("#6f6ec4"),
+        hoverColor: new THREE.Color("#7e81c6"),
         textColor: new THREE.Color(0xffffff),
-        textHoverColor: new THREE.Color(0xffffff),
+        textHoverColor: new THREE.Color(0xffffff)
     };
 }
 applyTheme();
@@ -89,7 +89,7 @@ const hoverComponents = [HoveredRemoteRight, HoveredRemoteLeft, HoveredHandRight
 
 const hoverButtonsQuery = defineQuery([HoverButton]);
 function hoverButtonSystem(world) {
-    hoverButtonsQuery(world).forEach(function(eid) {
+    hoverButtonsQuery(world).forEach(function (eid) {
         const obj = world.eid2obj.get(eid);
         const isHovered = hasAnyComponent(world, hoverComponents, eid);
         const style = buttonStyles[HoverButton.type[eid]];
