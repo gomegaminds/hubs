@@ -1,6 +1,6 @@
 /* global performance THREE AFRAME NAF MediaStream setTimeout */
 import configs from "../utils/configs";
-import audioIcon from "../mega-src/assets/images/audio-file.png";
+import audioIcon from "../assets/megaminds/images/audio-file.png";
 import { paths } from "../systems/userinput/paths";
 import HLS from "hls.js";
 import { MediaPlayer } from "dashjs";

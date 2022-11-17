@@ -6,7 +6,7 @@ import nextTick from "../utils/next-tick";
 import { createPlaneBufferGeometry, setMatrixWorld } from "../utils/three-utils";
 import { textureLoader } from "../utils/media-utils";
 
-import handRaisedIconSrc from "../mega-src/assets/images/hand-solid.png";
+import handRaisedIconSrc from "../assets/megaminds/images/hand-solid.png";
 
 const DEBUG = qsTruthy("debug");
 const NAMETAG_BACKGROUND_PADDING = 0.05;
