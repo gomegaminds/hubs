@@ -5,7 +5,7 @@ import {
     getDefaultResolveQuality,
     injectCustomShaderChunks,
     addMeshScaleAnimation,
-    closeExistingMediaMirror,
+    closeExistingMediaMirror
 } from "../utils/media-utils";
 import {
     isNonCorsProxyDomain,
@@ -13,7 +13,7 @@ import {
     proxiedUrlFor,
     isHubsRoomUrl,
     isLocalHubsSceneUrl,
-    isLocalHubsAvatarUrl,
+    isLocalHubsAvatarUrl
 } from "../utils/media-url-utils";
 import { addAnimationComponents } from "../utils/animation";
 
@@ -30,7 +30,7 @@ import { MediaLoading } from "../bit-components";
 let loadingObject;
 
 waitForDOMContentLoaded().then(() => {
-    loadModel(loadingObjectSrc).then((gltf) => {
+    loadModel(loadingObjectSrc).then(gltf => {
         loadingObject = gltf;
     });
 });
@@ -51,9 +51,9 @@ AFRAME.registerComponent("media-loader", {
         linkedEl: { default: null }, // This is the element of which this is a linked derivative. See linked-media.js
         mediaOptions: {
             default: {},
-            parse: (v) => (typeof v === "object" ? v : JSON.parse(v)),
-            stringify: JSON.stringify,
-        },
+            parse: v => (typeof v === "object" ? v : JSON.parse(v)),
+            stringify: JSON.stringify
+        }
     },
 
     init() {
@@ -68,7 +68,7 @@ AFRAME.registerComponent("media-loader", {
         try {
             NAF.utils
                 .getNetworkedEntity(this.el)
-                .then((networkedEl) => {
+                .then(networkedEl => {
                     this.networkedEl = networkedEl;
                 })
                 .catch(() => {}); //ignore exception, entity might not be networked
@@ -77,7 +77,7 @@ AFRAME.registerComponent("media-loader", {
         }
     },
 
-    updateScale: (function() {
+    updateScale: (function () {
         const center = new THREE.Vector3();
         const originalMeshMatrix = new THREE.Matrix4();
         const desiredObjectMatrix = new THREE.Matrix4();
@@ -85,7 +85,7 @@ AFRAME.registerComponent("media-loader", {
         const quaternion = new THREE.Quaternion();
         const scale = new THREE.Vector3();
         const box = new THREE.Box3();
-        return function(fitToBox, moveTheParentNotTheMesh) {
+        return function (fitToBox, moveTheParentNotTheMesh) {
             this.el.object3D.updateMatrices();
             this.el.object3D.updateMatrix();
             const mesh = this.el.getObject3D("mesh");
@@ -102,11 +102,7 @@ AFRAME.registerComponent("media-loader", {
                 computeObjectAABB(mesh, box);
                 center.addVectors(box.min, box.max).multiplyScalar(0.5);
                 this.el.object3D.matrixWorld.decompose(position, quaternion, scale);
-                desiredObjectMatrix.compose(
-                    center,
-                    quaternion,
-                    scale
-                );
+                desiredObjectMatrix.compose(center, quaternion, scale);
                 setMatrixWorld(this.el.object3D, desiredObjectMatrix);
                 mesh.updateMatrices();
                 setMatrixWorld(mesh, originalMeshMatrix);
@@ -191,7 +187,7 @@ AFRAME.registerComponent("media-loader", {
                         ".scale",
                         [0, 0.2],
                         [0, 0, 0, mesh.scale.x, mesh.scale.y, mesh.scale.z]
-                    ),
+                    )
                 ])
             );
             setTimeout(() => {
@@ -233,10 +229,10 @@ AFRAME.registerComponent("media-loader", {
         this.removeShape("loader");
     },
 
-    updateHoverableVisuals: (function() {
+    updateHoverableVisuals: (function () {
         const boundingBox = new THREE.Box3();
         const boundingSphere = new THREE.Sphere();
-        return function() {
+        return function () {
             const hoverableVisuals = this.el.components["hoverable-visuals"];
 
             if (hoverableVisuals) {
@@ -268,7 +264,7 @@ AFRAME.registerComponent("media-loader", {
             if (physicsShape) {
                 el.setAttribute("shape-helper", {
                     type: physicsShape,
-                    minHalfExtent: 0.04,
+                    minHalfExtent: 0.04
                 });
             }
 
@@ -350,9 +346,8 @@ AFRAME.registerComponent("media-loader", {
 
             //check if url is an anchor hash e.g. #Spawn_Point_1
             if (src.charAt(0) === "#") {
-                src = this.data.src = `${window.location.origin}${window.location.pathname}${
-                    window.location.search
-                }${src}`;
+                src =
+                    this.data.src = `${window.location.origin}${window.location.pathname}${window.location.search}${src}`;
             }
 
             let canonicalUrl = src;
@@ -438,7 +433,7 @@ AFRAME.registerComponent("media-loader", {
                 this.el.setAttribute("floaty-object", { reduceAngularFloat: true, releaseGravity: -1 });
                 this.el.addEventListener(
                     "video-loaded",
-                    (e) => {
+                    e => {
                         this.onMediaLoaded(e.detail.projection === "flat" ? SHAPE.BOX : null);
                     },
                     { once: true }
@@ -452,7 +447,7 @@ AFRAME.registerComponent("media-loader", {
                         contentType,
                         linkedVideoTexture,
                         linkedAudioSource,
-                        linkedMediaElementAudioSource,
+                        linkedMediaElementAudioSource
                     })
                 );
                 this.el.setAttribute("audio-zone-source", {});
@@ -470,13 +465,13 @@ AFRAME.registerComponent("media-loader", {
                 this.el.removeAttribute("media-pager");
                 this.el.addEventListener(
                     "image-loaded",
-                    (e) => {
+                    e => {
                         this.onMediaLoaded(e.detail.projection === "flat" ? SHAPE.BOX : null);
 
                         if (contentSubtype === "photo-camera") {
                             this.el.setAttribute("hover-menu__photo", {
                                 template: "#photo-hover-menu",
-                                isFlat: true,
+                                isFlat: true
                             });
                         } else if (this.data.mediaOptions.href) {
                             this.el.setAttribute("hover-menu__link", { template: "#link-hover-menu", isFlat: true });
@@ -490,7 +485,7 @@ AFRAME.registerComponent("media-loader", {
                     Object.assign({}, this.data.mediaOptions, {
                         src: accessibleUrl,
                         version,
-                        contentType,
+                        contentType
                     })
                 );
 
@@ -509,7 +504,7 @@ AFRAME.registerComponent("media-loader", {
                     "media-pdf",
                     Object.assign({}, this.data.mediaOptions, {
                         src: accessibleUrl,
-                        contentType,
+                        contentType
                     })
                 );
                 this.el.setAttribute("media-pager", {});
@@ -540,19 +535,6 @@ AFRAME.registerComponent("media-loader", {
                 this.el.removeAttribute("media-pdf");
                 this.el.removeAttribute("media-pager");
 
-                /*
-                if (this.el.id === "naf-srbtzrv") {
-                    this.el.addEventListener(
-                        "model-loaded",
-                        (resp) => {
-                            console.log("Got model loaded for teddy", resp);
-                            this.onMediaLoaded(SHAPE.HULL, true);
-                            addAnimationComponents(this.el);
-                        },
-                        { once: false }
-                    );
-                }
-                */
                 this.el.addEventListener(
                     "model-loaded",
                     () => {
@@ -566,7 +548,7 @@ AFRAME.registerComponent("media-loader", {
                 this.el.addEventListener("model-error", this.onError, { once: true });
                 if (this.data.mediaOptions.hasOwnProperty("applyGravity")) {
                     this.el.setAttribute("floaty-object", {
-                        modifyGravityOnRelease: !this.data.mediaOptions.applyGravity,
+                        modifyGravityOnRelease: !this.data.mediaOptions.applyGravity
                     });
                 }
                 this.el.setAttribute(
@@ -575,7 +557,7 @@ AFRAME.registerComponent("media-loader", {
                         src: accessibleUrl,
                         contentType: contentType,
                         inflate: true,
-                        modelToWorldScale: this.data.fitToBox ? 0.0001 : 1.0,
+                        modelToWorldScale: this.data.fitToBox ? 0.0001 : 1.0
                     })
                 );
             } else if (contentType.startsWith("text/html")) {
@@ -592,12 +574,12 @@ AFRAME.registerComponent("media-loader", {
                         if (await isLocalHubsAvatarUrl(src)) {
                             this.el.setAttribute("hover-menu__hubs-item", {
                                 template: "#avatar-link-hover-menu",
-                                isFlat: true,
+                                isFlat: true
                             });
                         } else if ((await isHubsRoomUrl(src)) || ((await isLocalHubsSceneUrl(src)) && mayChangeScene)) {
                             this.el.setAttribute("hover-menu__hubs-item", {
                                 template: "#hubs-destination-hover-menu",
-                                isFlat: true,
+                                isFlat: true
                             });
                         } else {
                             this.el.setAttribute("hover-menu__link", { template: "#link-hover-menu", isFlat: true });
@@ -612,7 +594,7 @@ AFRAME.registerComponent("media-loader", {
                     Object.assign({}, this.data.mediaOptions, {
                         src: thumbnail,
                         version,
-                        contentType: guessContentType(thumbnail) || "image/png",
+                        contentType: guessContentType(thumbnail) || "image/png"
                     })
                 );
                 if (this.el.components["position-at-border__freeze"]) {
@@ -634,29 +616,28 @@ AFRAME.registerComponent("media-loader", {
             console.error("Error adding media", e);
             this.onError();
         }
-    },
+    }
 });
 
 AFRAME.registerComponent("media-pager", {
     schema: {
         index: { default: 0 },
-        maxIndex: { default: 0 },
+        maxIndex: { default: 0 }
     },
 
     init() {
         this.onNext = this.onNext.bind(this);
         this.onPrev = this.onPrev.bind(this);
-        this.onSnap = this.onSnap.bind(this);
         this.update = this.update.bind(this);
 
         this.el.setAttribute("hover-menu__pager", { template: "#pager-hover-menu", isFlat: true });
-        this.el.components["hover-menu__pager"].getHoverMenu().then((menu) => {
+        this.el.components["hover-menu__pager"].getHoverMenu().then(menu => {
             // If we got removed while waiting, do nothing.
             if (!this.el.parentNode) return;
 
             this.hoverMenu = menu;
-            this.nextButton = this.el.querySelector(".next-button [text-button]");
-            this.prevButton = this.el.querySelector(".prev-button [text-button]");
+            this.nextButton = this.el.querySelector(".next-button");
+            this.prevButton = this.el.querySelector(".prev-button");
             this.pageLabel = this.el.querySelector(".page-label");
 
             this.nextButton.object3D.addEventListener("interact", this.onNext);
@@ -668,7 +649,7 @@ AFRAME.registerComponent("media-pager", {
 
         NAF.utils
             .getNetworkedEntity(this.el)
-            .then((networkedEl) => {
+            .then(networkedEl => {
                 this.networkedEl = networkedEl;
                 this.networkedEl.addEventListener("pinned", this.update);
                 this.networkedEl.addEventListener("unpinned", this.update);
@@ -699,23 +680,15 @@ AFRAME.registerComponent("media-pager", {
     },
 
     onNext() {
-        if (this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl))
-            return;
         const newIndex = Math.min(this.data.index + 1, this.data.maxIndex);
         this.el.setAttribute("media-pdf", "index", newIndex);
         this.el.setAttribute("media-pager", "index", newIndex);
     },
 
     onPrev() {
-        if (this.networkedEl && !NAF.utils.isMine(this.networkedEl) && !NAF.utils.takeOwnership(this.networkedEl))
-            return;
         const newIndex = Math.max(this.data.index - 1, 0);
         this.el.setAttribute("media-pdf", "index", newIndex);
         this.el.setAttribute("media-pager", "index", newIndex);
-    },
-
-    onSnap() {
-        this.el.emit("pager-snap-clicked");
     },
 
     remove() {
@@ -730,5 +703,5 @@ AFRAME.registerComponent("media-pager", {
         window.APP.hubChannel.removeEventListener("permissions_updated", this.update);
 
         this.el.removeEventListener("pdf-loaded", this.update);
-    },
+    }
 });

@@ -1,5 +1,4 @@
 import { cylinderTextureSrc } from "./cylinder-texture";
-import { SOUND_TELEPORT_START, SOUND_TELEPORT_END } from "../systems/sound-effects-system";
 import { getMeshes } from "../utils/aframe-utils";
 
 import { textureLoader } from "../utils/media-utils";
@@ -207,24 +206,11 @@ AFRAME.registerComponent("teleporter", {
     this.meshes = getMeshes(this.collisionEntities);
   },
 
-  remove() {
-    this.stopPlayingTeleportSound();
-  },
-
-  stopPlayingTeleportSound() {
-    if (this.teleportingSound) {
-      const sfx = this.el.sceneEl.systems["hubs-systems"].soundEffectsSystem;
-      sfx.stopSoundNode(this.teleportingSound.source);
-      this.teleportingSound = null;
-    }
-  },
-
   tick(t, dt) {
     uiRoot = uiRoot || document.getElementById("ui-root");
     const entered = this.el.sceneEl.is("entered");
     const isGhost = !entered && uiRoot && uiRoot.firstChild && uiRoot.firstChild.classList.contains("isGhost");
     if (!entered && !isGhost) return;
-    const sfx = this.el.sceneEl.systems["hubs-systems"].soundEffectsSystem;
     const userinput = AFRAME.scenes[0].systems.userinput;
     const { start, confirm, speed } = this.data;
     const object3D = this.el.object3D;
@@ -243,27 +229,15 @@ AFRAME.registerComponent("teleporter", {
       this.rayCurve.material.opacity = MISS_OPACITY;
       this.rayCurve.material.color.set(MISS_COLOR);
       this.rayCurve.material.needsUpdate = true;
-      this.teleportingSound = sfx.playSoundLoopedWithGain(SOUND_TELEPORT_START);
-      if (this.teleportingSound) {
-        this.teleportingSound.gain.gain.value = 0.005;
-      }
     }
 
     if (!this.isTeleporting) {
       return;
     }
-    if (this.teleportingSound) {
-      this.teleportingSound.gain.gain.value = Math.min(0.025, this.teleportingSound.gain.gain.value + 0.00002 * dt);
-    }
-
     if (userinput.get(confirm)) {
       this.hitEntity.visible = false;
       this.isTeleporting = false;
       this.rayCurve.visible = false;
-
-      if (this.teleportingSound) {
-        this.stopPlayingTeleportSound();
-      }
 
       if (!this.hit || this.timeTeleporting < DRAW_TIME_MS) {
         return;
@@ -271,7 +245,6 @@ AFRAME.registerComponent("teleporter", {
 
       this.characterController.teleportTo(this.hitPoint);
 
-      sfx.playSoundOneShot(SOUND_TELEPORT_END);
       return;
     }
 

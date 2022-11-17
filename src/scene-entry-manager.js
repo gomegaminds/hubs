@@ -1,10 +1,9 @@
 import qsTruthy from "./utils/qs_truthy";
 import nextTick from "./utils/next-tick";
 import { hackyMobileSafariTest } from "./utils/detect-touchscreen";
-import { SignInMessages } from "./react-components/auth/SignInModal";
+import { SignInMessages } from "./mega-src/react-components/misc/messages";
 import { createNetworkedEntity } from "./systems/netcode";
 
-const isBotMode = qsTruthy("bot");
 const isMobile = AFRAME.utils.device.isMobile();
 const forceEnableTouchscreen = hackyMobileSafariTest();
 const isMobileVR = AFRAME.utils.device.isMobileVR();
@@ -12,12 +11,6 @@ const isDebug = qsTruthy("debug");
 const qs = new URLSearchParams(location.search);
 
 import { addMedia } from "./utils/media-utils";
-import {
-    isIn2DInterstitial,
-    handleExitTo2DInterstitial,
-    exit2DInterstitialAndEnterVR,
-    forceExitFrom2DInterstitial,
-} from "./utils/vr-interstitial";
 import { ObjectContentOrigins } from "./object-types";
 import { getAvatarSrc, getAvatarType } from "./utils/avatar-utils";
 import { SOUND_ENTER_SCENE } from "./systems/sound-effects-system";
@@ -31,7 +24,6 @@ export default class SceneEntryManager {
         this.hubChannel = hubChannel;
         this.authChannel = authChannel;
         this.store = window.APP.store;
-        this.mediaSearchStore = window.APP.mediaSearchStore;
         this.scene = document.querySelector("a-scene");
         this.rightCursorController = document.getElementById("right-cursor-controller");
         this.leftCursorController = document.getElementById("left-cursor-controller");
@@ -43,11 +35,18 @@ export default class SceneEntryManager {
 
     init = () => {
         this.whenSceneLoaded(() => {
-            // console.log("Scene is loaded so setting up controllers");
             this.rightCursorController.components["cursor-controller"].enabled = false;
             this.leftCursorController.components["cursor-controller"].enabled = false;
             this.mediaDevicesManager = APP.mediaDevicesManager;
             this._setupBlocking();
+        });
+
+        this.scene.addEventListener("leave_room_requested", () => {
+            entryManager.exitScene();
+        });
+
+        this.scene.addEventListener("hub_closed", () => {
+            entryManager.exitScene();
         });
     };
 
@@ -62,18 +61,6 @@ export default class SceneEntryManager {
             NAF.connection.adapter.session.options.verbose = true;
         }
 
-        if (enterInVR) {
-            // This specific scene state var is used to check if the user went through the
-            // entry flow and chose VR entry, and is used to preempt VR mode on refreshes.
-            this.scene.addState("vr-entered");
-
-            // HACK - A-Frame calls getVRDisplays at module load, we want to do it here to
-            // force gamepads to become live.
-            "getVRDisplays" in navigator && navigator.getVRDisplays();
-
-            await exit2DInterstitialAndEnterVR(true);
-        }
-
         const waypointSystem = this.scene.systems["hubs-systems"].waypointSystem;
         waypointSystem.moveToSpawnPoint();
 
@@ -81,26 +68,13 @@ export default class SceneEntryManager {
             this.avatarRig.setAttribute("virtual-gamepad-controls", {});
         }
 
-        if (!this._entered) {
-            this._setupPlayerRig();
-            this._setupKicking();
-            this._setupVoiceToggle();
-            this._setupMedia();
-            this._setupCamera();
-        }
-
-        if (qsTruthy("offline")) return;
-
+        this._setupPlayerRig();
+        this._setupKicking();
+        this._setupMedia();
+        this._setupCamera();
         this._spawnAvatar();
 
         this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
-
-        if (isBotMode) {
-            this._runBot();
-            this.scene.addState("entered");
-            this.hubChannel.sendEnteredEvent();
-            return;
-        }
 
         this.scene.classList.remove("hand-cursor");
         this.scene.classList.add("no-cursor");
@@ -128,12 +102,12 @@ export default class SceneEntryManager {
         APP.mediaDevicesManager.micEnabled = !muteOnEntry;
     };
 
-    whenSceneLoaded = (callback) => {
+    whenSceneLoaded = callback => {
         if (this.scene.hasLoaded) {
-            // console.log("Scene already loaded so callback invoked directly");
+            console.log("Scene already loaded so callback invoked directly");
             callback();
         } else {
-            // console.log("Scene not yet loaded so callback is deferred");
+            console.log("Scene not yet loaded so callback is deferred");
             this.scene.addEventListener("loaded", callback);
         }
     };
@@ -145,7 +119,7 @@ export default class SceneEntryManager {
     exitScene = () => {
         this.scene.exitVR();
         if (APP.dialog && APP.dialog.localMediaStream) {
-            APP.dialog.localMediaStream.getTracks().forEach((t) => t.stop());
+            APP.dialog.localMediaStream.getTracks().forEach(t => t.stop());
         }
         if (this.hubChannel) {
             this.hubChannel.disconnect();
@@ -201,23 +175,12 @@ export default class SceneEntryManager {
         });
     };
 
-    _setupVoiceToggle = () => {
-        this.scene.addEventListener("toggle-voice-off", (e) => {
-            // TODO: If not teacher
-            window.APP.dialog.enableMicrophone(false);
-        });
-        this.scene.addEventListener("toggle-voice-on", (e) => {
-            // TODO: If not teacher
-            window.APP.dialog.enableMicrophone(true);
-        });
-    };
-
     _setupBlocking = () => {
-        document.body.addEventListener("blocked", (ev) => {
+        document.body.addEventListener("blocked", ev => {
             NAF.connection.entities.removeEntitiesOfClient(ev.detail.clientId);
         });
 
-        document.body.addEventListener("unblocked", (ev) => {
+        document.body.addEventListener("unblocked", ev => {
             NAF.connection.entities.completeSync(ev.detail.clientId, true);
         });
     };
@@ -234,11 +197,11 @@ export default class SceneEntryManager {
                 !(src instanceof MediaStream),
                 true
             );
-            orientation.then((or) => {
+            orientation.then(or => {
                 entity.setAttribute("offset-relative-to", {
                     target: "#avatar-pov-node",
                     offset,
-                    orientation: or,
+                    orientation: or
                 });
             });
 
@@ -249,19 +212,14 @@ export default class SceneEntryManager {
             return entity;
         };
 
-        this.scene.addEventListener("add_media", (e) => {
+        this.scene.addEventListener("add_media", e => {
             const contentOrigin = e.detail instanceof File ? ObjectContentOrigins.FILE : ObjectContentOrigins.URL;
 
             spawnMediaInfrontOfPlayer(e.detail, contentOrigin);
         });
 
-        this.scene.addEventListener("object_spawned", (e) => {
+        this.scene.addEventListener("object_spawned", e => {
             this.hubChannel.sendObjectSpawnedEvent(e.detail.objectType);
-        });
-
-        this.scene.addEventListener("action_spawn", () => {
-            handleExitTo2DInterstitial(false, () => window.APP.mediaSearchStore.pushExitMediaBrowserHistory());
-            window.APP.mediaSearchStore.sourceNavigateToDefaultSource();
         });
 
         this.scene.addEventListener("action_kick_client", ({ detail: { clientId } }) => {
@@ -280,70 +238,54 @@ export default class SceneEntryManager {
             );
         });
 
-        this.scene.addEventListener("action_vr_notice_closed", () => forceExitFrom2DInterstitial());
+        if (!qsTruthy("newLoader")) {
+            document.addEventListener("paste", e => {
+                if (
+                    (e.target.matches("input, textarea") || e.target.contentEditable === "true") &&
+                    document.activeElement === e.target
+                )
+                    return;
 
-        document.addEventListener("paste", (e) => {
-            if (
-                (e.target.matches("input, textarea") || e.target.contentEditable === "true") &&
-                document.activeElement === e.target
-            )
-                return;
+                // Never paste into scene if dialog is open
+                const uiRoot = document.querySelector(".ui-root");
+                if (uiRoot && uiRoot.classList.contains("in-modal-or-overlay")) return;
 
-            // Never paste into scene if dialog is open
-            const uiRoot = document.querySelector(".ui-root");
-            if (uiRoot && uiRoot.classList.contains("in-modal-or-overlay")) return;
-
-            const url = e.clipboardData.getData("text");
-            const files = e.clipboardData.files && e.clipboardData.files;
-            if (url) {
-                spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
-            } else {
-                for (const file of files) {
-                    spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.CLIPBOARD);
-                }
-            }
-        });
-
-        document.addEventListener("dragover", (e) => e.preventDefault());
-
-        let lastDebugScene;
-        document.addEventListener("drop", (e) => {
-            e.preventDefault();
-
-            if (qsTruthy("debugLocalScene")) {
-                URL.revokeObjectURL(lastDebugScene);
-                const url = URL.createObjectURL(e.dataTransfer.files[0]);
-                this.hubChannel.updateScene(url);
-                lastDebugScene = url;
-                return;
-            }
-
-            let url = e.dataTransfer.getData("url");
-
-            if (!url) {
-                // Sometimes dataTransfer text contains a valid URL, so try for that.
-                try {
-                    url = new URL(e.dataTransfer.getData("text")).href;
-                } catch (e) {
-                    // Nope, not this time.
-                }
-            }
-
-            const files = e.dataTransfer.files;
-
-            if (window.APP.hub.user_data && window.APP.hub.user_data.toggle_media !== undefined) {
-                if (window.APP.hub.user_data.toggle_media === true) {
-                    if (url) {
-                        spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
-                    } else {
-                        for (const file of files) {
-                            spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
-                        }
-                    }
+                const url = e.clipboardData.getData("text");
+                const files = e.clipboardData.files && e.clipboardData.files;
+                if (url) {
+                    spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
                 } else {
+                    for (const file of files) {
+                        spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.CLIPBOARD);
+                    }
+                }
+            });
+
+            let lastDebugScene;
+            document.addEventListener("drop", e => {
+                e.preventDefault();
+
+                if (qsTruthy("debugLocalScene")) {
+                    URL.revokeObjectURL(lastDebugScene);
+                    const url = URL.createObjectURL(e.dataTransfer.files[0]);
+                    this.hubChannel.updateScene(url);
+                    lastDebugScene = url;
                     return;
                 }
-            } else {
+
+                let url = e.dataTransfer.getData("url");
+
+                if (!url) {
+                    // Sometimes dataTransfer text contains a valid URL, so try for that.
+                    try {
+                        url = new URL(e.dataTransfer.getData("text")).href;
+                    } catch (e) {
+                        // Nope, not this time.
+                    }
+                }
+
+                const files = e.dataTransfer.files;
+
                 if (url) {
                     spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
                 } else {
@@ -351,8 +293,10 @@ export default class SceneEntryManager {
                         spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
                     }
                 }
-            }
-        });
+            });
+        }
+
+        document.addEventListener("dragover", e => e.preventDefault());
 
         let currentVideoShareEntity;
         let isHandlingVideoShare = false;
@@ -376,26 +320,26 @@ export default class SceneEntryManager {
                 }
 
                 this.scene.emit("share_video_enabled", {
-                    source: isDisplayMedia ? MediaDevices.SCREEN : MediaDevices.CAMERA,
+                    source: isDisplayMedia ? MediaDevices.SCREEN : MediaDevices.CAMERA
                 });
                 this.scene.addState("sharing_video");
             }
         };
 
-        const shareError = (error) => {
+        const shareError = error => {
             console.error(error);
             isHandlingVideoShare = false;
             this.scene.emit("share_video_failed");
         };
 
-        this.scene.addEventListener("action_share_camera", (event) => {
+        this.scene.addEventListener("action_share_camera", event => {
             if (isHandlingVideoShare) return;
             isHandlingVideoShare = true;
             this.mediaDevicesManager.startVideoShare({
                 isDisplayMedia: false,
                 target: event.detail?.target,
                 success: shareSuccess,
-                error: shareError,
+                error: shareError
             });
         });
 
@@ -406,7 +350,7 @@ export default class SceneEntryManager {
                 isDisplayMedia: true,
                 target: null,
                 success: shareSuccess,
-                error: shareError,
+                error: shareError
             });
         });
 
@@ -430,28 +374,6 @@ export default class SceneEntryManager {
 
         this.scene.addEventListener(MediaDevicesEvents.MIC_SHARE_ENDED, async () => {
             await this.mediaDevicesManager.stopMicShare();
-        });
-
-        this.scene.addEventListener("action_selected_media_result_entry", async (e) => {
-            // TODO spawn in space when no rights
-            const { entry, selectAction } = e.detail;
-            if (selectAction !== "spawn") return;
-
-            const delaySpawn = isIn2DInterstitial() && !isMobileVR;
-            await exit2DInterstitialAndEnterVR();
-
-            // If user has HMD lifted up or gone through interstitial, delay spawning for now. eventually show a modal
-            if (delaySpawn) {
-                setTimeout(() => {
-                    spawnMediaInfrontOfPlayer(entry.url, ObjectContentOrigins.URL);
-                }, 3000);
-            } else {
-                spawnMediaInfrontOfPlayer(entry.url, ObjectContentOrigins.URL);
-            }
-        });
-
-        this.mediaSearchStore.addEventListener("media-exit", () => {
-            exit2DInterstitialAndEnterVR();
         });
     };
 
@@ -479,95 +401,5 @@ export default class SceneEntryManager {
         this.avatarRig.setAttribute("networked", "template: #remote-avatar; attachTemplateToLocal: false;");
         this.avatarRig.setAttribute("networked-avatar", "");
         this.avatarRig.emit("entered");
-    };
-
-    _runBot = async () => {
-        const audioEl = document.createElement("audio");
-        let audioInput;
-        let dataInput;
-
-        // Wait for startup to render form
-        do {
-            audioInput = document.querySelector("#bot-audio-input");
-            dataInput = document.querySelector("#bot-data-input");
-            await nextTick();
-        } while (!audioInput || !dataInput);
-
-        const getAudio = () => {
-            audioEl.loop = true;
-            audioEl.muted = false;
-            audioEl.crossorigin = "anonymous";
-            audioEl.src = URL.createObjectURL(audioInput.files[0]);
-            document.body.appendChild(audioEl);
-        };
-
-        if (audioInput.files && audioInput.files.length > 0) {
-            getAudio();
-        } else {
-            audioInput.onchange = getAudio;
-        }
-
-        const camera = document.querySelector("#avatar-pov-node");
-        const leftController = document.querySelector("#player-left-controller");
-        const rightController = document.querySelector("#player-right-controller");
-        const getRecording = () => {
-            fetch(URL.createObjectURL(dataInput.files[0]))
-                .then((resp) => resp.json())
-                .then((recording) => {
-                    camera.setAttribute("replay", "");
-                    camera.components["replay"].poses = recording.camera.poses;
-
-                    leftController.setAttribute("replay", "");
-                    leftController.components["replay"].poses = recording.left.poses;
-                    leftController.removeAttribute("visibility-by-path");
-                    leftController.removeAttribute("track-pose");
-                    leftController.setAttribute("visible", true);
-
-                    rightController.setAttribute("replay", "");
-                    rightController.components["replay"].poses = recording.right.poses;
-                    rightController.removeAttribute("visibility-by-path");
-                    rightController.removeAttribute("track-pose");
-                    rightController.setAttribute("visible", true);
-                });
-        };
-
-        if (dataInput.files && dataInput.files.length > 0) {
-            getRecording();
-        } else {
-            dataInput.onchange = getRecording;
-        }
-
-        await new Promise((resolve) => audioEl.addEventListener("canplay", resolve));
-
-        const audioStream = audioEl.captureStream
-            ? audioEl.captureStream()
-            : audioEl.mozCaptureStream
-                ? audioEl.mozCaptureStream()
-                : null;
-
-        if (audioStream) {
-            let audioVolume = Number(qs.get("audio_volume") || "1.0");
-            if (isNaN(audioVolume)) {
-                audioVolume = 1.0;
-            }
-            const audioContext = THREE.AudioContext.getContext();
-            const audioSource = audioContext.createMediaStreamSource(audioStream);
-            const audioDestination = audioContext.createMediaStreamDestination();
-            const gainNode = audioContext.createGain();
-            audioSource.connect(gainNode);
-            gainNode.connect(audioDestination);
-            gainNode.gain.value = audioVolume;
-            this.mediaDevicesManager.mediaStream.addTrack(audioDestination.stream.getAudioTracks()[0]);
-        }
-
-        const connect = async () => {
-            await APP.dialog.setLocalMediaStream(this.mediaDevicesManager.mediaStream);
-            audioEl.play();
-        };
-        if (APP.dialog._sendTransport) {
-            connect();
-        } else {
-            this.scene.addEventListener("didConnectToDialog", connect);
-        }
     };
 }

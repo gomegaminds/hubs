@@ -1,6 +1,6 @@
 import { fetchReticulumAuthenticated } from "./phoenix-utils";
 import { proxiedUrlFor } from "./media-url-utils";
-import avatarUnavailableImage from "../assets/images/avatar_unavailable.png";
+import avatarUnavailableImage from "../assets/megaminds/images/avatar-broken.png";
 
 const AVATARS_API = "/api/v1/avatars";
 

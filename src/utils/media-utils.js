@@ -7,8 +7,6 @@ import HubsTextureLoader from "../loaders/HubsTextureLoader";
 import { validMaterials } from "../components/hoverable-visuals";
 import { isNonCorsProxyDomain, proxiedUrlFor, guessContentType } from "../utils/media-url-utils";
 import { isIOS as detectIOS } from "./is-mobile";
-import Linkify from "linkify-it";
-import tlds from "tlds";
 import { mediaTypeFor } from "./media-type";
 
 import anime from "animejs";
@@ -19,13 +17,11 @@ export const MediaType = {
     VIDEO: 1 << 2,
     PDF: 1 << 3,
     HTML: 1 << 4,
-    AUDIO: 1 << 5,
+    AUDIO: 1 << 5
 };
 MediaType.ALL = MediaType.MODEL | MediaType.IMAGE | MediaType.VIDEO | MediaType.PDF | MediaType.HTML | MediaType.AUDIO;
 MediaType.ALL_2D = MediaType.IMAGE | MediaType.VIDEO | MediaType.PDF | MediaType.HTML;
 
-const linkify = Linkify();
-linkify.tlds(tlds);
 
 const mediaAPIEndpoint = getReticulumFetchUrl("/api/v1/media");
 const getDirectMediaAPIEndpoint = () => getDirectReticulumFetchUrl("/api/v1/media");
@@ -47,8 +43,8 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     const resultPromise = fetch(mediaAPIEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ media: { url, quality: quality || getDefaultResolveQuality() }, version }),
-    }).then(async (response) => {
+        body: JSON.stringify({ media: { url, quality: quality || getDefaultResolveQuality() }, version })
+    }).then(async response => {
         if (!response.ok) {
             const message = `Error resolving url "${url}":`;
             try {
@@ -78,14 +74,14 @@ export const upload = (file, desiredContentType) => {
     // to a reticulum host.
     return fetch(getDirectMediaAPIEndpoint(), {
         method: "POST",
-        body: formData,
-    }).then((r) => r.json());
+        body: formData
+    }).then(r => r.json());
 };
 
 // https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side/32490603#32490603
 function getOrientation(file, callback) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         const view = new DataView(e.target.result);
         if (view.getUint16(0, false) != 0xffd8) {
             return callback(-2);
@@ -137,9 +133,6 @@ function getLatestMediaVersionOfSrc(src) {
 }
 
 export function coerceToUrl(urlOrText) {
-    if (!linkify.test(urlOrText)) return urlOrText;
-
-    // See: https://github.com/Soapbox/linkifyjs/blob/master/src/linkify.js#L52
     return urlOrText.indexOf("://") >= 0 ? urlOrText : `https://${urlOrText}`;
 }
 
@@ -195,16 +188,16 @@ export const addMedia = (
         contentSubtype,
         fileIsOwned: !needsToBeUploaded,
         linkedEl,
-        mediaOptions,
+        mediaOptions
     });
 
     entity.object3D.matrixNeedsUpdate = true;
 
     (parentEl || scene).appendChild(entity);
 
-    const orientation = new Promise(function(resolve) {
+    const orientation = new Promise(function (resolve) {
         if (needsToBeUploaded) {
-            getOrientation(src, (x) => {
+            getOrientation(src, x => {
                 resolve(x);
             });
         } else {
@@ -217,17 +210,15 @@ export const addMedia = (
             contentSubtype === "video-camera" ? "video/mp4" : src.type || guessContentType(src.name);
 
         upload(src, desiredContentType)
-            .then((response) => {
+            .then(response => {
                 const srcUrl = new URL(proxiedUrlFor(response.origin));
                 srcUrl.searchParams.set("token", response.meta.access_token);
                 entity.setAttribute("media-loader", { resolve: false, src: srcUrl.href, fileId: response.file_id });
                 window.APP.store.update({
-                    uploadPromotionTokens: [
-                        { fileId: response.file_id, promotionToken: response.meta.promotion_token },
-                    ],
+                    uploadPromotionTokens: [{ fileId: response.file_id, promotionToken: response.meta.promotion_token }]
                 });
             })
-            .catch((e) => {
+            .catch(e => {
                 console.error("Media upload failed", e);
                 entity.setAttribute("media-loader", { src: "error" });
             });
@@ -242,7 +233,6 @@ export const addMedia = (
         });
     }
 
-    
     entity.setAttribute("owner", { name: window.APP.store.state.profile.displayName });
 
     return { entity, orientation };
@@ -273,13 +263,13 @@ export const cloneMedia = (sourceEl, template, src = null, networked = true, lin
 export function injectCustomShaderChunks(obj) {
     const shaderUniforms = [];
 
-    obj.traverse((object) => {
+    obj.traverse(object => {
         if (!object.material || object.isTroikaText) return;
 
         // TODO this does not really belong here
         object.reflectionProbeMode = "dynamic";
 
-        updateMaterials(object, (material) => {
+        updateMaterials(object, material => {
             if (material.hubs_InjectedCustomShaderChunks) return material;
             if (!validMaterials.includes(material.type)) {
                 return material;
@@ -320,7 +310,7 @@ export function injectCustomShaderChunks(obj) {
                         "varying vec3 hubs_WorldPosition;",
                         "uniform bool hubs_IsFrozen;",
                         "uniform bool hubs_HighlightInteractorOne;",
-                        "uniform bool hubs_HighlightInteractorTwo;\n",
+                        "uniform bool hubs_HighlightInteractorTwo;\n"
                     ].join("\n") +
                     shader.vertexShader.replace(
                         "#include <skinning_vertex>",
@@ -343,7 +333,7 @@ export function injectCustomShaderChunks(obj) {
                         "uniform vec3 hubs_InteractorOnePos;",
                         "uniform bool hubs_HighlightInteractorTwo;",
                         "uniform vec3 hubs_InteractorTwoPos;",
-                        "uniform float hubs_Time;\n",
+                        "uniform float hubs_Time;\n"
                     ].join("\n") +
                     shader.fragmentShader.replace(
                         "#include <output_fragment>",
@@ -362,7 +352,7 @@ export function injectCustomShaderChunks(obj) {
 }
 
 export function getPromotionTokenForFile(fileId) {
-    return window.APP.store.state.uploadPromotionTokens.find((upload) => upload.fileId === fileId);
+    return window.APP.store.state.uploadPromotionTokens.find(upload => upload.fileId === fileId);
 }
 
 const mediaPos = new THREE.Vector3();
@@ -399,7 +389,7 @@ export function addAndArrangeMedia(el, media, contentSubtype, snapCount, mirrorO
             dur: 800,
             from: { x: pos.x, y: pos.y, z: pos.z },
             to: { x: mediaPos.x, y: mediaPos.y, z: mediaPos.z },
-            easing: "easeOutElastic",
+            easing: "easeOutElastic"
         });
     };
 
@@ -437,7 +427,7 @@ export async function createImageTexture(url, filter) {
     if (filter) {
         const image = new Image();
         image.crossOrigin = "anonymous";
-        const load = new Promise((res) => image.addEventListener("load", res, { once: true }));
+        const load = new Promise(res => image.addEventListener("load", res, { once: true }));
         image.src = url;
         await load;
         const canvas = document.createElement("canvas");
@@ -487,9 +477,9 @@ export function createVideoOrAudioEl(type) {
 }
 
 export function addMeshScaleAnimation(mesh, initialScale, onComplete) {
-    const step = (function() {
+    const step = (function () {
         const lastValue = {};
-        return function(anim) {
+        return function (anim) {
             const value = anim.animatables[0].target;
 
             value.x = Math.max(Number.MIN_VALUE, value.x);
@@ -520,17 +510,39 @@ export function addMeshScaleAnimation(mesh, initialScale, onComplete) {
         y: mesh.scale.y,
         z: mesh.scale.z,
         targets: [initialScale],
-        update: (anim) => step(anim),
-        complete: (anim) => {
+        update: anim => step(anim),
+        complete: anim => {
             step(anim);
             if (onComplete) onComplete();
-        },
+        }
     };
 
     mesh.scale.copy(initialScale);
     mesh.matrixNeedsUpdate = true;
 
     return anime(config);
+}
+
+export function closeExistingMediaMirror() {
+    const mirrorTarget = document.querySelector("#media-mirror-target");
+
+    // Remove old mirror target media element
+    if (mirrorTarget.firstChild) {
+        mirrorTarget.firstChild.setAttribute("animation__remove", {
+            property: "scale",
+            dur: 200,
+            to: { x: 0.01, y: 0.01, z: 0.01 },
+            easing: "easeInQuad"
+        });
+
+        return new Promise(res => {
+            mirrorTarget.firstChild.addEventListener("animationcomplete", () => {
+                mirrorTarget.removeChild(mirrorTarget.firstChild);
+                mirrorTarget.parentEl.object3D.visible = false;
+                res();
+            });
+        });
+    }
 }
 
 export function hasAudioTracks(el) {
@@ -554,7 +566,7 @@ export function hasAudioTracks(el) {
 }
 
 export function fetchContentType(url) {
-    return fetch(url, { method: "HEAD" }).then((r) => r.headers.get("content-type"));
+    return fetch(url, { method: "HEAD" }).then(r => r.headers.get("content-type"));
 }
 
 export function parseURL(text) {
@@ -625,6 +637,6 @@ export async function resolveMediaInfo(urlString) {
         canonicalAudioUrl,
         contentType,
         mediaType,
-        thumbnail,
+        thumbnail
     };
 }

@@ -1,16 +1,11 @@
 /* global fetch THREE */
 import URL_TICK from "../assets/sfx/tick.mp3";
-import URL_TELEPORT_LOOP from "../assets/sfx/teleport-loop.mp3";
 import URL_QUICK_TURN from "../assets/sfx/quickTurn.mp3";
 import URL_TAP_MELLOW from "../assets/sfx/tap_mellow.mp3";
 import URL_PEN_SPAWN from "../assets/sfx/PenSpawn.mp3";
 import URL_PEN_DRAW from "../assets/sfx/PenDraw1.mp3";
-import URL_CAMERA_SNAPSHOT from "../assets/sfx/PicSnapHey.mp3";
 import URL_WELCOME from "../assets/sfx/welcome.mp3";
-import URL_QUACK from "../assets/sfx/quack.mp3";
-import URL_SPECIAL_QUACK from "../assets/sfx/specialquack.mp3";
 import URL_POP from "../assets/sfx/pop.mp3";
-import URL_FREEZE from "../assets/sfx/Eb_blip.mp3";
 import URL_TACK from "../assets/sfx/tack.mp3";
 import URL_MEDIA_LOADED from "../assets/sfx/A_bendUp.mp3";
 import URL_MEDIA_LOADING from "../assets/sfx/suspense.mp3";
@@ -27,8 +22,6 @@ export const SOUND_PEN_STOP_DRAW = soundEnum++;
 export const SOUND_PEN_UNDO_DRAW = soundEnum++;
 export const SOUND_PEN_CHANGE_COLOR = soundEnum++;
 export const SOUND_TOGGLE_MIC = soundEnum++;
-export const SOUND_TELEPORT_START = soundEnum++;
-export const SOUND_TELEPORT_END = soundEnum++;
 export const SOUND_WAYPOINT_START = soundEnum++;
 export const SOUND_WAYPOINT_END = soundEnum++;
 export const SOUND_SNAP_ROTATE = soundEnum++;
@@ -36,10 +29,7 @@ export const SOUND_SPAWN_PEN = soundEnum++;
 export const SOUND_PEN_START_DRAW = soundEnum++;
 export const SOUND_CAMERA_TOOL_TOOK_SNAPSHOT = soundEnum++;
 export const SOUND_ENTER_SCENE = soundEnum++;
-export const SOUND_QUACK = soundEnum++;
-export const SOUND_SPECIAL_QUACK = soundEnum++;
 export const SOUND_CHAT_MESSAGE = soundEnum++;
-export const SOUND_FREEZE = soundEnum++;
 export const SOUND_PIN = soundEnum++;
 export const SOUND_MEDIA_LOADING = soundEnum++;
 export const SOUND_MEDIA_LOADED = soundEnum++;
@@ -67,29 +57,21 @@ export class SoundEffectsSystem {
 
     const soundsAndUrls = [
       [SOUND_HOVER_OR_GRAB, URL_TICK],
-      [SOUND_THAW, URL_TICK],
       [SOUND_PEN_STOP_DRAW, URL_TICK],
       [SOUND_PEN_UNDO_DRAW, URL_TICK],
       [SOUND_PEN_CHANGE_COLOR, URL_TICK],
       [SOUND_TOGGLE_MIC, URL_TICK],
       [SOUND_CAMERA_TOOL_COUNTDOWN, URL_TICK],
-      [SOUND_TELEPORT_START, URL_TELEPORT_LOOP],
-      [SOUND_TELEPORT_END, URL_QUICK_TURN],
       [SOUND_WAYPOINT_START, URL_QUICK_TURN],
       [SOUND_WAYPOINT_END, URL_TICK],
       [SOUND_SNAP_ROTATE, URL_TAP_MELLOW],
       [SOUND_SPAWN_PEN, URL_PEN_SPAWN],
       [SOUND_PEN_START_DRAW, URL_PEN_DRAW],
-      [SOUND_CAMERA_TOOL_TOOK_SNAPSHOT, URL_CAMERA_SNAPSHOT],
       [SOUND_ENTER_SCENE, URL_WELCOME],
-      [SOUND_QUACK, URL_QUACK],
-      [SOUND_SPECIAL_QUACK, URL_SPECIAL_QUACK],
       [SOUND_CHAT_MESSAGE, URL_POP],
-      [SOUND_FREEZE, URL_FREEZE],
       [SOUND_PIN, URL_TACK],
       [SOUND_MEDIA_LOADING, URL_MEDIA_LOADING],
       [SOUND_MEDIA_LOADED, URL_MEDIA_LOADED],
-      [SOUND_PREFERENCE_MENU_HOVER, URL_FREEZE],
       [SOUND_SPAWN_EMOJI, URL_SPAWN_EMOJI],
       [SOUND_SPEAKER_TONE, URL_SPEAKER_TONE]
     ];

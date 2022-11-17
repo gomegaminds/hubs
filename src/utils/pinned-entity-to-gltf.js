@@ -53,6 +53,12 @@ export default function pinnedEntityToGltf(el) {
     if (components.text) {
         gltfComponents.text = components.text.data;
     }
+    if (components.description) {
+        gltfComponents.description = components.description.data;
+    }
+    if (components.billboard) {
+        gltfComponents.billboard = components.billboard.data;
+    }
     if (components.animation) {
         gltfComponents.animation = components.animation.data;
     }

@@ -1,4 +1,4 @@
-import uuid from "uuid/v4";
+import { v4 as uuidv4 } from 'uuid';
 
 export default class AuthChannel {
   constructor(store) {
@@ -51,7 +51,7 @@ export default class AuthChannel {
   }
 
   async startAuthentication(email, hubChannel) {
-    const channel = this.socket.channel(`auth:${uuid()}`);
+    const channel = this.socket.channel(`auth:${uuidv4()}`);
     await new Promise((resolve, reject) =>
       channel
         .join()

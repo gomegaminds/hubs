@@ -33,45 +33,39 @@ AFRAME.registerComponent("shape-helper", {
 
     multiple: true,
 
-    init: function() {
-        this.system = this.el.sceneEl.systems["hubs-systems"].physicsSystem;
-        this.alive = true;
-        this.uuid = -1;
-        this.system.registerShapeHelper(this);
-    },
+  init: function() {
+    this.system = this.el.sceneEl.systems["hubs-systems"].physicsSystem;
+    this.uuid = -1;
+    this.mesh = null;
 
-    init2: function() {
-        this.mesh = null;
-
-        let bodyEl = this.el;
-        this.bodyHelper = bodyEl.components["body-helper"] || null;
-        while (!this.bodyHelper && bodyEl.parentNode != this.el.sceneEl) {
-            bodyEl = bodyEl.parentNode;
-            if (bodyEl.components["body-helper"]) {
-                this.bodyHelper = bodyEl.components["body-helper"];
-            }
-        }
-        if (!this.bodyHelper || this.bodyHelper.uuid === null || this.bodyHelper.uuid === undefined) {
-            console.warn("body not found");
-            return;
-        }
-        if (this.data.fit === FIT.ALL) {
-            if (!this.el.object3DMap.mesh) {
-                console.error("Cannot use FIT.ALL without object3DMap.mesh");
-                return;
-            }
-            this.mesh = this.el.object3DMap.mesh;
-            this.mesh.updateMatrices();
-        }
+    let bodyEl = this.el;
+    this.bodyHelper = bodyEl.components["body-helper"] || null;
+    while (!this.bodyHelper && bodyEl.parentNode != this.el.sceneEl) {
+      bodyEl = bodyEl.parentNode;
+      if (bodyEl.components["body-helper"]) {
+        this.bodyHelper = bodyEl.components["body-helper"];
+      }
+    }
+    if (!this.bodyHelper || this.bodyHelper.uuid === null || this.bodyHelper.uuid === undefined) {
+      console.error("body not found");
+      return;
+    }
+    if (this.data.fit === FIT.ALL) {
+      if (!this.el.object3DMap.mesh) {
+        console.error("Cannot use FIT.ALL without object3DMap.mesh");
+        return;
+      }
+      this.mesh = this.el.object3DMap.mesh;
+      this.mesh.updateMatrices();
+    }
 
         this.uuid = this.system.addShapes(this.bodyHelper.uuid, this.mesh, this.data);
     },
 
-    remove: function() {
-        // Removing a body already cleans up it's shapes
-        if (this.uuid !== -1 && this.bodyHelper.alive) {
-            this.system.removeShapes(this.bodyHelper.uuid, this.uuid);
-        }
-        this.alive = false;
-    },
+  remove: function() {
+    // Removing a body already cleans up it's shapes
+    if (this.uuid !== -1 && this.bodyHelper.alive) {
+      this.system.removeShapes(this.bodyHelper.uuid, this.uuid);
+    }
+  }
 });

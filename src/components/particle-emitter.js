@@ -2,7 +2,7 @@ import { ParticleEmitter } from "./lib-hubs/three-particle-emitter.js";
 import { textureLoader } from "../utils/media-utils";
 import { resolveUrl } from "../utils/media-utils";
 import { proxiedUrlFor } from "../utils/media-url-utils";
-import defaultSrcImage from "../assets/images/warning_icon.png";
+import defaultSrcImage from "../assets/images/emojis/emoji_0.png";
 
 const defaultSrcUrl = new URL(defaultSrcImage, window.location.href).href;
 

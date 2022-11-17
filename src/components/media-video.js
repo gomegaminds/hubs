@@ -1,6 +1,6 @@
 /* global performance THREE AFRAME NAF MediaStream setTimeout */
 import configs from "../utils/configs";
-import audioIcon from "../assets/images/audio.png";
+import audioIcon from "../assets/megaminds/images/audio-file.png";
 import { paths } from "../systems/userinput/paths";
 import HLS from "hls.js";
 import { MediaPlayer } from "dashjs";
@@ -39,7 +39,7 @@ for (let i = 0; i <= 20; i++) {
     VOLUME_LABELS[i] = s;
 }
 
-function timeFmt(t) {
+export function timeFmt(t) {
     let s = Math.floor(t),
         h = Math.floor(s / 3600);
     s -= h * 3600;
@@ -60,14 +60,14 @@ AFRAME.registerComponent("media-video", {
         contentType: { type: "string" },
         loop: { type: "boolean", default: true },
         hidePlaybackControls: { type: "boolean", default: false },
-        videoPaused: { type: "boolean", default: true },
+        videoPaused: { type: "boolean" },
         projection: { type: "string", default: "flat" },
         time: { type: "number" },
         tickRate: { default: 1000 }, // ms interval to send time interval updates
         syncTolerance: { default: 2 },
         linkedVideoTexture: { default: null },
         linkedAudioSource: { default: null },
-        linkedMediaElementAudioSource: { default: null },
+        linkedMediaElementAudioSource: { default: null }
     },
 
     init() {
@@ -99,7 +99,7 @@ AFRAME.registerComponent("media-video", {
         this.hasAudioTracks = false;
 
         this.el.setAttribute("hover-menu__video", { template: "#video-hover-menu", isFlat: true });
-        this.el.components["hover-menu__video"].getHoverMenu().then((menu) => {
+        this.el.components["hover-menu__video"].getHoverMenu().then(menu => {
             // If we got removed while waiting, do nothing.
             if (!this.el.parentNode) return;
 
@@ -127,14 +127,12 @@ AFRAME.registerComponent("media-video", {
 
         NAF.utils
             .getNetworkedEntity(this.el)
-            .then((networkedEl) => {
+            .then(networkedEl => {
                 this.networkedEl = networkedEl;
                 applyPersistentSync(this.networkedEl.components.networked.data.networkId);
                 this.updatePlaybackState();
 
-                this.networkedEl.addEventListener("pinned", this.updateHoverMenu);
-                this.networkedEl.addEventListener("unpinned", this.updateHoverMenu);
-                // window.APP.hubChannel.addEventListener("permissions_updated", this.updateHoverMenu);
+                window.APP.hubChannel.addEventListener("permissions_updated", this.updateHoverMenu);
 
                 // For scene-owned videos, take ownership after a random delay if nobody
                 // else has so there is a timekeeper. Do not due this on iOS because iOS has an
@@ -189,7 +187,8 @@ AFRAME.registerComponent("media-video", {
     ensureOwned() {
         return (
             !this.el.components.networked ||
-            ((this.networkedEl && NAF.utils.isMine(this.networkedEl)) || NAF.utils.takeOwnership(this.networkedEl))
+            (this.networkedEl && NAF.utils.isMine(this.networkedEl)) ||
+            NAF.utils.takeOwnership(this.networkedEl)
         );
     },
 
@@ -235,7 +234,7 @@ AFRAME.registerComponent("media-video", {
         canvas.width = this.video.videoWidth;
         canvas.height = this.video.videoHeight;
         canvas.getContext("2d").drawImage(this.video, 0, 0, canvas.width, canvas.height);
-        const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+        const blob = await new Promise(resolve => canvas.toBlob(resolve));
         const file = new File([blob], "snap.png", TYPE_IMG_PNG);
 
         this.localSnapCount++;
@@ -442,7 +441,7 @@ AFRAME.registerComponent("media-video", {
                 this.el.appendChild(document.importNode(template.content, true));
                 this.el.setAttribute("position-at-border__unmute-ui", {
                     target: ".unmute-ui",
-                    isFlat: true,
+                    isFlat: true
                 });
             }
 
@@ -511,7 +510,7 @@ AFRAME.registerComponent("media-video", {
             }
 
             let resolved = false;
-            const failLoad = function(e) {
+            const failLoad = function (e) {
                 if (resolved) return;
                 resolved = true;
                 clearTimeout(pollTimeout);
@@ -530,16 +529,6 @@ AFRAME.registerComponent("media-video", {
                 texture = new THREE.VideoTexture(videoEl);
                 texture.minFilter = THREE.LinearFilter;
                 texture.encoding = THREE.sRGBEncoding;
-
-                // Firefox seems to have video play (or decode) performance issue.
-                // Somehow setting RGBA format improves the performance very well.
-                // Some tickets have been opened for the performance issue but
-                // I don't think it will be fixed soon. So we set RGBA format for Firefox
-                // as workaround so far.
-                // See https://github.com/mozilla/hubs/issues/3470
-                if (/firefox/i.test(navigator.userAgent)) {
-                    texture.format = THREE.RGBAFormat;
-                }
 
                 isReady = () => {
                     if (texture.hls && texture.hls.streamController.audioOnly) {
@@ -570,7 +559,7 @@ AFRAME.registerComponent("media-video", {
                 this._onStreamUpdated = async (peerId, kind) => {
                     if (peerId === streamClientId && kind === "video") {
                         // The video stream for this peer has been updated
-                        const stream = await APP.dialog.getMediaStream(peerId, "video").catch((e) => {
+                        const stream = await APP.dialog.getMediaStream(peerId, "video").catch(e => {
                             console.error(`Error getting video stream for ${peerId}`, e);
                         });
                         if (stream) {
@@ -583,8 +572,8 @@ AFRAME.registerComponent("media-video", {
                 // If hls.js is supported we always use it as it gives us better events
             } else if (contentType.startsWith("application/dash")) {
                 const dashPlayer = MediaPlayer().create();
-                dashPlayer.extend("RequestModifier", function() {
-                    return { modifyRequestHeader: (xhr) => xhr, modifyRequestURL: proxiedUrlFor };
+                dashPlayer.extend("RequestModifier", function () {
+                    return { modifyRequestHeader: xhr => xhr, modifyRequestURL: proxiedUrlFor };
                 });
                 dashPlayer.on(MediaPlayer.events.ERROR, failLoad);
                 dashPlayer.initialize(videoEl, url);
@@ -626,14 +615,14 @@ AFRAME.registerComponent("media-video", {
                                 }
 
                                 xhr.open("GET", proxiedUrlFor(u), true);
-                            },
+                            }
                         });
 
                         texture.hls = hls;
                         hls.loadSource(url);
                         hls.attachMedia(videoEl);
 
-                        hls.on(HLS.Events.ERROR, function(event, data) {
+                        hls.on(HLS.Events.ERROR, function (event, data) {
                             if (data.fatal) {
                                 switch (data.type) {
                                     case HLS.ErrorTypes.NETWORK_ERROR:
@@ -729,25 +718,24 @@ AFRAME.registerComponent("media-video", {
     updateHoverMenu() {
         if (!this.hoverMenu) return;
 
-        if (this.videoIsLive) {
-            // Stop auto pausing live stuff like webcams, etc.
-            this.data.videoPaused = false;
-        }
-
         const mediaLoader = this.el.components["media-loader"].data;
         const pinnableElement = mediaLoader.linkedEl || this.el;
         const isPinned = pinnableElement.components.pinnable && pinnableElement.components.pinnable.data.pinned;
-        this.playbackControls.object3D.visible = true;
+        this.playbackControls.object3D.visible = !this.data.hidePlaybackControls && !!this.video;
         this.timeLabel.object3D.visible = !this.data.hidePlaybackControls;
-        this.volumeLabel.object3D.visible = this.volumeUpButton.object3D.visible = this.volumeDownButton.object3D.visible =
-            this.hasAudioTracks && !this.data.hidePlaybackControls && !!this.video;
+        this.volumeLabel.object3D.visible =
+            this.volumeUpButton.object3D.visible =
+            this.volumeDownButton.object3D.visible =
+                this.hasAudioTracks && !this.data.hidePlaybackControls && !!this.video;
 
         this.seekForwardButton.object3D.visible = !!this.video && !this.videoIsLive;
 
-        const mayModifyPlayHead =
-            !!this.video && !this.videoIsLive && (!isPinned || window.APP.hubChannel.can("pin_objects"));
+        const mayModifyPlayHead = (!!this.video && !this.videoIsLive) || window.APP.hubChannel.can("spawn_and_move_media");
 
-        this.playPauseButton.object3D.visible = true;
+        this.playPauseButton.object3D.visible =
+            this.seekForwardButton.object3D.visible =
+            this.seekBackButton.object3D.visible =
+                mayModifyPlayHead;
 
         if (this.videoIsLive) {
             this.timeLabel.setAttribute("text", "value", "LIVE");
@@ -764,7 +752,7 @@ AFRAME.registerComponent("media-video", {
     },
 
     tick: (() => {
-        return function() {
+        return function () {
             if (!this.video) return;
 
             const userinput = this.el.sceneEl.systems.userinput;
@@ -837,12 +825,7 @@ AFRAME.registerComponent("media-video", {
 
         this.removeAudio();
 
-        if (this.networkedEl) {
-            this.networkedEl.removeEventListener("pinned", this.updateHoverMenu);
-            this.networkedEl.removeEventListener("unpinned", this.updateHoverMenu);
-        }
-
-        // window.APP.hubChannel.removeEventListener("permissions_updated", this.updateHoverMenu);
+        window.APP.hubChannel.removeEventListener("permissions_updated", this.updateHoverMenu);
 
         if (this.video) {
             this.video.removeEventListener("pause", this.onPauseStateChange);
@@ -868,5 +851,5 @@ AFRAME.registerComponent("media-video", {
             this.audioSystem.removeAudio({ node: this.audio });
             delete this.audio;
         }
-    },
+    }
 });
