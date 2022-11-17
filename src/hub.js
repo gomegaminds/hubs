@@ -356,18 +356,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
         messageDispatch: messageDispatch,
         onSendMessage: messageDispatch.dispatch,
         onLoaded: () => store.executeOnLoadActions(scene),
-        onMediaSearchResultEntrySelected: (entry, selectAction) =>
-            scene.emit("action_selected_media_result_entry", { entry, selectAction }),
-        onMediaSearchCancelled: entry => scene.emit("action_media_search_cancelled", entry),
         onAvatarSaved: entry => scene.emit("action_avatar_saved", entry)
-    });
-
-    scene.addEventListener("action_selected_media_result_entry", e => {
-        const { entry, selectAction } = e.detail;
-        if ((entry.type !== "scene_listing" && entry.type !== "scene") || selectAction !== "use") return;
-        if (!hubChannel.can("update_hub")) return;
-
-        hubChannel.updateScene(entry.url);
     });
 
     scene.addEventListener(
