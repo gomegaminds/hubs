@@ -672,10 +672,7 @@ AFRAME.registerComponent("media-pager", {
         }
 
         if (this.prevButton && this.nextButton) {
-            const pinnableElement = this.el.components["media-loader"].data.linkedEl || this.el;
-            const isPinned = pinnableElement.components.pinnable && pinnableElement.components.pinnable.data.pinned;
-            this.prevButton.object3D.visible = this.nextButton.object3D.visible =
-                !isPinned || window.APP.hubChannel.can("pin_objects");
+            this.prevButton.object3D.visible = this.nextButton.object3D.visible = true;
         }
     },
 

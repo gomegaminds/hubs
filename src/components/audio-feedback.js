@@ -14,27 +14,27 @@ const IS_TALKING_THRESHOLD_MS = 1000;
 const MIN_VOLUME_THRESHOLD = 0.08;
 
 const calculateVolume = (analyser, levels) => {
-  // take care with compatibility, e.g. safari doesn't support getFloatTimeDomainData
-  analyser.getByteTimeDomainData(levels);
-  let sum = 0;
-  for (let i = 0; i < levels.length; i++) {
-    const amplitude = (levels[i] - 128) / 128;
-    sum += amplitude * amplitude;
-  }
-  const currVolume = Math.sqrt(sum / levels.length);
-  return currVolume;
+    // take care with compatibility, e.g. safari doesn't support getFloatTimeDomainData
+    analyser.getByteTimeDomainData(levels);
+    let sum = 0;
+    for (let i = 0; i < levels.length; i++) {
+        const amplitude = (levels[i] - 128) / 128;
+        sum += amplitude * amplitude;
+    }
+    const currVolume = Math.sqrt(sum / levels.length);
+    return currVolume;
 };
 
 function updateVolume(component) {
-  const newRawVolume = calculateVolume(component.analyser, component.levels);
+    const newRawVolume = calculateVolume(component.analyser, component.levels);
 
-  const newPerceivedVolume = Math.log(THREE.MathUtils.mapLinear(newRawVolume, 0, 1, 1, Math.E));
+    const newPerceivedVolume = Math.log(THREE.MathUtils.mapLinear(newRawVolume, 0, 1, 1, Math.E));
 
-  component.volume = newPerceivedVolume < MIN_VOLUME_THRESHOLD ? 0 : newPerceivedVolume;
+    component.volume = newPerceivedVolume < MIN_VOLUME_THRESHOLD ? 0 : newPerceivedVolume;
 
-  const s = component.volume > component.prevVolume ? 0.35 : 0.3;
-  component.volume = s * component.volume + (1 - s) * component.prevVolume;
-  component.prevVolume = component.volume;
+    const s = component.volume > component.prevVolume ? 0.35 : 0.3;
+    component.volume = s * component.volume + (1 - s) * component.prevVolume;
+    component.prevVolume = component.volume;
 }
 
 /**
@@ -43,120 +43,122 @@ function updateVolume(component) {
  * @component networked-audio-analyser
  */
 AFRAME.registerComponent("networked-audio-analyser", {
-  async init() {
-    this.volume = 0;
-    this.prevVolume = 0;
-    this.disableUpdates = true;
-    this.avatarIsTalking = false;
-
-    this._updateAnalysis = this._updateAnalysis.bind(this);
-    this._runScheduledWork = this._runScheduledWork.bind(this);
-    this.el.sceneEl.systems["frame-scheduler"].schedule(this._runScheduledWork, "audio-analyser");
-    this.el.addEventListener(
-      "sound-source-set",
-      event => {
-        const ctx = THREE.AudioContext.getContext();
-        this.analyser = ctx.createAnalyser();
-        this.analyser.fftSize = 32;
-        this.levels = new Uint8Array(this.analyser.fftSize);
-        event.detail.soundSource.connect(this.analyser);
-      },
-      { once: true }
-    );
-
-    this.playerSessionId = findAncestorWithComponent(this.el, "player-info").components["player-info"].playerSessionId;
-    registerComponentInstance(this, "networked-audio-analyser");
-  },
-
-  remove: function() {
-    deregisterComponentInstance(this, "networked-audio-analyser");
-    this.el.sceneEl.systems["frame-scheduler"].unschedule(this._runScheduledWork, "audio-analyser");
-  },
-
-  tick: function(t) {
-    if (!this.disableUpdates) {
-      this._updateAnalysis(t);
-    }
-  },
-
-  _runScheduledWork: function() {
-    if (this.disableUpdates) {
-      this._updateAnalysis();
-    }
-  },
-
-  // Updates the analysis/volume. If t is passed, that implies this is called via tick
-  // and so as a performance optimization will check to see if it's been at least DISABLE_GRACE_PERIOD_MS
-  // since the last volume was seen above DISABLE_AT_VOLUME_THRESHOLD, and if so, will disable
-  // tick updates until the volume exceeds the level again.
-  _updateAnalysis: function(t) {
-    if (!this.analyser) return;
-
-    updateVolume(this);
-
-    if (this.volume < DISABLE_AT_VOLUME_THRESHOLD) {
-      if (t && this.lastSeenVolume && this.lastSeenVolume < t - DISABLE_GRACE_PERIOD_MS) {
+    async init() {
+        this.volume = 0;
+        this.prevVolume = 0;
         this.disableUpdates = true;
-      }
-      if (t && this.lastSeenVolume && this.lastSeenVolume < t - IS_TALKING_THRESHOLD_MS) {
         this.avatarIsTalking = false;
-      }
-    } else {
-      if (t) {
-        this.lastSeenVolume = t;
-      }
 
-      this.disableUpdates = false;
-      this.avatarIsTalking = true;
+        this._updateAnalysis = this._updateAnalysis.bind(this);
+        this._runScheduledWork = this._runScheduledWork.bind(this);
+        this.el.sceneEl.systems["frame-scheduler"].schedule(this._runScheduledWork, "audio-analyser");
+        this.el.addEventListener(
+            "sound-source-set",
+            event => {
+                const ctx = THREE.AudioContext.getContext();
+                this.analyser = ctx.createAnalyser();
+                this.analyser.fftSize = 32;
+                this.levels = new Uint8Array(this.analyser.fftSize);
+                event.detail.soundSource.connect(this.analyser);
+            },
+            { once: true }
+        );
+
+        this.playerSessionId = findAncestorWithComponent(this.el, "player-info").components[
+            "player-info"
+        ].playerSessionId;
+        registerComponentInstance(this, "networked-audio-analyser");
+    },
+
+    remove: function () {
+        deregisterComponentInstance(this, "networked-audio-analyser");
+        this.el.sceneEl.systems["frame-scheduler"].unschedule(this._runScheduledWork, "audio-analyser");
+    },
+
+    tick: function (t) {
+        if (!this.disableUpdates) {
+            this._updateAnalysis(t);
+        }
+    },
+
+    _runScheduledWork: function () {
+        if (this.disableUpdates) {
+            this._updateAnalysis();
+        }
+    },
+
+    // Updates the analysis/volume. If t is passed, that implies this is called via tick
+    // and so as a performance optimization will check to see if it's been at least DISABLE_GRACE_PERIOD_MS
+    // since the last volume was seen above DISABLE_AT_VOLUME_THRESHOLD, and if so, will disable
+    // tick updates until the volume exceeds the level again.
+    _updateAnalysis: function (t) {
+        if (!this.analyser) return;
+
+        updateVolume(this);
+
+        if (this.volume < DISABLE_AT_VOLUME_THRESHOLD) {
+            if (t && this.lastSeenVolume && this.lastSeenVolume < t - DISABLE_GRACE_PERIOD_MS) {
+                this.disableUpdates = true;
+            }
+            if (t && this.lastSeenVolume && this.lastSeenVolume < t - IS_TALKING_THRESHOLD_MS) {
+                this.avatarIsTalking = false;
+            }
+        } else {
+            if (t) {
+                this.lastSeenVolume = t;
+            }
+
+            this.disableUpdates = false;
+            this.avatarIsTalking = true;
+        }
     }
-  }
 });
 
 function getAnalyser(el) {
-  // Is this the local player
-  const ikRootEl = findAncestorWithComponent(el, "ik-root");
-  if (ikRootEl && ikRootEl.id === "avatar-rig") {
-    return el.sceneEl.systems["local-audio-analyser"];
-  } else {
-    const analyserEl = findAncestorWithComponent(el, "networked-audio-analyser");
-    if (!analyserEl) return null;
-    return analyserEl.components["networked-audio-analyser"];
-  }
+    // Is this the local player
+    const ikRootEl = findAncestorWithComponent(el, "ik-root");
+    if (ikRootEl && ikRootEl.id === "avatar-rig") {
+        return el.sceneEl.systems["local-audio-analyser"];
+    } else {
+        const analyserEl = findAncestorWithComponent(el, "networked-audio-analyser");
+        if (!analyserEl) return null;
+        return analyserEl.components["networked-audio-analyser"];
+    }
 }
 
 /**
  * Calculates volume of the local audio stream.
  */
 AFRAME.registerSystem("local-audio-analyser", {
-  init() {
-    this.volume = 0;
-    this.prevVolume = 0;
+    init() {
+        this.volume = 0;
+        this.prevVolume = 0;
 
-    this.onMicEnabled = this.onMicEnabled.bind(this);
-    this.el.addEventListener(MediaDevicesEvents.MIC_SHARE_STARTED, this.onMicEnabled);
-  },
+        this.onMicEnabled = this.onMicEnabled.bind(this);
+        this.el.addEventListener(MediaDevicesEvents.MIC_SHARE_STARTED, this.onMicEnabled);
+    },
 
-  remove() {
-    this.el.removeEventListener(MediaDevicesEvents.MIC_SHARE_STARTED, this.onMicEnabled);
-  },
+    remove() {
+        this.el.removeEventListener(MediaDevicesEvents.MIC_SHARE_STARTED, this.onMicEnabled);
+    },
 
-  onMicEnabled() {
-    const audioSystem = this.el.sceneEl.systems["hubs-systems"].audioSystem;
-    this.analyser = audioSystem.outboundAnalyser;
-    this.levels = audioSystem.analyserLevels;
-  },
+    onMicEnabled() {
+        const audioSystem = this.el.sceneEl.systems["hubs-systems"].audioSystem;
+        this.analyser = audioSystem.outboundAnalyser;
+        this.levels = audioSystem.analyserLevels;
+    },
 
-  tick: function() {
-    if (!this.analyser) return;
+    tick: function () {
+        if (!this.analyser) return;
 
-    // TODO Ideally, when muted no audio should ever even make it into the analyser to begin with
-    if (APP.dialog.isMicEnabled) {
-      updateVolume(this);
-    } else {
-      this.prevVolume = this.volume;
-      this.volume = 0;
+        // TODO Ideally, when muted no audio should ever even make it into the analyser to begin with
+        if (APP.dialog.isMicEnabled) {
+            updateVolume(this);
+        } else {
+            this.prevVolume = this.volume;
+            this.volume = 0;
+        }
     }
-  }
 });
 
 /**
@@ -165,25 +167,25 @@ AFRAME.registerSystem("local-audio-analyser", {
  * @component scale-audio-feedback
  */
 AFRAME.registerComponent("scale-audio-feedback", {
-  schema: {
-    minScale: { default: 1 },
-    maxScale: { default: 1.5 }
-  },
+    schema: {
+        minScale: { default: 1 },
+        maxScale: { default: 1.5 }
+    },
 
-  async init() {
-    await waitForDOMContentLoaded();
-    this.cameraEl = document.getElementById("viewing-camera");
-  },
+    async init() {
+        await waitForDOMContentLoaded();
+        this.cameraEl = document.getElementById("viewing-camera");
+    },
 
-  tick() {
-    if (!this.cameraEl) return;
-    if (!this.analyser) this.analyser = getAnalyser(this.el);
+    tick() {
+        if (!this.cameraEl) return;
+        if (!this.analyser) this.analyser = getAnalyser(this.el);
 
-    this.el.object3D.scale.setScalar(
-      THREE.MathUtils.mapLinear(this.analyser?.volume || 0, 0, 1, this.data.minScale, this.data.maxScale)
-    );
-    this.el.object3D.matrixNeedsUpdate = true;
-  }
+        this.el.object3D.scale.setScalar(
+            THREE.MathUtils.mapLinear(this.analyser?.volume || 0, 0, 1, this.data.minScale, this.data.maxScale)
+        );
+        this.el.object3D.matrixNeedsUpdate = true;
+    }
 });
 
 /**
@@ -192,138 +194,143 @@ AFRAME.registerComponent("scale-audio-feedback", {
  * @component morph-audio-feedback
  */
 AFRAME.registerComponent("morph-audio-feedback", {
-  schema: {
-    name: { default: "" },
-    minValue: { default: 0 },
-    maxValue: { default: 2 }
-  },
+    schema: {
+        name: { default: "" },
+        minValue: { default: 0 },
+        maxValue: { default: 2 }
+    },
 
-  init() {
-    const meshes = [];
-    if (this.el.object3DMap.skinnedmesh) {
-      meshes.push(this.el.object3DMap.skinnedmesh);
-    } else if (this.el.object3DMap.group) {
-      // skinned mesh with multiple materials
-      this.el.object3DMap.group.traverse(o => o.isSkinnedMesh && meshes.push(o));
+    init() {
+        const meshes = [];
+        if (this.el.object3DMap.skinnedmesh) {
+            meshes.push(this.el.object3DMap.skinnedmesh);
+        } else if (this.el.object3DMap.group) {
+            // skinned mesh with multiple materials
+            this.el.object3DMap.group.traverse(o => o.isSkinnedMesh && meshes.push(o));
+        }
+        if (meshes.length) {
+            this.morphs = meshes
+                .map(mesh => {
+                    console.log(mesh);
+                    if (mesh.morphTargetDictionary) {
+                        return { mesh, morphNumber: mesh.morphTargetDictionary[this.data.name] };
+                    }
+                })
+                .filter(m => m.morphNumber !== undefined);
+        }
+    },
+
+    tick() {
+        if (!this.morphs || !this.morphs.length) return;
+
+        if (!this.analyser) this.analyser = getAnalyser(this.el);
+
+        const { minValue, maxValue } = this.data;
+        const morphValue = THREE.MathUtils.mapLinear(
+            easeOutQuadratic(this.analyser ? this.analyser.volume : 0),
+            0,
+            1,
+            minValue,
+            maxValue
+        );
+        for (let i = 0; i < this.morphs.length; i++) {
+            this.morphs[i].mesh.morphTargetInfluences[this.morphs[i].morphNumber] = morphValue;
+        }
     }
-    if (meshes.length) {
-      this.morphs = meshes
-        .map(mesh => ({ mesh, morphNumber: mesh.morphTargetDictionary[this.data.name] }))
-        .filter(m => m.morphNumber !== undefined);
-    }
-  },
-
-  tick() {
-    if (!this.morphs || !this.morphs.length) return;
-
-    if (!this.analyser) this.analyser = getAnalyser(this.el);
-
-    const { minValue, maxValue } = this.data;
-    const morphValue = THREE.MathUtils.mapLinear(
-      easeOutQuadratic(this.analyser ? this.analyser.volume : 0),
-      0,
-      1,
-      minValue,
-      maxValue
-    );
-    for (let i = 0; i < this.morphs.length; i++) {
-      this.morphs[i].mesh.morphTargetInfluences[this.morphs[i].morphNumber] = morphValue;
-    }
-  }
 });
 
 const SPRITE_NAMES = {
-  MIC: ["mic-0.png", "mic-1.png", "mic-2.png", "mic-3.png", "mic-4.png", "mic-5.png", "mic-6.png", "mic-7.png"],
-  MIC_HOVER: [
-    "mic-0_hover.png",
-    "mic-1_hover.png",
-    "mic-2_hover.png",
-    "mic-3_hover.png",
-    "mic-4_hover.png",
-    "mic-5_hover.png",
-    "mic-6_hover.png",
-    "mic-7_hover.png"
-  ],
-  MIC_OFF: [
-    "mic-off-0.png",
-    "mic-off-1.png",
-    "mic-off-2.png",
-    "mic-off-3.png",
-    "mic-off-4.png",
-    "mic-off-5.png",
-    "mic-off-6.png",
-    "mic-off-7.png"
-  ],
-  MIC_OFF_HOVER: [
-    "mic-off-0_hover.png",
-    "mic-off-1_hover.png",
-    "mic-off-2_hover.png",
-    "mic-off-3_hover.png",
-    "mic-off-4_hover.png",
-    "mic-off-5_hover.png",
-    "mic-off-6_hover.png",
-    "mic-off-7_hover.png"
-  ]
+    MIC: ["mic-0.png", "mic-1.png", "mic-2.png", "mic-3.png", "mic-4.png", "mic-5.png", "mic-6.png", "mic-7.png"],
+    MIC_HOVER: [
+        "mic-0_hover.png",
+        "mic-1_hover.png",
+        "mic-2_hover.png",
+        "mic-3_hover.png",
+        "mic-4_hover.png",
+        "mic-5_hover.png",
+        "mic-6_hover.png",
+        "mic-7_hover.png"
+    ],
+    MIC_OFF: [
+        "mic-off-0.png",
+        "mic-off-1.png",
+        "mic-off-2.png",
+        "mic-off-3.png",
+        "mic-off-4.png",
+        "mic-off-5.png",
+        "mic-off-6.png",
+        "mic-off-7.png"
+    ],
+    MIC_OFF_HOVER: [
+        "mic-off-0_hover.png",
+        "mic-off-1_hover.png",
+        "mic-off-2_hover.png",
+        "mic-off-3_hover.png",
+        "mic-off-4_hover.png",
+        "mic-off-5_hover.png",
+        "mic-off-6_hover.png",
+        "mic-off-7_hover.png"
+    ]
 };
 
 export function micLevelForVolume(volume) {
-  return THREE.MathUtils.clamp(Math.ceil(THREE.MathUtils.mapLinear(volume - 0.05, 0, 1, 0, 7)), 0, 7);
+    return THREE.MathUtils.clamp(Math.ceil(THREE.MathUtils.mapLinear(volume - 0.05, 0, 1, 0, 7)), 0, 7);
 }
 
 AFRAME.registerComponent("mic-button", {
-  schema: {
-    active: { type: "boolean" },
-    tooltip: { type: "selector" },
-    tooltipText: { type: "string" },
-    activeTooltipText: { type: "string" }
-  },
+    schema: {
+        active: { type: "boolean" },
+        tooltip: { type: "selector" },
+        tooltipText: { type: "string" },
+        activeTooltipText: { type: "string" }
+    },
 
-  init() {
-    this.prevSpriteName = "";
-    this.el.object3D.matrixNeedsUpdate = true;
-    this.hovering = false;
-    this.onHover = () => {
-      this.hovering = true;
-      this.data.tooltip.setAttribute("visible", true);
-    };
-    this.onHoverOut = () => {
-      this.hovering = false;
-      this.data.tooltip.setAttribute("visible", false);
-    };
-  },
+    init() {
+        this.prevSpriteName = "";
+        this.el.object3D.matrixNeedsUpdate = true;
+        this.hovering = false;
+        this.onHover = () => {
+            this.hovering = true;
+            this.data.tooltip.setAttribute("visible", true);
+        };
+        this.onHoverOut = () => {
+            this.hovering = false;
+            this.data.tooltip.setAttribute("visible", false);
+        };
+    },
 
-  play() {
-    this.el.object3D.addEventListener("hovered", this.onHover);
-    this.el.object3D.addEventListener("unhovered", this.onHoverOut);
-  },
+    play() {
+        this.el.object3D.addEventListener("hovered", this.onHover);
+        this.el.object3D.addEventListener("unhovered", this.onHoverOut);
+    },
 
-  pause() {
-    this.el.object3D.removeEventListener("hovered", this.onHover);
-    this.el.object3D.removeEventListener("unhovered", this.onHoverOut);
-  },
+    pause() {
+        this.el.object3D.removeEventListener("hovered", this.onHover);
+        this.el.object3D.removeEventListener("unhovered", this.onHoverOut);
+    },
 
-  update() {
-    if (this.data.tooltip) {
-      this.textEl = this.data.tooltip.querySelector("[text]");
+    update() {
+        if (this.data.tooltip) {
+            this.textEl = this.data.tooltip.querySelector("[text]");
+        }
+    },
+
+    tick() {
+        const audioAnalyser = this.el.sceneEl.systems["local-audio-analyser"];
+        const active = this.data.active;
+        const hovering = this.hovering;
+        const spriteNames =
+            SPRITE_NAMES[active ? (hovering ? "MIC_HOVER" : "MIC") : hovering ? "MIC_OFF_HOVER" : "MIC_OFF"];
+        const level = micLevelForVolume(audioAnalyser.volume);
+        const spriteName = spriteNames[level];
+        if (spriteName !== this.prevSpriteName) {
+            this.prevSpriteName = spriteName;
+            this.el.setAttribute("sprite", "name", spriteName);
+        }
+
+        if (this.data.tooltip && hovering) {
+            this.textEl = this.textEl || this.data.tooltip.querySelector("[text]");
+            this.textEl.setAttribute("text", "value", active ? this.data.activeTooltipText : this.data.tooltipText);
+        }
     }
-  },
-
-  tick() {
-    const audioAnalyser = this.el.sceneEl.systems["local-audio-analyser"];
-    const active = this.data.active;
-    const hovering = this.hovering;
-    const spriteNames =
-      SPRITE_NAMES[active ? (hovering ? "MIC_HOVER" : "MIC") : hovering ? "MIC_OFF_HOVER" : "MIC_OFF"];
-    const level = micLevelForVolume(audioAnalyser.volume);
-    const spriteName = spriteNames[level];
-    if (spriteName !== this.prevSpriteName) {
-      this.prevSpriteName = spriteName;
-      this.el.setAttribute("sprite", "name", spriteName);
-    }
-
-    if (this.data.tooltip && hovering) {
-      this.textEl = this.textEl || this.data.tooltip.querySelector("[text]");
-      this.textEl.setAttribute("text", "value", active ? this.data.activeTooltipText : this.data.tooltipText);
-    }
-  }
 });

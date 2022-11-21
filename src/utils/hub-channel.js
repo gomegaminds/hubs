@@ -332,6 +332,7 @@ export default class HubChannel extends EventTarget {
     };
 
     sendTeleportRequest = (body, type = "teleportRequest") => {
+        if (!this._permissions.kick_users) return "unauthorized";
         console.log("Teleport request received");
         if (!body) return;
         this.channel.push("message", { body, type });
