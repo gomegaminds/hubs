@@ -358,12 +358,15 @@ export class CameraSystem {
                     scene.emit("right_menu_changed", null);
                 } else if (hoverEl) {
                     // If already selected another object, reset their arrow
+
                     if (this.isInsideMenu !== null) {
                         this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
                     }
                     scene.emit("right_menu_changed", hoverEl);
-                    this.isInsideMenu = hoverEl;
-                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
+                    if (!hoverEl.components["avatar-inspect-collider"]) {
+                        this.isInsideMenu = hoverEl;
+                        this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
+                    }
                 }
             }
 
