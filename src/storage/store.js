@@ -80,9 +80,10 @@ export const SCHEMA = {
 
         activity: {
             type: "object",
-            additionalProperties: false,
+            additionalProperties: true,
             properties: {
                 hasFoundFreeze: { type: "boolean" },
+                finishedOnboarding: { type: "boolean" },
                 hasChangedName: { type: "boolean" },
                 hasAcceptedProfile: { type: "boolean" },
                 lastEnteredAt: { type: "string" },
