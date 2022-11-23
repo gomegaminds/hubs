@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== "development") {
         dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
         integrations: [new BrowserTracing()],
 
-        release: "1.0.0",
+        release: "1.0.1",
         environment: "prod",
         // We recommend adjusting this value in production, or using tracesSampler
         // for finer control
