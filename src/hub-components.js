@@ -29,6 +29,7 @@ import "./mega-src/components/open-link-button";
 import "./mega-src/components/description";
 import "./mega-src/systems/CSS2DRenderingSystem";
 // import "./mega-src/systems/CSS3DRenderingSystem";
+import "./mega-src/systems/tip-system";
 
 import "./components/networked-avatar";
 import "./components/media-video";
