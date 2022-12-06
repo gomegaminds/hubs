@@ -23,7 +23,7 @@ const HUB_CREATOR_PERMISSIONS = [
     "close_hub",
     "mute_users",
     "kick_users",
-    "amplify_audio",
+    "amplify_audio"
 ];
 
 const VALID_PERMISSIONS = HUB_CREATOR_PERMISSIONS.concat([
@@ -34,7 +34,7 @@ const VALID_PERMISSIONS = HUB_CREATOR_PERMISSIONS.concat([
     "spawn_and_move_media",
     "pin_objects",
     "spawn_emoji",
-    "fly",
+    "fly"
 ]);
 
 export default class HubChannel extends EventTarget {
@@ -100,12 +100,12 @@ export default class HubChannel extends EventTarget {
             presenceBindings = {
                 onJoin: this.presence.caller.onJoin,
                 onLeave: this.presence.caller.onLeave,
-                onSync: this.presence.caller.onSync,
+                onSync: this.presence.caller.onSync
             };
 
-            this.presence.onJoin(function() {});
-            this.presence.onLeave(function() {});
-            this.presence.onSync(function() {});
+            this.presence.onJoin(function () {});
+            this.presence.onLeave(function () {});
+            this.presence.onSync(function () {});
         }
 
         this.channel = await migrateChannelToSocket(this.channel, socket, params);
@@ -128,12 +128,12 @@ export default class HubChannel extends EventTarget {
             presenceBindings = {
                 onJoin: this.presence.caller.onJoin,
                 onLeave: this.presence.caller.onLeave,
-                onSync: this.presence.caller.onSync,
+                onSync: this.presence.caller.onSync
             };
 
-            this.presence.onJoin(function() {});
-            this.presence.onLeave(function() {});
-            this.presence.onSync(function() {});
+            this.presence.onJoin(function () {});
+            this.presence.onLeave(function () {});
+            this.presence.onSync(function () {});
         }
 
         this.channel = newChannel;
@@ -150,7 +150,7 @@ export default class HubChannel extends EventTarget {
         return data;
     }
 
-    setPermissionsFromToken = (token) => {
+    setPermissionsFromToken = token => {
         // Note: token is not verified.
         this.token = token;
         this._permissions = jwtDecode(token);
@@ -182,7 +182,7 @@ export default class HubChannel extends EventTarget {
         let entryDisplayType = "Screen";
 
         if (navigator.getVRDisplays) {
-            const vrDisplay = (await navigator.getVRDisplays()).find((d) => d.isPresenting);
+            const vrDisplay = (await navigator.getVRDisplays()).find(d => d.isPresenting);
 
             if (vrDisplay) {
                 entryDisplayType = vrDisplay.displayName;
@@ -203,7 +203,7 @@ export default class HubChannel extends EventTarget {
             ...entryTimingFlags,
             initialOccupantCount,
             entryDisplayType,
-            userAgent: navigator.userAgent,
+            userAgent: navigator.userAgent
         };
 
         this.channel.push("events:entered", entryEvent);
@@ -262,14 +262,14 @@ export default class HubChannel extends EventTarget {
         return entryTimingFlags;
     };
 
-    sendObjectSpawnedEvent = (objectType) => {
+    sendObjectSpawnedEvent = objectType => {
         if (!this.channel) {
             console.warn("No phoenix channel initialized before object spawn.");
             return;
         }
 
         const spawnEvent = {
-            object_type: objectType,
+            object_type: objectType
         };
 
         this.channel.push("events:object_spawned", spawnEvent);
@@ -279,22 +279,22 @@ export default class HubChannel extends EventTarget {
         this.channel.push("events:profile_updated", { profile: this.store.state.profile });
     };
 
-    updateScene = (url) => {
+    updateScene = url => {
         // if (!this._permissions.update_hub) return "unauthorized";
         this.channel.push("update_scene", { url });
     };
 
-    updateHub = (settings) => {
+    updateHub = settings => {
         // if (!this._permissions.update_hub) return "unauthorized";
         this.channel.push("update_hub", settings);
     };
 
     fetchInvite = () => {
-        return new Promise((resolve) => this.channel.push("fetch_invite", {}).receive("ok", resolve));
+        return new Promise(resolve => this.channel.push("fetch_invite", {}).receive("ok", resolve));
     };
 
-    revokeInvite = (hubInviteId) => {
-        return new Promise((resolve) =>
+    revokeInvite = hubInviteId => {
+        return new Promise(resolve =>
             this.channel.push("revoke_invite", { hub_invite_id: hubInviteId }).receive("ok", resolve)
         );
     };
@@ -304,17 +304,17 @@ export default class HubChannel extends EventTarget {
         this.channel.push("close_hub", {});
     };
 
-    subscribe = (subscription) => {
+    subscribe = subscription => {
         this.channel.push("subscribe", { subscription });
     };
 
     // If true, will tell the server to not send us any NAF traffic
-    allowNAFTraffic = (allow) => {
+    allowNAFTraffic = allow => {
         this.channel.push(allow ? "unblock_naf" : "block_naf", {});
     };
 
-    unsubscribe = (subscription) => {
-        return new Promise((resolve) => this.channel.push("unsubscribe", { subscription }).receive("ok", resolve));
+    unsubscribe = subscription => {
+        return new Promise(resolve => this.channel.push("unsubscribe", { subscription }).receive("ok", resolve));
     };
 
     sendMuteRequest = () => {
@@ -343,16 +343,14 @@ export default class HubChannel extends EventTarget {
         this.channel.push("message", { body, type });
     };
 
-    _getCreatorAssignmentToken = (profile_tokens) => {
+    _getCreatorAssignmentToken = profile_tokens => {
         const creatorAssignmentTokenEntry =
             this.store.state.creatorAssignmentTokens &&
-            this.store.state.creatorAssignmentTokens.find((t) => t.hubId === this.hubId);
+            this.store.state.creatorAssignmentTokens.find(t => t.hubId === this.hubId);
 
-        const profile_creatorAssignmentTokenEntry =
-            profile_tokens &&
-            profile_tokens.find((t) => t.hubId === this.hubId);
+        const profile_creatorAssignmentTokenEntry = profile_tokens && profile_tokens.find(t => t.hubId === this.hubId);
 
-        if(profile_creatorAssignmentTokenEntry){
+        if (profile_creatorAssignmentTokenEntry) {
             // console.log("Getting assignment token from teacher profile!");
             return profile_creatorAssignmentTokenEntry && profile_creatorAssignmentTokenEntry.creatorAssignmentToken;
         }
@@ -360,7 +358,7 @@ export default class HubChannel extends EventTarget {
         return creatorAssignmentTokenEntry && creatorAssignmentTokenEntry.creatorAssignmentToken;
     };
 
-    signIn = (token, profile_tokens=[]) => {
+    signIn = (token, profile_tokens = []) => {
         return new Promise((resolve, reject) => {
             const creator_assignment_token = this._getCreatorAssignmentToken(profile_tokens);
 
@@ -371,7 +369,7 @@ export default class HubChannel extends EventTarget {
                     this._signedIn = true;
                     resolve();
                 })
-                .receive("error", (err) => {
+                .receive("error", err => {
                     if (err.reason === "invalid_token") {
                         console.warn("sign in failed", err);
                         // Token expired or invalid TODO purge from storage if possible
@@ -404,7 +402,7 @@ export default class HubChannel extends EventTarget {
         return new Promise((resolve, reject) => {
             this.channel
                 .push("get_host")
-                .receive("ok", (res) => {
+                .receive("ok", res => {
                     resolve(res);
                 })
                 .receive("error", reject);
@@ -415,10 +413,10 @@ export default class HubChannel extends EventTarget {
         return new Promise((resolve, reject) => {
             this.channel
                 .push("oauth", { type: "twitter" })
-                .receive("ok", (res) => {
+                .receive("ok", res => {
                     resolve(res.oauth_url);
                 })
-                .receive("error", (err) => reject(new Error(err.reason)));
+                .receive("error", err => reject(new Error(err.reason)));
         });
     };
 
@@ -427,34 +425,11 @@ export default class HubChannel extends EventTarget {
         return discordBridgesForPresences(this.presence.state);
     };
 
-    pin = (id, gltfNode, fileId, fileAccessToken, promotionToken) => {
-        const payload = { id, gltf_node: gltfNode };
-        if (fileId && promotionToken) {
-            payload.file_id = fileId;
-            payload.file_access_token = fileAccessToken;
-            payload.promotion_token = promotionToken;
-        }
-        return new Promise((resolve, reject) => {
-            this.channel
-                .push("pin", payload)
-                .receive("ok", resolve)
-                .receive("error", reject);
-        });
-    };
-
-    unpin = (id, fileId) => {
-        const payload = { id };
-        if (fileId) {
-            payload.file_id = fileId;
-        }
-        this.channel.push("unpin", payload);
-    };
-
     fetchPermissions = () => {
         return new Promise((resolve, reject) => {
             this.channel
                 .push("refresh_perms_token")
-                .receive("ok", (res) => {
+                .receive("ok", res => {
                     this.setPermissionsFromToken(res.perms_token);
                     resolve({ permsToken: res.perms_token, permissions: this._permissions });
                 })
@@ -462,18 +437,18 @@ export default class HubChannel extends EventTarget {
         });
     };
 
-    mute = (sessionId) => this.channel.push("mute", { session_id: sessionId });
-    addOwner = (sessionId) => this.channel.push("add_owner", { session_id: sessionId });
-    removeOwner = (sessionId) => this.channel.push("remove_owner", { session_id: sessionId });
+    mute = sessionId => this.channel.push("mute", { session_id: sessionId });
+    addOwner = sessionId => this.channel.push("add_owner", { session_id: sessionId });
+    removeOwner = sessionId => this.channel.push("remove_owner", { session_id: sessionId });
 
-    hide = (sessionId) => {
+    hide = sessionId => {
         NAF.connection.adapter.block(sessionId);
         APP.dialog.block(sessionId);
         this.channel.push("block", { session_id: sessionId });
         this._blockedSessionIds.add(sessionId);
     };
 
-    unhide = (sessionId) => {
+    unhide = sessionId => {
         if (!this._blockedSessionIds.has(sessionId)) return;
         NAF.connection.adapter.unblock(sessionId);
         APP.dialog.unblock(sessionId);
@@ -482,9 +457,9 @@ export default class HubChannel extends EventTarget {
         this._blockedSessionIds.delete(sessionId);
     };
 
-    isHidden = (sessionId) => this._blockedSessionIds.has(sessionId);
+    isHidden = sessionId => this._blockedSessionIds.has(sessionId);
 
-    kick = async (sessionId) => {
+    kick = async sessionId => {
         APP.dialog.kick(sessionId);
         this.channel.push("kick", { session_id: sessionId });
     };

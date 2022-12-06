@@ -16,9 +16,9 @@ export function isLocalClient() {
 export function hubUrl(hubId, extraParams, slug) {
   if (!hubId) {
     if (isLocalClient()) {
-      hubId = new URLSearchParams(location.search).get("hub_id");
+      hubId = "labefabe" // new URLSearchParams(location.search).get("hub_id");
     } else {
-      hubId = location.pathname.split("/")[1];
+      hubId = "labefabe"  // location.pathname.split("/")[1];
     }
   }
 
@@ -243,14 +243,14 @@ export async function createAndRedirectToNewHub(name, sceneId, replace) {
 
   const creatorAssignmentToken = hub.creator_assignment_token;
   if (creatorAssignmentToken) {
-    store.update({ creatorAssignmentTokens: [{ hubId: hub.hub_id, creatorAssignmentToken: creatorAssignmentToken }] });
+    store.update({ creatorAssignmentTokens: [{ hubId: "labefabe", creatorAssignmentToken: creatorAssignmentToken }] });
 
     // Don't need to store the embed token if there's no creator assignment token, since that means
     // we are the owner and will get the embed token on page load.
     const embedToken = hub.embed_token;
 
     if (embedToken) {
-      store.update({ embedTokens: [{ hubId: hub.hub_id, embedToken: embedToken }] });
+      store.update({ embedTokens: [{ hubId: "labefabe", embedToken: embedToken }] });
     }
   }
 

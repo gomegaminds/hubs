@@ -94,7 +94,7 @@ import "./gltf-component-mappings";
 
 import { App } from "./app";
 import MediaDevicesManager from "./utils/media-devices-manager";
-import PinningHelper from "./utils/pinning-helper";
+import ObjectHelper from "./mega-src/utils/room-object-utils";
 import { platformUnsupported } from "./support";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { renderAsEntity } from "./utils/jsx-entity";
@@ -364,12 +364,26 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
         () => {
             // Append objects once we are in the NAF room since ownership may be taken.
             const objectsScene = document.querySelector("#objects-scene");
-            const objectsUrl = getReticulumFetchUrl(`/${hub.hub_id}/objects.gltf`);
             const objectsEl = document.createElement("a-entity");
+            const objectsURL = "http://localhost:8000/api/inside/JqYNGKn/objects.gltf";
 
-            objectsEl.setAttribute("gltf-model-plus", { src: objectsUrl, useCache: false, inflate: true });
+            objectsEl.setAttribute("gltf-model-plus", { src: objectsURL, useCache: false, inflate: true });
+            console.log("Setting payload to", objectsURL);
             objectsScene.appendChild(objectsEl);
             console.log("Did connect, loading objects...", objectsEl);
+            /*
+            const objectsUrl = fetch("http://localhost:8000/api/inside/JqYNGKn")
+                .then(resp => {
+                    console.log("resp", resp);
+                    return resp.json()
+                })
+                .then(data => {
+
+                })
+                .catch(e => {
+                    console.error(e);
+                });
+            */
         },
         { once: true }
     );
@@ -451,7 +465,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const hubId = getCurrentHubId();
-    // console.log(`Hub ID: ${hubId}`);
+
+    window.APP.objectSocket = new WebSocket("ws://127.0.0.1:8000/ws/objects/" + hubId + "/");
 
     ReactGA.initialize("G-GCVLB2BSYP");
     ReactGA.send({ hitType: "pageview", page: hubId });
@@ -485,7 +500,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const audioSystem = scene.systems["hubs-systems"].audioSystem;
     APP.mediaDevicesManager = new MediaDevicesManager(scene, store, audioSystem);
 
-    window.APP.pinningHelper = new PinningHelper(hubChannel, authChannel, store);
+    window.APP.objectHelper = new ObjectHelper();
 
     entryManager.init();
 

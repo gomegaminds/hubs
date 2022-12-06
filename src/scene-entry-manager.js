@@ -166,7 +166,7 @@ export default class SceneEntryManager {
 
                 if (entity.components.networked.data.persistent) {
                     NAF.utils.takeOwnership(entity);
-                    window.APP.pinningHelper.unpinElement(entity);
+                    window.APP.objectHelper.delete(entity);
                     entity.parentNode.removeChild(entity);
                 } else {
                     NAF.entities.removeEntity(id);
@@ -206,7 +206,7 @@ export default class SceneEntryManager {
             });
 
             entity.addEventListener("media_resolved", () => {
-                window.APP.pinningHelper.setPinned(entity, true);
+                window.APP.objectHelper.save(entity);
             });
 
             return entity;
