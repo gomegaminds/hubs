@@ -29,7 +29,9 @@ AFRAME.registerComponent("pinnable", {
 
     _persist() {
         // Re-pin or unpin entity to reflect state changes.
-        window.APP.objectHelper.change(this.el);
+        if (window.APP.objectHelper) {
+            window.APP.objectHelper.change(this.el);
+        }
     },
 
     _isMine() {

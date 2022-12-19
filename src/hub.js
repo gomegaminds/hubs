@@ -9,7 +9,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import ReactGA from "react-ga4";
 
-if (process.env.NODE_ENV !== "development") {
+const dev = process.env.NODE_ENV === "development";
+
+if (!dev) {
     Sentry.init({
         dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
         integrations: [new BrowserTracing()],
@@ -41,7 +43,6 @@ import "networked-aframe/src/index";
 import "webrtc-adapter";
 import { detectOS, detect } from "detect-browser";
 import {
-    getReticulumFetchUrl,
     getReticulumMeta,
     migrateChannelToSocket,
     connectToReticulum,
@@ -76,7 +77,6 @@ import SceneEntryManager from "./scene-entry-manager";
 import "./systems/nav";
 import "./systems/frame-scheduler";
 import "./systems/personal-space-bubble";
-import "./systems/permissions";
 import "./systems/exit-on-blur";
 import "./systems/auto-pixel-ratio";
 import "./systems/pen-tools";
@@ -94,7 +94,6 @@ import "./gltf-component-mappings";
 
 import { App } from "./app";
 import MediaDevicesManager from "./utils/media-devices-manager";
-import ObjectHelper from "./mega-src/utils/room-object-utils";
 import { platformUnsupported } from "./support";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { renderAsEntity } from "./utils/jsx-entity";
@@ -173,10 +172,10 @@ function mountUI(props = {}) {
 
     root.render(
         <Auth0Provider
-            domain="megaminds-prod.us.auth0.com"
-            clientId="4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"
+            domain={dev ? "megaminds-dev.us.auth0.com" : "megaminds-prod.us.auth0.com"}
+            clientId={dev ? "WhyZr6bfIdzeHyiy7xomacDUlhJBRS5k" : "4VYsoMjINRZrBjnjvFLyn5utkQT9YRnM"}
             redirectUri={window.location.origin}
-            audience="https://api.megaminds.world"
+            audience={dev ? "django-dev-v1" : "https://api.megaminds.world"}
             scope="openid profile email read:classrooms read:teacher_profile create:submission"
             useRefreshTokens
             cacheLocation="localstorage"
@@ -197,20 +196,12 @@ export function remountUI(props) {
     mountUI(uiProps);
 }
 
-export async function getSceneUrlForHub(hub) {
-    let sceneUrl;
-    if (hub.scene) {
-        sceneUrl = hub.scene.model_url;
-    } else {
-        sceneUrl = loadingEnvironment;
-    }
-
-    return sceneUrl;
-}
-
-export async function updateEnvironmentForHub(hub, entryManager) {
+export async function updateEnvironmentForHub(hub, entryManager, classroom_scene_url) {
     // console.log("Updating environment for hub");
-    const sceneUrl = await getSceneUrlForHub(hub);
+    if(classroom_scene_url.startsWith("/")) {
+        classroom_scene_url = "http://localhost:8000" + classroom_scene_url;
+    }
+    const sceneUrl = classroom_scene_url;
 
     const sceneErrorHandler = () => {
         entryManager.exitScene();
@@ -323,7 +314,7 @@ function onConnectionError(entryManager, connectError) {
 }
 
 const events = emitter();
-function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data) {
+function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, token, channel, events, classroom) {
     const scene = document.querySelector("a-scene");
     const isRejoin = NAF.connection.isConnected();
 
@@ -353,10 +344,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
     console.log(`Dialog host: ${hub.host}:${hub.port}`);
 
     remountUI({
-        messageDispatch: messageDispatch,
-        onSendMessage: messageDispatch.dispatch,
-        onLoaded: () => store.executeOnLoadActions(scene),
-        onAvatarSaved: entry => scene.emit("action_avatar_saved", entry)
+        onLoaded: () => store.executeOnLoadActions(scene)
     });
 
     scene.addEventListener(
@@ -365,25 +353,12 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
             // Append objects once we are in the NAF room since ownership may be taken.
             const objectsScene = document.querySelector("#objects-scene");
             const objectsEl = document.createElement("a-entity");
-            const objectsURL = "http://localhost:8000/api/inside/JqYNGKn/objects.gltf";
+            const objectsURL = "http://localhost:8000/api/inside/" + hub.hub_id + "/objects.gltf";
 
             objectsEl.setAttribute("gltf-model-plus", { src: objectsURL, useCache: false, inflate: true });
             console.log("Setting payload to", objectsURL);
             objectsScene.appendChild(objectsEl);
             console.log("Did connect, loading objects...", objectsEl);
-            /*
-            const objectsUrl = fetch("http://localhost:8000/api/inside/JqYNGKn")
-                .then(resp => {
-                    console.log("resp", resp);
-                    return resp.json()
-                })
-                .then(data => {
-
-                })
-                .catch(e => {
-                    console.error(e);
-                });
-            */
         },
         { once: true }
     );
@@ -401,7 +376,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
         window.APP.hub = hub;
         updateUIForHub(hub, hubChannel);
         scene.emit("hub_updated", { hub });
-        updateEnvironmentForHub(hub, entryManager);
+        updateEnvironmentForHub(hub, entryManager, classroom.scene.scene_glb);
 
         // Disconnect in case this is a re-entry
         APP.dialog.disconnect();
@@ -440,11 +415,13 @@ function redirectToEntryFlow() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    root = ReactDOM.createRoot(document.getElementById("Root"));
     if (!store.state.profile?.displayName) {
         redirectToEntryFlow();
     }
+    root = ReactDOM.createRoot(document.getElementById("Root"));
+    
 
+    let classroom = null;
     const canvas = document.querySelector(".a-canvas");
     canvas.classList.add("a-hidden");
 
@@ -466,19 +443,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const hubId = getCurrentHubId();
 
-    window.APP.objectSocket = new WebSocket("ws://127.0.0.1:8000/ws/objects/" + hubId + "/");
+    await fetch("http://localhost:8000/api/inside/" + hubId)
+        .then(resp => resp.json())
+        .then(data => {
+            classroom = data;
+            window.APP.classroom = data;
+        });
+
+    console.log(classroom);
 
     ReactGA.initialize("G-GCVLB2BSYP");
     ReactGA.send({ hitType: "pageview", page: hubId });
 
     const scene = document.querySelector("a-scene");
     window.APP.scene = scene;
-
-    // If the stored avatar doesn't have a valid src, reset to a legacy avatar.
-    const avatarSrc = await getAvatarSrc(store.state.profile.avatarId);
-    if (!avatarSrc) {
-        await store.resetToRandomDefaultAvatar();
-    }
 
     const authChannel = new AuthChannel(store);
     const hubChannel = new HubChannel(store, hubId);
@@ -500,8 +478,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const audioSystem = scene.systems["hubs-systems"].audioSystem;
     APP.mediaDevicesManager = new MediaDevicesManager(scene, store, audioSystem);
 
-    window.APP.objectHelper = new ObjectHelper();
-
     entryManager.init();
 
     window.dispatchEvent(new CustomEvent("hub_channel_ready"));
@@ -509,12 +485,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     registerNetworkSchemas();
 
     remountUI({
-        authChannel,
         hubChannel,
-        enterScene: entryManager.enterScene,
-        exitScene: reason => {
-            entryManager.exitScene();
-        }
+        enterScene: entryManager.enterScene
     });
 
     getReticulumMeta().then(reticulumMeta => {
@@ -729,7 +701,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             hubChannel.setPermissionsFromToken(permsToken);
 
             await presenceSync.promise;
-            handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, permsToken, hubChannel, events);
+            handleHubChannelJoined(
+                entryManager,
+                hubChannel,
+                messageDispatch,
+                data,
+                permsToken,
+                hubChannel,
+                events,
+                classroom
+            );
         })
         .receive("error", res => {
             if (res.reason === "closed") {

@@ -350,6 +350,8 @@ AFRAME.registerComponent("media-loader", {
                     this.data.src = `${window.location.origin}${window.location.pathname}${window.location.search}${src}`;
             }
 
+            console.log("src", src);
+
             let canonicalUrl = src;
             let canonicalAudioUrl = null; // set non-null only if audio track is separated from video track (eg. 360 video)
             let accessibleUrl = src;
@@ -363,7 +365,9 @@ AFRAME.registerComponent("media-loader", {
             const isLocalModelAsset =
                 isNonCorsProxyDomain(parsedUrl.hostname) && (guessContentType(src) || "").startsWith("model/gltf");
 
-            if (this.data.resolve && !src.startsWith("data:") && !src.startsWith("hubs:") && !isLocalModelAsset) {
+            const isMegaMindsAsset = src.startsWith("http://localhost") || src.startsWith("https://api.megaminds.world")
+
+            if (!isMegaMindsAsset && this.data.resolve && !src.startsWith("data:") && !src.startsWith("hubs:") && !isLocalModelAsset) {
                 const is360 = !!(
                     this.data.mediaOptions.projection && this.data.mediaOptions.projection.startsWith("360")
                 );
@@ -569,21 +573,7 @@ AFRAME.registerComponent("media-loader", {
                 this.el.addEventListener(
                     "image-loaded",
                     async () => {
-                        const mayChangeScene = this.el.sceneEl.systems.permissions.can("update_hub");
-
-                        if (await isLocalHubsAvatarUrl(src)) {
-                            this.el.setAttribute("hover-menu__hubs-item", {
-                                template: "#avatar-link-hover-menu",
-                                isFlat: true
-                            });
-                        } else if ((await isHubsRoomUrl(src)) || ((await isLocalHubsSceneUrl(src)) && mayChangeScene)) {
-                            this.el.setAttribute("hover-menu__hubs-item", {
-                                template: "#hubs-destination-hover-menu",
-                                isFlat: true
-                            });
-                        } else {
-                            this.el.setAttribute("hover-menu__link", { template: "#link-hover-menu", isFlat: true });
-                        }
+                        this.el.setAttribute("hover-menu__link", { template: "#link-hover-menu", isFlat: true });
                         this.onMediaLoaded(SHAPE.BOX);
                     },
                     { once: true }
@@ -653,7 +643,6 @@ AFRAME.registerComponent("media-pager", {
                 this.networkedEl = networkedEl;
                 this.networkedEl.addEventListener("pinned", this.update);
                 this.networkedEl.addEventListener("unpinned", this.update);
-                window.APP.hubChannel.addEventListener("permissions_updated", this.update);
             })
             .catch(() => {}); //ignore exception, entity might not be networked
 
@@ -696,8 +685,6 @@ AFRAME.registerComponent("media-pager", {
 
         this.nextButton.object3D.removeEventListener("interact", this.onNext);
         this.prevButton.object3D.removeEventListener("interact", this.onPrev);
-
-        window.APP.hubChannel.removeEventListener("permissions_updated", this.update);
 
         this.el.removeEventListener("pdf-loaded", this.update);
     }

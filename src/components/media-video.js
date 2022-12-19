@@ -132,8 +132,6 @@ AFRAME.registerComponent("media-video", {
                 applyPersistentSync(this.networkedEl.components.networked.data.networkId);
                 this.updatePlaybackState();
 
-                window.APP.hubChannel.addEventListener("permissions_updated", this.updateHoverMenu);
-
                 // For scene-owned videos, take ownership after a random delay if nobody
                 // else has so there is a timekeeper. Do not due this on iOS because iOS has an
                 // annoying "auto-pause" feature that forces one non-autoplaying video to play
@@ -730,7 +728,7 @@ AFRAME.registerComponent("media-video", {
 
         this.seekForwardButton.object3D.visible = !!this.video && !this.videoIsLive;
 
-        const mayModifyPlayHead = (!!this.video && !this.videoIsLive) || window.APP.hubChannel.can("spawn_and_move_media");
+        const mayModifyPlayHead = (!!this.video && !this.videoIsLive)
 
         this.playPauseButton.object3D.visible =
             this.seekForwardButton.object3D.visible =
@@ -824,8 +822,6 @@ AFRAME.registerComponent("media-video", {
         APP.supplementaryAttenuation.delete(this.el);
 
         this.removeAudio();
-
-        window.APP.hubChannel.removeEventListener("permissions_updated", this.updateHoverMenu);
 
         if (this.video) {
             this.video.removeEventListener("pause", this.onPauseStateChange);

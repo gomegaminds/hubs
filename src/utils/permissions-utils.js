@@ -16,7 +16,8 @@ export function canMove(entity) {
         }
     }
 
-    if (window.APP.hubChannel.can("update_hub")) {
+    if (window.APP.objectHelper.can("can_change")) {
+        // TODO: Cache permission here to avoid render loop 
         return true;
     }
 

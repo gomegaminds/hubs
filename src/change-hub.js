@@ -1,6 +1,6 @@
 /* global APP*/
 import { getReticulumFetchUrl, hubUrl } from "./utils/phoenix-utils";
-import { updateEnvironmentForHub, getSceneUrlForHub, updateUIForHub, remountUI } from "./hub";
+import { updateUIForHub, remountUI } from "./hub";
 
 function unloadRoomObjects() {
   document.querySelectorAll("[pinnable]").forEach(el => {
@@ -70,13 +70,13 @@ export async function changeHub(hubId, addToHistory = true) {
   NAF.room = hub.hub_id;
 
   if (
-    document.querySelector("#environment-scene").childNodes[0].components["gltf-model-plus"].data.src !==
-    (await getSceneUrlForHub(hub))
+    document.querySelector("#environment-scene").childNodes[0].components["gltf-model-plus"].data.src !== null
+    // (await getSceneUrlForHub(hub))
   ) {
     const fader = document.getElementById("viewing-camera").components["fader"];
     fader.fadeOut().then(() => {
       scene.emit("reset_scene");
-      updateEnvironmentForHub(hub, APP.entryManager);
+      // updateEnvironmentForHub(hub, APP.entryManager);
     });
   }
 

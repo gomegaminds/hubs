@@ -10,7 +10,7 @@ import { TwoPointStretchingSystem } from "./two-point-stretching-system";
 import { HoldableButtonSystem, HoverButtonSystem } from "./button-systems";
 import { DrawingMenuSystem } from "./drawing-menu-system";
 import { HoverMenuSystem } from "./hover-menu-system";
-import { SuperSpawnerSystem } from "./super-spawner-system";
+// import { SuperSpawnerSystem } from "./super-spawner-system";
 import { HapticFeedbackSystem } from "./haptic-feedback-system";
 import { SoundEffectsSystem } from "./sound-effects-system";
 import { ScenePreviewCameraSystem } from "./scene-preview-camera-system";
@@ -76,7 +76,7 @@ AFRAME.registerSystem("hubs-systems", {
         });
         this.cursorTogglingSystem = new CursorTogglingSystem();
         this.interactionSfxSystem = new InteractionSfxSystem();
-        this.superSpawnerSystem = new SuperSpawnerSystem();
+        // this.superSpawnerSystem = new SuperSpawnerSystem();
         this.cursorTargettingSystem = new CursorTargettingSystem();
         this.positionAtBorderSystem = new PositionAtBorderSystem();
         this.physicsSystem = new PhysicsSystem(this.el.object3D);
@@ -179,7 +179,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
         aframeSystems.userinput,
         hubsSystems.soundEffectsSystem
     );
-    hubsSystems.superSpawnerSystem.tick();
+    // hubsSystems.superSpawnerSystem.tick();
     hubsSystems.cursorPoseTrackingSystem.tick();
     hubsSystems.hoverMenuSystem.tick();
     hubsSystems.positionAtBorderSystem.tick();

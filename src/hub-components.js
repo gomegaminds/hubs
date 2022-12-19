@@ -42,7 +42,6 @@ import "./components/pinnable";
 
 import "./components/unmute-video-button";
 import "./components/visible-to-owner";
-import "./components/action-to-event";
 import "./components/action-to-remove";
 
 import "./components/emit-scene-event-on-remove";

@@ -147,12 +147,17 @@ export default class SceneEntryManager {
 
     _setPlayerInfoFromProfile = async (force = false) => {
         const avatarId = this.store.state.profile.avatarId;
-        if (!force && this._lastFetchedAvatarId === avatarId) return; // Avoid continually refetching based upon state changing
 
-        this._lastFetchedAvatarId = avatarId;
-        const avatarSrc = await getAvatarSrc(avatarId);
-
-        this.avatarRig.setAttribute("player-info", { avatarSrc, avatarType: getAvatarType(avatarId) });
+        await fetch(`http://localhost:8000/api/avatars/${avatarId}`)
+            .then(resp => resp.json())
+            .then(data => {
+                console.log(data, "from avatar api");
+                if(data.glb.startsWith("/")) {
+                    this.avatarRig.setAttribute("player-info", { avatarSrc: "http://localhost:8000" + data.glb });
+                }  else {
+                    this.avatarRig.setAttribute("player-info", { avatarSrc: data.glb });
+                }
+            });
     };
 
     _setupKicking = () => {
@@ -188,7 +193,7 @@ export default class SceneEntryManager {
     _setupMedia = () => {
         const offset = { x: 0, y: 0, z: -1.5 };
         const spawnMediaInfrontOfPlayer = (src, contentOrigin) => {
-            if (!this.hubChannel.can("spawn_and_move_media")) return;
+            if (!window.APP.objectHelper.can("can_create")) return;
             const { entity, orientation } = addMedia(
                 src,
                 "#interactable-media",
@@ -223,19 +228,15 @@ export default class SceneEntryManager {
         });
 
         this.scene.addEventListener("action_kick_client", ({ detail: { clientId } }) => {
-            this.performConditionalSignIn(
-                () => this.hubChannel.can("kick_users"),
-                async () => await window.APP.hubChannel.kick(clientId),
-                SignInMessages.kickUser
-            );
+            if (window.APP.objectHelper.can("kick_users")) {
+                window.APP.hubChannel.kick(clientId);
+            }
         });
 
         this.scene.addEventListener("action_mute_client", ({ detail: { clientId } }) => {
-            this.performConditionalSignIn(
-                () => this.hubChannel.can("mute_users"),
-                () => window.APP.hubChannel.mute(clientId),
-                SignInMessages.muteUser
-            );
+            if (window.APP.objectHelper.can("mute_users")) {
+                window.APP.hubChannel.mute(clientId);
+            }
         });
 
         if (!qsTruthy("newLoader")) {
