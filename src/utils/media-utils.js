@@ -163,8 +163,11 @@ export const addMedia = (
     const entity = document.createElement("a-entity");
 
     const nid = NAF.utils.createNetworkId();
+
+
     if (networked) {
         entity.setAttribute("networked", { template: template, networkId: nid });
+        console.log("Set networked attribute with template", template);
     } else {
         const templateBody = document
             .importNode(document.body.querySelector(template).content, true)
@@ -202,7 +205,9 @@ export const addMedia = (
 
     entity.object3D.matrixNeedsUpdate = true;
 
-    (parentEl || scene).appendChild(entity);
+    scene.appendChild(entity);
+
+    console.log("Child appended to scene", scene);
 
     const orientation = new Promise(function (resolve) {
         if (needsToBeUploaded) {

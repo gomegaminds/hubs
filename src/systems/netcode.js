@@ -6,14 +6,14 @@ import { defineNetworkSchema } from "../utils/bit-utils";
 import { renderAsEntity } from "../utils/jsx-entity";
 
 const prefabs = new Map(
-  Object.entries({
-    cube: {
-      template: CubeMediaFramePrefab
-    },
-    media: {
-      template: MediaPrefab
-    }
-  })
+    Object.entries({
+        cube: {
+            template: CubeMediaFramePrefab
+        },
+        media: {
+            template: MediaPrefab
+        }
+    })
 );
 
 /**
@@ -40,18 +40,18 @@ export function createNetworkedEntityFromRemote(world, prefabName, initialData, 
 
     createMessageDatas.set(eid, { prefabName, initialData });
 
-  let i = 0;
-  obj.traverse(function (o) {
-    if (o.eid && hasComponent(world, Networked, o.eid)) {
-      const eid = o.eid;
-      Networked.id[eid] = APP.getSid(i === 0 ? rootNid : `${rootNid}.${i}`);
-      APP.world.nid2eid.set(Networked.id[eid], eid);
-      Networked.creator[eid] = APP.getSid(creator);
-      Networked.owner[eid] = APP.getSid(owner);
-      if (NAF.clientId === owner) takeOwnership(world, eid);
-      i += 1;
-    }
-  });
+    let i = 0;
+    obj.traverse(function (o) {
+        if (o.eid && hasComponent(world, Networked, o.eid)) {
+            const eid = o.eid;
+            Networked.id[eid] = APP.getSid(i === 0 ? rootNid : `${rootNid}.${i}`);
+            APP.world.nid2eid.set(Networked.id[eid], eid);
+            Networked.creator[eid] = APP.getSid(creator);
+            Networked.owner[eid] = APP.getSid(owner);
+            if (NAF.clientId === owner) takeOwnership(world, eid);
+            i += 1;
+        }
+    });
 
     AFRAME.scenes[0].object3D.add(obj);
     return eid;
@@ -72,9 +72,9 @@ const networkedObjectsQuery = defineQuery([Networked]);
 const ownedNetworkObjectsQuery = defineQuery([Networked, Owned]);
 
 const schemas = new Map([
-  [NetworkedMediaFrame, defineNetworkSchema(NetworkedMediaFrame)],
-  [NetworkedTransform, defineNetworkSchema(NetworkedTransform)],
-  [NetworkedVideo, defineNetworkSchema(NetworkedVideo)]
+    [NetworkedMediaFrame, defineNetworkSchema(NetworkedMediaFrame)],
+    [NetworkedTransform, defineNetworkSchema(NetworkedTransform)],
+    [NetworkedVideo, defineNetworkSchema(NetworkedVideo)]
 ]);
 const networkableComponents = Array.from(schemas.keys());
 
@@ -84,46 +84,46 @@ const pendingParts = [];
 
 // TODO messaging, joining, and leaving should not be using NAF
 if (!window.NAF) {
-  console.warn(
-    "NAF is currently required for the new networking system but is not loaded. This is only expected on secondary pages like avatar.html."
-  );
+    console.warn(
+        "NAF is currently required for the new networking system but is not loaded. This is only expected on secondary pages like avatar.html."
+    );
 } else {
-  NAF.connection.subscribeToDataChannel("nn", function (fromClientId, _dataType, data) {
-    data.fromClientId = fromClientId;
-    pendingMessages.push(data);
-  });
+    NAF.connection.subscribeToDataChannel("nn", function (fromClientId, _dataType, data) {
+        data.fromClientId = fromClientId;
+        pendingMessages.push(data);
+    });
 }
 document.addEventListener("DOMContentLoaded", function () {
-  document.body.addEventListener("clientConnected", function ({ detail: { clientId } }) {
-    console.log("client joined", clientId);
-    pendingJoins.push(APP.getSid(clientId));
-  });
-  document.body.addEventListener("clientDisconnected", function ({ detail: { clientId } }) {
-    console.log("client left", clientId);
-    pendingParts.push(APP.getSid(clientId));
-  });
+    document.body.addEventListener("clientConnected", function ({ detail: { clientId } }) {
+        console.log("client joined", clientId);
+        pendingJoins.push(APP.getSid(clientId));
+    });
+    document.body.addEventListener("clientDisconnected", function ({ detail: { clientId } }) {
+        console.log("client left", clientId);
+        pendingParts.push(APP.getSid(clientId));
+    });
 });
 
 function messageFor(world, created, updated, deleted, isFullSync) {
     const message = {
         creates: [],
         updates: [],
-        deletes: [],
+        deletes: []
     };
 
-    created.forEach((eid) => {
+    created.forEach(eid => {
         const { prefabName, initialData } = createMessageDatas.get(eid);
         message.creates.push([APP.getString(Networked.id[eid]), prefabName, initialData]);
     });
 
-    updated.forEach((eid) => {
+    updated.forEach(eid => {
         const updateMessage = {
             nid: APP.getString(Networked.id[eid]),
             lastOwnerTime: Networked.lastOwnerTime[eid],
             owner: APP.getString(Networked.owner[eid]), // This should always be NAF.clientId. If it's not, something bad happened
             creator: APP.getString(Networked.creator[eid]),
             componentIds: [],
-            data: [],
+            data: []
         };
 
         for (let j = 0; j < networkableComponents.length; j++) {
@@ -141,7 +141,7 @@ function messageFor(world, created, updated, deleted, isFullSync) {
         }
     });
 
-    deleted.forEach((eid) => {
+    deleted.forEach(eid => {
         // TODO: We are reading component data of a deleted entity here.
         const nid = Networked.id[eid];
         message.deletes.push(APP.getString(nid));
@@ -171,22 +171,22 @@ export function networkReceiveSystem(world) {
     // - everyone attempts to take ownership of any objects that user owned
     {
         const networkedObjects = networkedObjectsQuery(world);
-        pendingParts.forEach((partingClientId) => {
+        pendingParts.forEach(partingClientId => {
             networkedObjects
-                .filter((eid) => isNetworkInstantiated(eid) && Networked.creator[eid] === partingClientId)
-                .forEach((eid) => removeEntity(world, eid));
+                .filter(eid => isNetworkInstantiated(eid) && Networked.creator[eid] === partingClientId)
+                .forEach(eid => removeEntity(world, eid));
 
             // ignore entities the parting user created as they were just deleted
             networkedObjects
-                .filter((eid) => Networked.owner[eid] === partingClientId && Networked.creator[eid] !== partingClientId)
-                .forEach((eid) => takeOwnership(world, eid));
+                .filter(eid => Networked.owner[eid] === partingClientId && Networked.creator[eid] !== partingClientId)
+                .forEach(eid => takeOwnership(world, eid));
         });
         pendingParts.length = 0;
     }
 
     // If we were hanging onto updates for any newly created non network instantiated entities
     // we can now apply them. Network instantiated entities are handled when processing creates.
-    rcvEnteredNetworkedObjectsQuery(world).forEach((eid) => {
+    rcvEnteredNetworkedObjectsQuery(world).forEach(eid => {
         const nid = Networked.id[eid];
         if (pendingUpdatesForNid.has(nid)) {
             // console.log("had pending updates for", APP.getString(nid), pendingUpdatesForNid.get(nid));
@@ -340,7 +340,7 @@ export function networkSendSystem(world) {
                 true
             );
             if (message) {
-                pendingJoins.forEach((clientId) =>
+                pendingJoins.forEach(clientId =>
                     NAF.connection.sendDataGuaranteed(APP.getString(clientId), "nn", message)
                 );
             }
@@ -352,14 +352,14 @@ export function networkSendSystem(world) {
     {
         const created = sendEnteredNetworkedObjectsQuery(world).filter(isNetworkInstantiatedByMe);
         // TODO: Lots of people will send delete messages about the same object
-        const deleted = sendExitedNetworkedObjectsQuery(world).filter((eid) => {
+        const deleted = sendExitedNetworkedObjectsQuery(world).filter(eid => {
             return !world.deletedNids.has(Networked.id[eid]) && isNetworkInstantiated(eid);
         });
 
         const message = messageFor(world, created, ownedNetworkObjectsQuery(world), deleted, false);
         if (message) NAF.connection.broadcastDataGuaranteed("nn", message);
 
-        deleted.forEach((eid) => {
+        deleted.forEach(eid => {
             createMessageDatas.delete(eid);
             world.deletedNids.add(Networked.id[eid]);
             world.nid2eid.delete(Networked.id[eid]);

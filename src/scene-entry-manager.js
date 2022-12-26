@@ -194,13 +194,14 @@ export default class SceneEntryManager {
         const offset = { x: 0, y: 0, z: -1.5 };
         const spawnMediaInfrontOfPlayer = (src, contentOrigin) => {
             if (!window.APP.objectHelper.can("can_create")) return;
+            /*
             const { entity, orientation } = addMedia(
                 src,
                 "#interactable-media",
-                contentOrigin,
-                null,
-                !(src instanceof MediaStream),
-                true
+                contentOrigin, // contentOrigin
+                null, // contentSubtype
+                !(src instanceof MediaStream), // resolve
+                true // fitTobox
             );
             orientation.then(or => {
                 entity.setAttribute("offset-relative-to", {
@@ -209,6 +210,13 @@ export default class SceneEntryManager {
                     orientation: or
                 });
             });
+            */
+
+            const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
+            const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+            const obj = APP.world.eid2obj.get(eid);
+            obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+            obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
             entity.addEventListener("media_resolved", () => {
                 window.APP.objectHelper.save(entity);
