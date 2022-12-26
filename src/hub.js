@@ -126,6 +126,9 @@ import { ExitReason } from "./mega-src/react-components/misc/messages";
 import { SignInMessages } from "./mega-src/react-components/misc/messages";
 import { LogMessageType } from "./mega-src/react-components/misc/messages";
 import "./load-media-on-paste-or-drop";
+import { swapActiveScene } from "./bit-systems/scene-loading";
+import { setLocalClientID } from "./bit-systems/networking";
+import { listenForNetworkMessages } from "./utils/listen-for-network-messages";
 
 const PHOENIX_RELIABLE_NAF = "phx-reliable";
 NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
@@ -198,7 +201,7 @@ export function remountUI(props) {
 
 export async function updateEnvironmentForHub(hub, entryManager, classroom_scene_url) {
     // console.log("Updating environment for hub");
-    if(classroom_scene_url.startsWith("/")) {
+    if (classroom_scene_url.startsWith("/")) {
         classroom_scene_url = "http://localhost:8000" + classroom_scene_url;
     }
     const sceneUrl = classroom_scene_url;
@@ -314,7 +317,7 @@ function onConnectionError(entryManager, connectError) {
 }
 
 const events = emitter();
-function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, token, channel, events, classroom) {
+function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, classroom) {
     const scene = document.querySelector("a-scene");
     const isRejoin = NAF.connection.isConnected();
 
@@ -419,7 +422,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         redirectToEntryFlow();
     }
     root = ReactDOM.createRoot(document.getElementById("Root"));
-    
 
     let classroom = null;
     const canvas = document.querySelector(".a-canvas");
@@ -442,6 +444,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const hubId = getCurrentHubId();
+
 
     await fetch("http://localhost:8000/api/inside/" + hubId)
         .then(resp => resp.json())
@@ -686,9 +689,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
+    listenForNetworkMessages(hubPhxChannel, events);
+
     hubPhxChannel
         .join()
         .receive("ok", async data => {
+            setLocalClientID(data.session_id);
             APP.hideHubPresenceEvents = true;
             presenceSync.promise = new Promise(resolve => {
                 presenceSync.resolve = resolve;
@@ -700,26 +706,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             const permsToken = data.perms_token;
             hubChannel.setPermissionsFromToken(permsToken);
 
+            remountUI({
+                hubIsBound: data.hub_requires_oauth,
+                initialIsFavorited: data.subscriptions.favorites
+            });
+
             await presenceSync.promise;
-            handleHubChannelJoined(
-                entryManager,
-                hubChannel,
-                messageDispatch,
-                data,
-                permsToken,
-                hubChannel,
-                events,
-                classroom
-            );
+            handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data, classroom);
         })
         .receive("error", res => {
             if (res.reason === "closed") {
                 entryManager.exitScene();
+                remountUI({ roomUnavailableReason: ExitReason.closed });
             } else if (res.reason === "oauth_required") {
                 entryManager.exitScene();
                 remountUI({ oauthInfo: res.oauth_info, showOAuthScreen: true });
             } else if (res.reason === "join_denied") {
                 entryManager.exitScene();
+                remountUI({ roomUnavailableReason: ExitReason.denied });
             }
 
             console.error(res);
@@ -748,6 +752,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             sessionId: session_id,
             sent: session_id === socket.params().session_id
         };
+
+        if (scene.is("vr-mode")) {
+            createInWorldLogMessage(incomingMessage);
+        }
 
         messageDispatch.receive(incomingMessage);
     });

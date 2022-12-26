@@ -2,7 +2,7 @@ import qsTruthy from "./utils/qs_truthy";
 import nextTick from "./utils/next-tick";
 import { hackyMobileSafariTest } from "./utils/detect-touchscreen";
 import { SignInMessages } from "./mega-src/react-components/misc/messages";
-import { createNetworkedEntity } from "./systems/netcode";
+import { createNetworkedEntity } from "./utils/create-networked-entity";
 
 const isMobile = AFRAME.utils.device.isMobile();
 const forceEnableTouchscreen = hackyMobileSafariTest();
@@ -18,6 +18,7 @@ import { MediaDevices, MediaDevicesEvents } from "./utils/media-devices-utils";
 import { addComponent, removeEntity } from "bitecs";
 import { MyCameraTool } from "./bit-components";
 import { anyEntityWith } from "./utils/bit-utils";
+import { moveToSpawnPoint } from "./bit-systems/waypoint";
 
 export default class SceneEntryManager {
     constructor(hubChannel, authChannel, history) {
@@ -55,15 +56,26 @@ export default class SceneEntryManager {
     };
 
     enterScene = async (enterInVR, muteOnEntry) => {
+        console.log("Entering scene...");
         document.getElementById("viewing-camera").removeAttribute("scene-preview-camera");
 
         if (isDebug && NAF.connection.adapter.session) {
             NAF.connection.adapter.session.options.verbose = true;
         }
 
-        const waypointSystem = this.scene.systems["hubs-systems"].waypointSystem;
-        waypointSystem.moveToSpawnPoint();
+        if (enterInVR) {
+            // This specific scene state var is used to check if the user went through the
+            // entry flow and chose VR entry, and is used to preempt VR mode on refreshes.
+            this.scene.addState("vr-entered");
 
+            // HACK - A-Frame calls getVRDisplays at module load, we want to do it here to
+            // force gamepads to become live.
+            "getVRDisplays" in navigator && navigator.getVRDisplays();
+
+            await exit2DInterstitialAndEnterVR(true);
+        }
+
+        moveToSpawnPoint(APP.world, this.scene.systems["hubs-systems"].characterController);
         if (isMobile || forceEnableTouchscreen || qsTruthy("force_enable_touchscreen")) {
             this.avatarRig.setAttribute("virtual-gamepad-controls", {});
         }
@@ -72,9 +84,12 @@ export default class SceneEntryManager {
         this._setupKicking();
         this._setupMedia();
         this._setupCamera();
+
+        if (qsTruthy("offline")) return;
+
         this._spawnAvatar();
 
-        this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
+        // this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
 
         this.scene.classList.remove("hand-cursor");
         this.scene.classList.add("no-cursor");
@@ -152,9 +167,9 @@ export default class SceneEntryManager {
             .then(resp => resp.json())
             .then(data => {
                 console.log(data, "from avatar api");
-                if(data.glb.startsWith("/")) {
+                if (data.glb.startsWith("/")) {
                     this.avatarRig.setAttribute("player-info", { avatarSrc: "http://localhost:8000" + data.glb });
-                }  else {
+                } else {
                     this.avatarRig.setAttribute("player-info", { avatarSrc: data.glb });
                 }
             });
@@ -218,11 +233,13 @@ export default class SceneEntryManager {
             obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
             obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
+            /*
             entity.addEventListener("media_resolved", () => {
                 window.APP.objectHelper.save(entity);
             });
+            */
 
-            return entity;
+            return eid;
         };
 
         this.scene.addEventListener("add_media", e => {
