@@ -1,40 +1,78 @@
 import { createVideoOrAudioEl } from "../utils/media-utils";
 export async function loadVideoTexture(src) {
-  const videoEl = createVideoOrAudioEl("video");
-  const texture = new THREE.VideoTexture(videoEl);
-  texture.minFilter = THREE.LinearFilter;
-  texture.encoding = THREE.sRGBEncoding;
+    const videoEl = createVideoOrAudioEl("video");
+    const texture = new THREE.VideoTexture(videoEl);
+    texture.minFilter = THREE.LinearFilter;
+    texture.encoding = THREE.sRGBEncoding;
 
-  const isReady = () => {
-    return (texture.image.videoHeight || texture.image.height) && (texture.image.videoWidth || texture.image.width);
-  };
-
-  return new Promise((resolve, reject) => {
-    let pollTimeout;
-    const failLoad = function (e) {
-      videoEl.onerror = null;
-      clearTimeout(pollTimeout);
-      reject(e);
+    const isReady = () => {
+        return (texture.image.videoHeight || texture.image.height) && (texture.image.videoWidth || texture.image.width);
     };
 
-    videoEl.src = src;
-    videoEl.onerror = failLoad;
+    return new Promise((resolve, reject) => {
+        let pollTimeout;
+        const failLoad = function (e) {
+            videoEl.onerror = null;
+            clearTimeout(pollTimeout);
+            reject(e);
+        };
 
-    // NOTE: We used to use the canplay event here to yield the texture, but that fails to fire on iOS Safari
-    // and also sometimes in Chrome it seems.
-    // TODO: Check if this is still true
-    const poll = () => {
-      if (isReady()) {
-        videoEl.onerror = null;
+        if (src && src.startsWith("hubs://")) {
+            const streamClientId = src.substring(7).split("/")[1]; // /clients/<client id>/video is only URL for now
+            APP.dialog.getMediaStream(streamClientId, "video").then(stream => {
+                const video = createVideoOrAudioEl("video");
+                videoEl.srcObject = stream;
+                // Video is muted so autoplay is allowed
+                videoEl.play();
+            });
+        } else {
+            videoEl.src = src;
+        }
+        videoEl.onerror = failLoad;
 
-        const height = texture.image.videoHeight || texture.image.height;
-        const width = texture.image.videoWidth || texture.image.width;
-        resolve({ texture, audioSourceEl: texture.image, ratio: height / width });
-      } else {
-        pollTimeout = setTimeout(poll, 500);
-      }
-    };
+        // NOTE: We used to use the canplay event here to yield the texture, but that fails to fire on iOS Safari
+        // and also sometimes in Chrome it seems.
+        // TODO: Check if this is still true
+        const poll = () => {
+            if (isReady()) {
+                videoEl.onerror = null;
 
-    poll();
-  });
+                const height = texture.image.videoHeight || texture.image.height;
+                const width = texture.image.videoWidth || texture.image.width;
+                if (src && src.startsWith("hubs://")) {
+                    resolve({ texture, audioSourceEl: null, ratio: height / width });
+                } else {
+                    resolve({ texture, audioSourceEl: texture.image, ratio: height / width });
+                }
+            } else {
+                pollTimeout = setTimeout(poll, 500);
+            }
+        };
+
+        poll();
+    });
+
+    if (src && src.startsWith("hubs://")) {
+        // If its a local stream
+        const streamClientId = src.substring(7).split("/")[1]; // /clients/<client id>/video is only URL for now
+        APP.dialog.getMediaStream(streamClientId, "video").then(stream => {
+            if (src !== this.data.src) {
+                // Prevent creating and loading video texture if the src changed while we were fetching the video stream.
+                return;
+            }
+
+            const video = createVideoOrAudioEl("video");
+            video.srcObject = stream;
+            // Video is muted so autoplay is allowed
+            video.play();
+
+            const texture = new THREE.VideoTexture(video);
+            texture.flipY = false;
+            texture.minFilter = THREE.LinearFilter;
+            texture.encoding = THREE.sRGBEncoding;
+
+            this.applyTexture(texture);
+        });
+    } else {
+    }
 }

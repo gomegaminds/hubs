@@ -226,6 +226,12 @@ export const Description = defineComponent({
 });
 Description.value[$isStringType] = true;
 
+export const Reaction = defineComponent();
+export const ParticleEmitter = defineComponent({
+    src: Types.ui32
+});
+ParticleEmitter.src[$isStringType] = true;
+
 export const SpinningAnimation = defineComponent({
     toggled: Types.ui8,
     speed: Types.ui8

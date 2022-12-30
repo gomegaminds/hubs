@@ -41,7 +41,7 @@ export function networkDebugSystem(world: HubsWorld, scene: Scene) {
             "\nNetworked " +
             formatComponentProps(eid, Networked) +
             "\n" +
-            formatComponentProps(eid, SpinningAnimation)
+            formatComponentProps(eid, NetworkedTransform)
         textObj.sync();
     });
 }

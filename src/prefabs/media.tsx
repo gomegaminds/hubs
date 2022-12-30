@@ -12,7 +12,6 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
             networkedTransform
             billboard
             locked
-            spinningAnimation
             description
             studentsCanMove
             mediaLoader={params}

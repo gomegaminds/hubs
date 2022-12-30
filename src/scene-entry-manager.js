@@ -209,38 +209,28 @@ export default class SceneEntryManager {
         const offset = { x: 0, y: 0, z: -1.5 };
         const spawnMediaInfrontOfPlayer = (src, contentOrigin) => {
             if (!window.APP.objectHelper.can("can_create")) return;
-            /*
-            const { entity, orientation } = addMedia(
-                src,
-                "#interactable-media",
-                contentOrigin, // contentOrigin
-                null, // contentSubtype
-                !(src instanceof MediaStream), // resolve
-                true // fitTobox
-            );
-            orientation.then(or => {
-                entity.setAttribute("offset-relative-to", {
-                    target: "#avatar-pov-node",
-                    offset,
-                    orientation: or
-                });
-            });
-            */
 
-            const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
-            const avatarPov = document.querySelector("#avatar-pov-node").object3D;
-            const obj = APP.world.eid2obj.get(eid);
-            obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
-            obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
-            window.APP.objectHelper.save(eid);
+            if (src instanceof MediaStream) {
 
-            /*
-            entity.addEventListener("media_resolved", () => {
-                window.APP.objectHelper.save(entity);
-            });
-            */
+                // src = `hubs://clients/${NAF.clientId}/video`;
+                console.log("GOT MEDIASTREAM", src);
+                const eid = createNetworkedEntity(APP.world, "media", { src: "hubs://clients/" + NAF.clientId + "/video", recenter: true, resize: true });
+                const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+                const obj = APP.world.eid2obj.get(eid);
+                obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+                obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+                return eid;
+            } else {
+                const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
+                const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+                const obj = APP.world.eid2obj.get(eid);
+                obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+                obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
-            return eid;
+                window.APP.objectHelper.save(eid);
+                return eid;
+            }
+
         };
 
         this.scene.addEventListener("add_media", e => {
@@ -274,19 +264,14 @@ export default class SceneEntryManager {
             isHandlingVideoShare = false;
 
             if (isVideoTrackAdded) {
-                if (target === "avatar") {
-                    this.avatarRig.setAttribute("player-info", { isSharingAvatarCamera: true });
-                } else {
-                    currentVideoShareEntity = spawnMediaInfrontOfPlayer(
-                        this.mediaDevicesManager.mediaStream,
-                        undefined
-                    );
-                    // Wire up custom removal event which will stop the stream.
-                    currentVideoShareEntity.setAttribute(
-                        "emit-scene-event-on-remove",
-                        `event:${MediaDevicesEvents.VIDEO_SHARE_ENDED}`
-                    );
-                }
+                currentVideoShareEntity = spawnMediaInfrontOfPlayer(this.mediaDevicesManager.mediaStream, undefined);
+                // Wire up custom removal event which will stop the stream.
+                /*
+                currentVideoShareEntity.setAttribute(
+                    "emit-scene-event-on-remove",
+                    `event:${MediaDevicesEvents.VIDEO_SHARE_ENDED}`
+                );
+                */
 
                 this.scene.emit("share_video_enabled", {
                     source: isDisplayMedia ? MediaDevices.SCREEN : MediaDevices.CAMERA

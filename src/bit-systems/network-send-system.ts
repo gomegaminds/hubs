@@ -7,6 +7,7 @@ import type { Message } from "../utils/networking-types";
 import {
     createMessageDatas,
     isCreatedByMe,
+    isOwnedByMe,
     isNetworkInstantiated,
     localClientID,
     networkedQuery,
@@ -54,7 +55,7 @@ export function networkSendSystem(world: HubsWorld) {
             const ownedNetworkedEntities = ownedNetworkedQuery(world);
             const message = messageFor(
                 world,
-                networkedQuery(world).filter(isCreatedByMe),
+                networkedQuery(world).filter(isOwnedByMe),
                 ownedNetworkedEntities,
                 ownedNetworkedEntities,
                 [],
@@ -89,13 +90,13 @@ export function networkSendSystem(world: HubsWorld) {
                 !softRemovedEntities.has(eid) &&
                 // Rebroadcast delete messages of entities I created, in case
                 // a user who just joined missed a delete message I received.
-                (!world.deletedNids.has(Networked.id[eid]) || isCreatedByMe(eid))
+                (!world.deletedNids.has(Networked.id[eid]) || isOwnedByMe(eid))
             );
         });
 
         const message = messageFor(
             world,
-            enteredNetworkedQuery(world).filter(isCreatedByMe),
+            enteredNetworkedQuery(world).filter(isOwnedByMe),
             ownedNetworkedQuery(world),
             enteredOwnedNetworkedQuery(world),
             deletedEntities,

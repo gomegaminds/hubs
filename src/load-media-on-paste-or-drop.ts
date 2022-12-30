@@ -21,39 +21,23 @@ function spawnFromUrl(text: string) {
     const eid = createNetworkedEntity(APP.world, "media", {
         src: text,
         recenter: true,
-        resize: true,
-        animateLoad: true,
-        isObjectMenuTarget: true
+        resize: true
     });
     const avatarPov = (document.querySelector("#avatar-pov-node")! as AElement).object3D;
     const obj = APP.world.eid2obj.get(eid)!;
     obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
-    window.APP.objectHelper.save(eid);
 }
 
 export async function spawnFromFileList(files: FileList) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
-        const params = await upload(file, desiredContentType)
+        const src = await upload(file, desiredContentType)
             .then(function (response: UploadResponse) {
-                console.log(response);
                 if (response.file.startsWith("/")) {
-                    return {
-                        src: "http://localhost:8000" + response.file,
-                        recenter: true,
-                        resize: true,
-                        animateLoad: true,
-                        isObjectMenuTarget: true
-                    };
+                    return "http://localhost:8000" + response.file;
                 } else {
-                    return {
-                        src: response.file,
-                        recenter: true,
-                        resize: true,
-                        animateLoad: true,
-                        isObjectMenuTarget: true
-                    };
+                    return response.file;
                 }
             })
             .catch(e => {
@@ -67,11 +51,12 @@ export async function spawnFromFileList(files: FileList) {
                 };
             });
 
-        const eid = createNetworkedEntity(APP.world, "media", params);
+        const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
         const avatarPov = (document.querySelector("#avatar-pov-node")! as AElement).object3D;
         const obj = APP.world.eid2obj.get(eid)!;
-        obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
-        obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
+        obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+        obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+
         window.APP.objectHelper.save(eid);
     }
 }

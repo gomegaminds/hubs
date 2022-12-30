@@ -418,8 +418,8 @@ export default class HubChannel extends EventTarget {
         return discordBridgesForPresences(this.presence.state);
     };
 
-    pin = (id, gltfNode, fileId, fileAccessToken, promotionToken) => {
-        const payload = { id, gltf_node: gltfNode };
+    pin = (id, storableMessage, fileId, fileAccessToken, promotionToken) => {
+        const payload = { id, gltf_node: storableMessage };
         if (fileId && promotionToken) {
             payload.file_id = fileId;
             payload.file_access_token = fileAccessToken;

@@ -9,6 +9,7 @@ import {
     Description,
     StudentsCanMove,
     SpinningAnimation,
+    ParticleEmitter,
     CursorRaycastable,
     DestroyAtExtremeDistance,
     FloatyObject,
@@ -49,6 +50,7 @@ import { inflateImageLoader, ImageLoaderParams } from "../inflators/image-loader
 import { inflateModel, ModelParams } from "../inflators/model";
 import { inflateSlice9 } from "../inflators/slice9";
 import { inflateText } from "../inflators/text";
+import { inflateParticleEmitter } from "../inflators/particle-emitter";
 import { inflateEnvironmentSettings } from "../inflators/environment-settings";
 import { inflateWaypoint, WaypointParams } from "../inflators/waypoint";
 import { inflateReflectionProbe, ReflectionProbeParams } from "../inflators/reflection-probe";
@@ -300,6 +302,7 @@ export interface JSXComponentData extends ComponentData {
     model?: ModelParams;
     networkDebug?: boolean;
     waypointPreview?: boolean;
+    particleEmitter?: { src: string };
 }
 
 export interface GLTFComponentData extends ComponentData {
@@ -367,6 +370,7 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     videoMenuItem: createDefaultInflator(VideoMenuItem),
     sceneRoot: createDefaultInflator(SceneRoot),
     sceneLoader: createDefaultInflator(SceneLoader),
+    particleEmitter: inflateParticleEmitter,
     networkDebug: createDefaultInflator(NetworkDebug),
     waypointPreview: createDefaultInflator(WaypointPreview),
     mediaLoader: inflateMediaLoader,

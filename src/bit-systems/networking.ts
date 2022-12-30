@@ -24,3 +24,7 @@ export function isPinned(eid: EntityID) {
 export function isCreatedByMe(eid: EntityID) {
     return Networked.creator[eid] === APP.getSid(NAF.clientId);
 }
+
+export function isOwnedByMe(eid: EntityID) {
+    return Networked.owner[eid] === APP.getSid(NAF.clientId);
+}

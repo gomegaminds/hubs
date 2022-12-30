@@ -10,8 +10,6 @@ import { setNetworkedDataWithRoot } from "./assign-network-ids";
 import type { ClientID, InitialData, NetworkID } from "./networking-types";
 
 export function createNetworkedEntity(world: HubsWorld, prefabName: PrefabName, initialData: InitialData) {
-    if (!hasPermissionToSpawn(NAF.clientId, prefabName))
-        throw new Error(`You do not have permission to spawn ${prefabName}`);
     const nid = NAF.utils.createNetworkId();
     const entity = renderAsNetworkedEntity(world, prefabName, initialData, nid, NAF.clientId);
     takeOwnership(world, entity);
@@ -26,6 +24,7 @@ export function renderAsNetworkedEntity(
     creator: ClientID
 ) {
     const eid = renderAsEntity(world, prefabs.get(prefabName)!.template(initialData));
+    console.log("Inside createNetworkedentity", eid, prefabName);
     if (!hasComponent(world, Networked, eid)) {
         throw new Error("Networked prefabs must have the Networked component");
     }
@@ -33,6 +32,5 @@ export function renderAsNetworkedEntity(
     createMessageDatas.set(eid, { prefabName, initialData });
     setNetworkedDataWithRoot(world, nid, eid, creator);
     AFRAME.scenes[0].object3D.add(obj);
-    console.log("Added object to scene", obj);
     return eid;
 }

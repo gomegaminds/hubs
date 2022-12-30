@@ -5,6 +5,7 @@ import { ProjectionMode } from "../utils/projection-mode";
 import { MediaVideo } from "../bit-components";
 
 export function inflateVideo(world, eid, { texture, ratio, projection, autoPlay }) {
+    console.log("Got inflatevideo", texture);
     const mesh =
         projection === ProjectionMode.SPHERE_EQUIRECTANGULAR
             ? create360ImageMesh(texture, ratio)

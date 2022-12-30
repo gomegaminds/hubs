@@ -59,6 +59,9 @@ import { HubsWorld } from "../app";
 import { EffectComposer } from "postprocessing";
 import { sceneLoadingSystem } from "../bit-systems/scene-loading";
 import { networkDebugSystem } from "../bit-systems/network-debug";
+
+import { particleEmitterSystem } from "../mega-src/bit-systems/particle-emitter-system";
+
 import qsTruthy from "../utils/qs_truthy";
 
 declare global {
@@ -224,6 +227,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     videoMenuSystem(world, aframeSystems.userinput);
     videoSystem(world, hubsSystems.audioSystem);
     billboardSystem(world, APP.scene);
+    particleEmitterSystem(world, dt);
     spinningAnimationSystem(world);
     mediaFramesSystem(world);
     hubsSystems.audioZonesSystem.tick(hubsSystems.el);

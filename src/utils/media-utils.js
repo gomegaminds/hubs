@@ -195,6 +195,8 @@ export const addMedia = (
     parentEl = null,
     linkedEl = null
 ) => {
+
+    console.error("GOT ADDMEDIA; this should not be happening with the new system");
     const scene = AFRAME.scenes[0];
 
     const entity = document.createElement("a-entity");

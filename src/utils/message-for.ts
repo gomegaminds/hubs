@@ -134,6 +134,10 @@ export function messageForStorage(world: HubsWorld, created: EntityID[], updated
         message.deletes.push(APP.getString(nid)!);
     });
 
+
+    console.log("Created final message to be sent", message);
+    // This is all good, the update message is contained here.
+    
     if (message.creates.length || message.updates.length || message.deletes.length) {
         return message;
     }
