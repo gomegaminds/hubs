@@ -86,6 +86,7 @@ declare module "aframe" {
 
     interface AScene extends AElement {
         object3D: Scene;
+        audioListener: any;
         renderStarted: boolean;
         tick(time: number, delta: number): void;
         isPlaying: boolean;

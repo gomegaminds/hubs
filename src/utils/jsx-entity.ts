@@ -30,6 +30,7 @@ import {
     SingleActionButton,
     TextButton,
     NetworkedVideo,
+    NetworkedAudio,
     VideoMenu,
     VideoMenuItem,
     NotRemoteHoverTarget,
@@ -44,8 +45,13 @@ import { inflateMediaLoader } from "../inflators/media-loader";
 import { inflateMediaFrame } from "../inflators/media-frame";
 import { GrabbableParams, inflateGrabbable } from "../inflators/grabbable";
 import { inflateImage } from "../inflators/image";
+import { inflatePDF } from "../inflators/pdf";
 import { inflateVideo } from "../inflators/video";
 import { inflateVideoLoader, VideoLoaderParams } from "../inflators/video-loader";
+
+import { inflateAudio } from "../inflators/audio";
+import { inflateAudioLoader, AudioLoaderParams } from "../inflators/audio-loader";
+
 import { inflateImageLoader, ImageLoaderParams } from "../inflators/image-loader";
 import { inflateModel, ModelParams } from "../inflators/model";
 import { inflateSlice9 } from "../inflators/slice9";
@@ -214,6 +220,12 @@ export interface JSXComponentData extends ComponentData {
         insets: [top: number, buttom: number, left: number, right: number];
         texture: Texture;
     };
+    pdf?: {
+        texture: Texture;
+        ratio: number;
+        index: number;
+        page: any;
+    };
     image?: {
         texture: Texture;
         ratio: number;
@@ -227,7 +239,12 @@ export interface JSXComponentData extends ComponentData {
         projection: ProjectionMode;
         autoPlay: boolean;
     };
+    audio?: {
+        url: string;
+        autoPlay: boolean;
+    };
     networkedVideo?: true;
+    networkedAudio?: true;
     videoMenu?: {
         timeLabelRef: Ref;
         trackRef: Ref;
@@ -307,6 +324,7 @@ export interface JSXComponentData extends ComponentData {
 
 export interface GLTFComponentData extends ComponentData {
     video?: VideoLoaderParams;
+    audio?: AudioLoaderParams;
     image?: ImageLoaderParams;
     environmentSettings?: any;
     reflectionProbe?: ReflectionProbeParams;
@@ -366,6 +384,7 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     cameraTool: createDefaultInflator(CameraTool, { captureDurIdx: 1 }),
     animationMixer: createDefaultInflator(AnimationMixer),
     networkedVideo: createDefaultInflator(NetworkedVideo),
+    networkedAudio: createDefaultInflator(NetworkedAudio),
     videoMenu: createDefaultInflator(VideoMenu),
     videoMenuItem: createDefaultInflator(VideoMenuItem),
     sceneRoot: createDefaultInflator(SceneRoot),
@@ -382,12 +401,15 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     text: inflateText,
     model: inflateModel,
     image: inflateImage,
-    video: inflateVideo
+    pdf: inflatePDF,
+    video: inflateVideo,
+    audio: inflateAudio
 };
 
 export const gltfInflators: Required<{ [K in keyof GLTFComponentData]: InflatorFn }> = {
     ...commonInflators,
     video: inflateVideoLoader,
+    audio: inflateAudioLoader,
     image: inflateImageLoader,
     reflectionProbe: inflateReflectionProbe,
     navMesh: createDefaultInflator(NavMesh),

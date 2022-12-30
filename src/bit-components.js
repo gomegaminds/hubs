@@ -153,8 +153,27 @@ export const MediaVideo = defineComponent({
     autoPlay: Types.ui8
 });
 
+export const MediaPDF = defineComponent({
+    index: Types.ui8,
+    pageRef: Types.ui8
+});
+// MediaPDF.pageRef[$isStringType] = true;
+
+export const NetworkedPDF = defineComponent({
+    index: Types.ui8
+});
+
+export const MediaAudio = defineComponent({
+    autoPlay: Types.ui8
+});
+
 export const AnimationMixer = defineComponent();
 export const NetworkedVideo = defineComponent({
+    time: Types.f32,
+    flags: Types.ui8
+});
+
+export const NetworkedAudio = defineComponent({
     time: Types.f32,
     flags: Types.ui8
 });

@@ -9,12 +9,16 @@ import { easeOutQuadratic } from "../utils/easing";
 import { renderAsEntity } from "../utils/jsx-entity";
 import { loadImage } from "../utils/load-image";
 import { loadModel } from "../utils/load-model";
+import { loadAudio } from "../utils/load-audio";
 import { loadVideo } from "../utils/load-video";
+import { loadPDF } from "../utils/load-pdf";
 import { MediaType, mediaTypeName, resolveMediaInfo } from "../utils/media-utils";
 
 const loaderForMediaType = {
     [MediaType.IMAGE]: (world, { accessibleUrl, contentType }) => loadImage(world, accessibleUrl, contentType),
     [MediaType.VIDEO]: (world, { accessibleUrl }) => loadVideo(world, accessibleUrl),
+    [MediaType.AUDIO]: (world, { accessibleUrl }) => loadAudio(world, accessibleUrl),
+    [MediaType.PDF]: (world, { accessibleUrl }) => loadPDF(world, accessibleUrl),
     [MediaType.MODEL]: (world, { accessibleUrl }) => loadModel(world, accessibleUrl, true)
 };
 

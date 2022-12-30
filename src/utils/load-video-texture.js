@@ -1,6 +1,7 @@
 import { createVideoOrAudioEl } from "../utils/media-utils";
 export async function loadVideoTexture(src) {
-    const videoEl = createVideoOrAudioEl("video");
+    console.log("videotexture src", src);
+    const videoEl = createVideoOrAudioEl(src.endsWith("mp3") ? "audio" : "video");
     const texture = new THREE.VideoTexture(videoEl);
     texture.minFilter = THREE.LinearFilter;
     texture.encoding = THREE.sRGBEncoding;
@@ -51,28 +52,4 @@ export async function loadVideoTexture(src) {
 
         poll();
     });
-
-    if (src && src.startsWith("hubs://")) {
-        // If its a local stream
-        const streamClientId = src.substring(7).split("/")[1]; // /clients/<client id>/video is only URL for now
-        APP.dialog.getMediaStream(streamClientId, "video").then(stream => {
-            if (src !== this.data.src) {
-                // Prevent creating and loading video texture if the src changed while we were fetching the video stream.
-                return;
-            }
-
-            const video = createVideoOrAudioEl("video");
-            video.srcObject = stream;
-            // Video is muted so autoplay is allowed
-            video.play();
-
-            const texture = new THREE.VideoTexture(video);
-            texture.flipY = false;
-            texture.minFilter = THREE.LinearFilter;
-            texture.encoding = THREE.sRGBEncoding;
-
-            this.applyTexture(texture);
-        });
-    } else {
-    }
 }

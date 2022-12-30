@@ -57,7 +57,7 @@ export async function spawnFromFileList(files: FileList) {
         obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
         obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
-        window.APP.objectHelper.save(eid);
+        // window.APP.objectHelper.save(eid);
     }
 }
 
