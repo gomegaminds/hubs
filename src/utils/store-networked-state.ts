@@ -45,6 +45,8 @@ export async function tryPin2(world: HubsWorld, eid: EntityID, hubChannel: HubCh
 
     const nid = APP.getString(Networked.id[eid])!;
     const storableMessage = messageForStorage(world, [eid], [eid], []);
+
+    console.log(storableMessage);
     const fileId = null;
     const fileAccessToken = null;
     const promotionToken = null;

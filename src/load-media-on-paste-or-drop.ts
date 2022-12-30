@@ -6,13 +6,8 @@ import { Vector3 } from "three";
 import qsTruthy from "./utils/qs_truthy";
 
 type UploadResponse = {
-    file_id: string;
-    meta: {
-        access_token: string;
-        expected_content_type: string; // TODO  one of valid mime types ("image/jpeg" etc)
-        promotion_token: string;
-    };
-    origin: string;
+    file: string;
+    id: string;
 };
 
 function spawnFromUrl(text: string) {
@@ -34,25 +29,32 @@ function spawnFromUrl(text: string) {
     const obj = APP.world.eid2obj.get(eid)!;
     obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
+    window.APP.objectHelper.save(eid);
 }
 
-async function spawnFromFileList(files: FileList) {
+export async function spawnFromFileList(files: FileList) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
         const params = await upload(file, desiredContentType)
             .then(function (response: UploadResponse) {
-                const srcUrl = new URL(response.origin);
-                srcUrl.searchParams.set("token", response.meta.access_token);
-                window.APP.store.update({
-                    uploadPromotionTokens: [{ fileId: response.file_id, promotionToken: response.meta.promotion_token }]
-                });
-                return {
-                    src: srcUrl.href,
-                    recenter: true,
-                    resize: true,
-                    animateLoad: true,
-                    isObjectMenuTarget: true
-                };
+                console.log(response);
+                if (response.file.startsWith("/")) {
+                    return {
+                        src: "http://localhost:8000" + response.file,
+                        recenter: true,
+                        resize: true,
+                        animateLoad: true,
+                        isObjectMenuTarget: true
+                    };
+                } else {
+                    return {
+                        src: response.file,
+                        recenter: true,
+                        resize: true,
+                        animateLoad: true,
+                        isObjectMenuTarget: true
+                    };
+                }
             })
             .catch(e => {
                 console.error("Media upload failed", e);
@@ -70,6 +72,7 @@ async function spawnFromFileList(files: FileList) {
         const obj = APP.world.eid2obj.get(eid)!;
         obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
         obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
+        window.APP.objectHelper.save(eid);
     }
 }
 
@@ -110,7 +113,5 @@ function onDrop(e: DragEvent) {
     }
 }
 
-if (qsTruthy("newLoader")) {
-    document.addEventListener("paste", onPaste);
-    document.addEventListener("drop", onDrop);
-}
+document.addEventListener("paste", onPaste);
+document.addEventListener("drop", onDrop);

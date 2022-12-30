@@ -5,13 +5,25 @@ import {
     NetworkedMediaFrame,
     NetworkedTransform,
     NetworkedVideo,
-    NetworkedWaypoint
+    NetworkedWaypoint,
+    Billboard,
+    Locked,
+    StudentsCanMove,
+    Description,
+    SpinningAnimation
 } from "../bit-components";
 import { NetworkedMediaFrameSchema } from "./networked-media-frame-schema";
 import { NetworkedTransformSchema } from "./networked-transform-schema";
 import { NetworkedVideoSchema } from "./networked-video-schema";
 import { NetworkedWaypointSchema } from "./networked-waypoint-schema";
 import type { CursorBuffer, EntityID } from "./networking-types";
+
+// Megaminds Components
+import { BillboardSchema } from "../mega-src/bit-schemas/billboard-schema";
+import { SpinningAnimationSchema } from "../mega-src/bit-schemas/spinning-animation-schema";
+import { LockedSchema } from "../mega-src/bit-schemas/locked-schema";
+import { StudentsCanMoveSchema } from "../mega-src/bit-schemas/students-can-move-schema";
+import { DescriptionSchema } from "../mega-src/bit-schemas/description-schema";
 
 export interface StoredComponent {
     version: number;
@@ -26,7 +38,7 @@ export interface NetworkSchema {
         data: CursorBuffer,
         isFullSync: boolean,
         writeToShadow: boolean
-    ) => boolean;
+    ) => any;
     deserialize: (world: HubsWorld, eid: EntityID, data: CursorBuffer) => void;
     serializeForStorage: (eid: EntityID) => StoredComponent;
     deserializeFromStorage: (eid: EntityID, storedComponent: StoredComponent) => void;
@@ -37,6 +49,11 @@ schemas.set(NetworkedMediaFrame, NetworkedMediaFrameSchema);
 schemas.set(NetworkedTransform, NetworkedTransformSchema);
 schemas.set(NetworkedVideo, NetworkedVideoSchema);
 schemas.set(NetworkedWaypoint, NetworkedWaypointSchema);
+schemas.set(Billboard, BillboardSchema);
+schemas.set(Locked, LockedSchema);
+schemas.set(StudentsCanMove, StudentsCanMoveSchema);
+schemas.set(Description, DescriptionSchema);
+schemas.set(SpinningAnimation, SpinningAnimationSchema);
 
 // TODO: Write rest of schema for waypoints
 // schemas.set(NetworkedWaypoint, defineNetworkSchema(NetworkedWaypoint));
@@ -52,9 +69,15 @@ export function read(prop: any, eid: EntityID) {
 
 export function write(prop: any, eid: EntityID, value: any) {
     if (ArrayBuffer.isView(prop[eid])) {
+        console.log("Got write from storage, seting prop", prop, prop[eid], value);
         prop[eid].set(value);
     } else {
-        prop[$isStringType] ? APP.getString(value) : value;
+        console.log("Error got string type? Eid:", eid, "prop:", prop, prop[eid], value);
+        if (prop[$isStringType]) {
+            prop[eid] = APP.getSid(value);
+        } else {
+            prop[eid] = value;
+        }
     }
 }
 

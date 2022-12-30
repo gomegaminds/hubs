@@ -33,5 +33,6 @@ export function renderAsNetworkedEntity(
     createMessageDatas.set(eid, { prefabName, initialData });
     setNetworkedDataWithRoot(world, nid, eid, creator);
     AFRAME.scenes[0].object3D.add(obj);
+    console.log("Added object to scene", obj);
     return eid;
 }

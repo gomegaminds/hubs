@@ -365,6 +365,7 @@ AFRAME.registerComponent("media-loader", {
             const isLocalModelAsset =
                 isNonCorsProxyDomain(parsedUrl.hostname) && (guessContentType(src) || "").startsWith("model/gltf");
 
+            console.log(src);
             const isMegaMindsAsset = src.startsWith("http://localhost") || src.startsWith("https://api.megaminds.world")
 
             if (!isMegaMindsAsset && this.data.resolve && !src.startsWith("data:") && !src.startsWith("hubs:") && !isLocalModelAsset) {

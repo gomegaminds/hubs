@@ -11,6 +11,17 @@ const customFOV = qsGet("fov");
 const enableThirdPersonMode = qsTruthy("thirdPerson");
 import { Layers } from "../components/layers";
 
+import { defineQuery } from "bitecs";
+import {
+    Held,
+    Holdable,
+    HeldRemoteLeft,
+    HeldRemoteRight,
+    HoveredRemoteRight,
+} from "../bit-components";
+
+const queryHeld = defineQuery([Holdable, HoveredRemoteRight]);
+
 function getInspectableInHierarchy(el) {
     let inspectable = el;
     while (inspectable) {
@@ -349,24 +360,24 @@ export class CameraSystem {
             }
 
             if (this.userinput.get(paths.actions.startInspecting)) {
-                const hoverEl = this.interaction.state.rightRemote.hovered || this.interaction.state.leftRemote.hovered;
+                const hoverEl = queryHeld(APP.world)[0]
 
                 // If we are starting edit of what we are already editing, close the menu
                 if (hoverEl === this.isInsideMenu) {
-                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    this.isInsideMenu = null;
+                    // this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
                     scene.emit("right_menu_changed", null);
+                    this.isInsideMenu = null;
                 } else if (hoverEl) {
                     // If already selected another object, reset their arrow
 
-                    if (this.isInsideMenu !== null) {
-                        this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    }
+                    // if (this.isInsideMenu !== null) {
+                        //this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    // }
                     scene.emit("right_menu_changed", hoverEl);
-                    if (!hoverEl.components["avatar-inspect-collider"]) {
-                        this.isInsideMenu = hoverEl;
-                        this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
-                    }
+                    // if (!hoverEl.components["avatar-inspect-collider"]) {
+                    this.isInsideMenu = hoverEl;
+                    //    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
+                    //}
                 }
             }
 

@@ -97,6 +97,7 @@ export function networkReceiveSystem(world: HubsWorld) {
         for (let j = 0; j < message.creates.length; j++) {
             const [nidString, prefabName, initialData] = message.creates[j];
             const creator = message.fromClientId;
+            console.log("got create message for", nidString);
             if (!creator) {
                 // We do not expect to get here.
                 // We only check because we are synthesizing messages elsewhere;
@@ -199,6 +200,7 @@ export function networkReceiveSystem(world: HubsWorld) {
             Networked.timestamp[eid] = updateMessage.timestamp;
 
             if (isCursorBufferUpdateMessage(updateMessage)) {
+                console.log("Got networked update message from Buffer", updateMessage);
                 // TODO HACK simulating a buffer with a cursor using an array
                 updateMessage.data.cursor = 0;
                 for (let s = 0; s < updateMessage.componentIds.length; s++) {

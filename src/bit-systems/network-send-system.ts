@@ -64,6 +64,7 @@ export function networkSendSystem(world: HubsWorld) {
                 pendingJoins.forEach(clientId =>
                     NAF.connection.sendDataGuaranteed(APP.getString(clientId)!, "nn", message)
                 );
+                console.log(message);
             }
             pendingJoins.length = 0;
         }
@@ -103,6 +104,7 @@ export function networkSendSystem(world: HubsWorld) {
         if (message) {
             NAF.connection.broadcastDataGuaranteed("nn", message);
         }
+
 
         deletedEntities.forEach(eid => {
             world.deletedNids.add(Networked.id[eid]);

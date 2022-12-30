@@ -1,7 +1,7 @@
 // Brief overview of client authorization can be found in the wiki:
 
 import { hasComponent } from "bitecs";
-import { HoldableButton } from "../bit-components";
+import { HoldableButton, Locked, Owner, StudentsCanMove } from "../bit-components";
 
 // https://github.com/mozilla/hubs/wiki/Hubs-authorization
 export function showHoverEffect(el) {
@@ -18,24 +18,26 @@ export function showHoverEffect(el) {
     return (isSpawner || !isPinned || isFrozen) && canMove;
 }
 
-export function canMove(entity) {
-    const isPinned = entity.components.pinnable && entity.components.pinnable.data.pinned;
-    const networkedTemplate = entity && entity.components.networked && entity.components.networked.data.template;
-    const isPen = networkedTemplate === "#interactable-pen";
-    const spawnerTemplate =
-        entity && entity.components["super-spawner"] && entity.components["super-spawner"].data.template;
-    const isEmojiSpawner = spawnerTemplate === "#interactable-emoji";
-    const isEmoji = !!entity.components.emoji;
-    return (
-        hasComponent(APP.world, HoldableButton, entity.eid) ||
-        ((isEmoji || isEmojiSpawner
-            ? window.APP.hubChannel.can("spawn_emoji")
-            : window.APP.hubChannel.can("spawn_and_move_media")) &&
-            (!isPinned || window.APP.hubChannel.can("pin_objects")) &&
-            (!isPen || window.APP.hubChannel.can("spawn_drawing")))
-    );
-}
+export function canMove(eid) {
+    if (hasComponent(APP.world, Locked, eid) && Locked.toggled[eid] === 1) {
+        console.log("Trying to move locked component");
+        return false;
+    }
 
+    if (window.APP.objectHelper.can("can_change")) {
+        return true;
+    }
+
+    if (hasComponent(APP.world, Owner, eid) && Owner.value[eid] === window.APP.store.state.profile.displayName) {
+        return true;
+    }
+
+    if (hasComponent(APP.world, StudentsCanMove, eid) && StudentsCanMove.toggled[eid] === 1) {
+        return true;
+    }
+
+    return false;
+}
 function indexForComponent(component, schema) {
     const fullComponent = typeof component === "string";
     const componentName = fullComponent ? component : component.component;
@@ -167,7 +169,6 @@ function stashPersistentSync(message, entityData) {
 
 const emptyObject = {};
 export function authorizeOrSanitizeMessage(message) {
-    console.log(message);
     const { dataType, from_session_id } = message;
 
     if (dataType === "u" && message.data.isFirstSync && !message.data.persistent) {

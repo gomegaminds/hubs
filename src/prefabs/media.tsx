@@ -10,16 +10,20 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
             name="Interactable Media"
             networked
             networkedTransform
+            billboard
+            locked
+            spinningAnimation
+            description
+            studentsCanMove
             mediaLoader={params}
             deletable
             grabbable={{ cursor: true, hand: true }}
             destroyAtExtremeDistance
             floatyObject={{
-                flags: FLOATY_OBJECT_FLAGS.MODIFY_GRAVITY_ON_RELEASE,
+                flags: FLOATY_OBJECT_FLAGS.UNTHROWABLE,
                 releaseGravity: 0
             }}
             rigidbody={{ collisionGroup: COLLISION_LAYERS.INTERACTABLES, collisionMask: COLLISION_LAYERS.HANDS }}
-            physicsShape={{ halfExtents: [0.22, 0.14, 0.1] }} /* TODO Physics shapes*/
             scale={[1, 1, 1]}
         />
     );

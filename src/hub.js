@@ -99,6 +99,8 @@ import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { renderAsEntity } from "./utils/jsx-entity";
 import { VideoMenuPrefab } from "./prefabs/video-menu";
 
+import { loadEntityMessages, loadStoredRoomData, loadLegacyRoomObjects } from "./utils/load-room-objects";
+
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
 renderAsEntity(APP.world, VideoMenuPrefab());
@@ -353,6 +355,10 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
     scene.addEventListener(
         "didConnectToNetworkedScene",
         () => {
+            
+            loadStoredRoomData(hub.hub_id);
+
+            /*
             // Append objects once we are in the NAF room since ownership may be taken.
             const objectsScene = document.querySelector("#objects-scene");
             const objectsEl = document.createElement("a-entity");
@@ -362,6 +368,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
             console.log("Setting payload to", objectsURL);
             objectsScene.appendChild(objectsEl);
             console.log("Did connect, loading objects...", objectsEl);
+            */
         },
         { once: true }
     );

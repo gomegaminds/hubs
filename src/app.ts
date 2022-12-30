@@ -1,4 +1,5 @@
 import * as bitecs from "bitecs";
+import ObjectHelper from "./mega-src/utils/room-object-utils";
 import { addEntity, createWorld, IWorld } from "bitecs";
 import "./aframe-to-bit-components";
 import { AEntity, Networked, Object3DTag, Owned } from "./bit-components";
@@ -92,6 +93,7 @@ export class App {
     nextSid = 1;
 
     audioListener: AudioListener;
+    objectHelper: ObjectHelper;
 
     dialog = new DialogAdapter();
 
@@ -210,9 +212,11 @@ export class App {
             this.fx = createEffectsComposer(canvas, renderer, camera, scene, sceneEl, this.store);
         } else {
             // EffectComposer manages renderer size internally
+            /*
             (sceneEl as any).addEventListener("rendererresize", function ({ detail }: { detail: DOMRectReadOnly }) {
                 renderer.setSize(detail.width, detail.height, false);
             });
+            */
         }
 
         // This gets called after all system and component init functions

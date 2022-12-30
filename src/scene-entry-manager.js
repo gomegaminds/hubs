@@ -232,6 +232,7 @@ export default class SceneEntryManager {
             const obj = APP.world.eid2obj.get(eid);
             obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
             obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+            window.APP.objectHelper.save(eid);
 
             /*
             entity.addEventListener("media_resolved", () => {
@@ -263,64 +264,6 @@ export default class SceneEntryManager {
                 window.APP.hubChannel.mute(clientId);
             }
         });
-
-        if (!qsTruthy("newLoader")) {
-            document.addEventListener("paste", e => {
-                if (
-                    (e.target.matches("input, textarea") || e.target.contentEditable === "true") &&
-                    document.activeElement === e.target
-                )
-                    return;
-
-                // Never paste into scene if dialog is open
-                const uiRoot = document.querySelector(".ui-root");
-                if (uiRoot && uiRoot.classList.contains("in-modal-or-overlay")) return;
-
-                const url = e.clipboardData.getData("text");
-                const files = e.clipboardData.files && e.clipboardData.files;
-                if (url) {
-                    spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
-                } else {
-                    for (const file of files) {
-                        spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.CLIPBOARD);
-                    }
-                }
-            });
-
-            let lastDebugScene;
-            document.addEventListener("drop", e => {
-                e.preventDefault();
-
-                if (qsTruthy("debugLocalScene")) {
-                    URL.revokeObjectURL(lastDebugScene);
-                    const url = URL.createObjectURL(e.dataTransfer.files[0]);
-                    this.hubChannel.updateScene(url);
-                    lastDebugScene = url;
-                    return;
-                }
-
-                let url = e.dataTransfer.getData("url");
-
-                if (!url) {
-                    // Sometimes dataTransfer text contains a valid URL, so try for that.
-                    try {
-                        url = new URL(e.dataTransfer.getData("text")).href;
-                    } catch (e) {
-                        // Nope, not this time.
-                    }
-                }
-
-                const files = e.dataTransfer.files;
-
-                if (url) {
-                    spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
-                } else {
-                    for (const file of files) {
-                        spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
-                    }
-                }
-            });
-        }
 
         document.addEventListener("dragover", e => e.preventDefault());
 

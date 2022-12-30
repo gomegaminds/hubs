@@ -2,7 +2,7 @@ import { addComponent, defineQuery, enterQuery, exitQuery, removeEntity } from "
 import { Material, Scene, Vector3 } from "three";
 import { Text as TroikaText } from "troika-three-text";
 import { HubsWorld } from "../app";
-import { NetworkDebugRef, Networked } from "../bit-components";
+import { NetworkDebugRef, Networked, Description, StudentsCanMove, SpinningAnimation, Billboard, Locked, NetworkedTransform } from "../bit-components";
 import { NetworkDebugPrefab } from "../prefabs/network-debug";
 import { formatComponentProps, formatObjectName } from "../react-components/debug-panel/ECSSidebar";
 import { renderAsEntity } from "../utils/jsx-entity";
@@ -36,7 +36,12 @@ export function networkDebugSystem(world: HubsWorld, scene: Scene) {
         networkedObj.matrixWorld.decompose(textObj.position, textObj.quaternion, _scale);
         textObj.matrixNeedsUpdate = true;
 
-        textObj.text = formatObjectName(networkedObj) + "\nNetworked " + formatComponentProps(eid, Networked);
+        textObj.text =
+            formatObjectName(networkedObj) +
+            "\nNetworked " +
+            formatComponentProps(eid, Networked) +
+            "\n" +
+            formatComponentProps(eid, SpinningAnimation)
         textObj.sync();
     });
 }

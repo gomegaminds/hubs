@@ -317,6 +317,27 @@ export default class HubChannel extends EventTarget {
         return new Promise(resolve => this.channel.push("unsubscribe", { subscription }).receive("ok", resolve));
     };
 
+    sendMuteRequest = () => {
+        console.log("Sendmuterequest triggered");
+        let body = "asd";
+        let type = "muteRequest";
+        this.channel.push("message", { body, type });
+    };
+
+    sendUnMuteRequest = () => {
+        console.log("SendUnMuterequest triggered");
+        let body = "asd";
+        let type = "unMuteRequest";
+        this.channel.push("message", { body, type });
+    };
+
+    sendTeleportRequest = (body, type = "teleportRequest") => {
+        if (!this._permissions.kick_users) return "unauthorized";
+        console.log("Teleport request received");
+        if (!body) return;
+        this.channel.push("message", { body, type });
+    };
+
     sendMessage = (body, type = "chat") => {
         if (!body) return;
         this.channel.push("message", { body, type });

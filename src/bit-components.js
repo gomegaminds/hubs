@@ -46,7 +46,6 @@ export const NetworkedTransform = defineComponent({
 });
 
 export const AEntity = defineComponent();
-export const StudentsMoveable = defineComponent();
 export const Object3DTag = defineComponent();
 export const GLTFModel = defineComponent();
 export const DirectionalLight = defineComponent();
@@ -101,7 +100,6 @@ export const Rigidbody = defineComponent({
 export const PhysicsShape = defineComponent({ bodyId: Types.ui16, shapeId: Types.ui16, halfExtents: [Types.f32, 3] });
 export const Pinnable = defineComponent();
 export const Pinned = defineComponent();
-export const Locked = defineComponent();
 export const DestroyAtExtremeDistance = defineComponent();
 
 export const MediaLoading = defineComponent();
@@ -209,3 +207,31 @@ export const NetworkedWaypoint = defineComponent({
     occupied: Types.ui8
 });
 export const WaypointPreview = defineComponent();
+
+// MEGAMINDS Compoonents
+export const StudentsCanMove = defineComponent({
+    toggled: Types.ui8
+});
+
+export const Locked = defineComponent({
+    toggled: Types.ui8
+});
+
+export const Billboard = defineComponent({
+    toggled: Types.ui8
+});
+
+export const Description = defineComponent({
+    value: Types.ui32
+});
+Description.value[$isStringType] = true;
+
+export const SpinningAnimation = defineComponent({
+    toggled: Types.ui8,
+    speed: Types.ui8
+});
+
+export const Owner = defineComponent({
+    value: Types.ui32
+});
+Owner.value[$isStringType] = true;

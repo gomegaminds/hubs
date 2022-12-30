@@ -10,7 +10,7 @@ type StoredRoomDataNode = LegacyRoomObject | StorableMessage;
 type StoredRoomData = {
     asset: {
         version: "2.0";
-        generator: "reticulum";
+        generator: "megaminds";
     };
     scenes: [{ nodes: number[]; name: "Room Objects" }];
     nodes: StoredRoomDataNode[];
@@ -18,11 +18,12 @@ type StoredRoomData = {
 };
 
 export function isStorableMessage(node: any): node is StorableMessage {
-    return !!(node.version && node.creates && node.updates && node.deletes);
+    const result = !!(node.version && node.creates && node.updates && node.deletes);
+    return result;
 }
 
 async function fetchStoredRoomMessages(hubId: string) {
-    const objectsUrl = getReticulumFetchUrl(`/${hubId}/objects.gltf`) as URL;
+    const objectsUrl = "http://localhost:8000/api/inside/L3ruGue/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredRoomData = await response.json();
     const messages: StorableMessage[] = roomData.nodes.filter(node => isStorableMessage(node));
@@ -35,6 +36,7 @@ export async function loadStoredRoomData(hubId: string) {
         if (!localClientID) {
             throw new Error("Cannot apply stored messages without a local client ID");
         }
+        console.log("Got following from server that are valid messages", messages);
         messages.forEach(m => {
             m.fromClientId = "reticulum";
             m.hubId = hubId;
@@ -48,7 +50,7 @@ export async function loadStoredRoomData(hubId: string) {
 
 export async function loadLegacyRoomObjects(hubId: string) {
     console.log("loading legacy room objects...");
-    const objectsUrl = getReticulumFetchUrl(`/${hubId}/objects.gltf`) as URL;
+    const objectsUrl = "http://localhost:8000/api/inside/" + hubId + "/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredRoomData = await response.json();
     const legacyRoomObjects: LegacyRoomObject[] = roomData.nodes.filter(node => !isStorableMessage(node));
@@ -79,7 +81,7 @@ type StoredMessage = {
 };
 
 async function fetchEntityMessages(hubId: string) {
-    const objectsUrl = getReticulumFetchUrl(`/api/temp/messages?hub_id=${hubId}`) as URL;
+    const objectsUrl = "http://localhost:8000/api/inside/" + hubId + "/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredMessageList = await response.json();
     console.log(roomData);

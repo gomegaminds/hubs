@@ -27,8 +27,7 @@ const GRAB_HAND_LEFT = paths.actions.leftHand.grab;
 const DROP_HAND_LEFT = paths.actions.leftHand.drop;
 
 function hasPermissionToGrab(world, eid) {
-    if (!hasComponent(world, AEntity, eid)) return true;
-    return canMove(world.eid2obj.get(eid).el);
+    return canMove(eid);
 }
 
 function grab(world, userinput, queryHovered, held, grabPath) {
@@ -45,7 +44,7 @@ function drop(world, userinput, queryHeld, held, dropPath) {
         // TODO: Drop on ownership lost
         removeComponent(world, held, heldEid);
 
-        window.APP.objectHelper.change(world.eid2obj.get(heldEid).el);
+        window.APP.objectHelper.change(heldEid);
 
         if (
             !hasComponent(world, HeldRemoteRight, heldEid) &&

@@ -4,6 +4,11 @@ import {
     $isStringType,
     CameraTool,
     ObjectMenu,
+    Locked,
+    Billboard,
+    Description,
+    StudentsCanMove,
+    SpinningAnimation,
     CursorRaycastable,
     DestroyAtExtremeDistance,
     FloatyObject,
@@ -250,6 +255,11 @@ export interface JSXComponentData extends ComponentData {
     physicsShape?: any;
     floatyObject?: any;
     networkedTransform?: any;
+    locked?: any;
+    billboard?: any;
+    spinningAnimation?: any;
+    description?: any;
+    studentsCanMove?: any;
     objectMenu?: {
         pinButtonRef: Ref;
         unpinButtonRef: Ref;
@@ -343,6 +353,11 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     makeKinematicOnRelease: createDefaultInflator(MakeKinematicOnRelease),
     destroyAtExtremeDistance: createDefaultInflator(DestroyAtExtremeDistance),
     networkedTransform: createDefaultInflator(NetworkedTransform),
+    locked: createDefaultInflator(Locked),
+    billboard: createDefaultInflator(Billboard),
+    spinningAnimation: createDefaultInflator(SpinningAnimation),
+    description: createDefaultInflator(Description),
+    studentsCanMove: createDefaultInflator(StudentsCanMove),
     networked: createDefaultInflator(Networked),
     objectMenu: createDefaultInflator(ObjectMenu),
     cameraTool: createDefaultInflator(CameraTool, { captureDurIdx: 1 }),

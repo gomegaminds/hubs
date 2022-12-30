@@ -76,6 +76,32 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     return resultPromise;
 };
 
+export const upload = (src, title = "", description = "None") => {
+    const formData = new FormData();
+    formData.append("file", src);
+    formData.append("title", title ? title : src.name);
+    formData.append("description", description);
+    formData.append("origin_classroom", window.APP.hub.hub_id);
+    formData.append("media_type", guessContentType(src.name));
+
+    if (!!window.APP.store.state.credentials.auth_token) {
+        console.log("making authenticated request to upload");
+        return fetch("http://localhost:8000/api/assets/", {
+            method: "POST",
+            body: formData,
+            headers: {
+                Authorization: "Bearer " + window.APP.store.state.credentials.auth_token
+            }
+        }).then(r => r.json());
+    } else {
+        return fetch("http://localhost:8000/api/assets/", {
+            method: "POST",
+            body: formData
+        }).then(r => r.json());
+    }
+};
+
+/*
 export const upload = (file, desiredContentType) => {
     const formData = new FormData();
     formData.append("media", file);
@@ -87,11 +113,13 @@ export const upload = (file, desiredContentType) => {
 
     // To eliminate the extra hop and avoid proxy timeouts, upload files directly
     // to a reticulum host.
+
     return fetch(getDirectMediaAPIEndpoint(), {
         method: "POST",
         body: formData
     }).then(r => r.json());
 };
+*/
 
 // https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side/32490603#32490603
 function getOrientation(file, callback) {
@@ -223,18 +251,24 @@ export const addMedia = (
         }
     });
     if (needsToBeUploaded) {
-        // Video camera videos are converted to mp4 for compatibility
         const desiredContentType =
             contentSubtype === "video-camera" ? "video/mp4" : src.type || guessContentType(src.name);
 
-        upload(src, desiredContentType)
+        upload(src)
             .then(response => {
-                const srcUrl = new URL(proxiedUrlFor(response.origin));
-                srcUrl.searchParams.set("token", response.meta.access_token);
-                entity.setAttribute("media-loader", { resolve: false, src: srcUrl.href, fileId: response.file_id });
-                window.APP.store.update({
-                    uploadPromotionTokens: [{ fileId: response.file_id, promotionToken: response.meta.promotion_token }]
-                });
+                if (response.file.startsWith("/")) {
+                    entity.setAttribute("media-loader", {
+                        resolve: false,
+                        src: "http://localhost:8000" + response.file,
+                        fileId: response.id
+                    });
+                } else {
+                    entity.setAttribute("media-loader", {
+                        resolve: false,
+                        src: response.file,
+                        fileId: response.id,
+                    });
+                }
             })
             .catch(e => {
                 console.error("Media upload failed", e);
@@ -613,7 +647,10 @@ export async function resolveMediaInfo(urlString) {
     const isLocalModelAsset =
         isNonCorsProxyDomain(url.hostname) && (guessContentType(url.href) || "").startsWith("model/gltf");
 
-    if (url.protocol != "data:" && url.protocol != "hubs:" && !isLocalModelAsset) {
+    const isMegaMindsAsset = (url.hostname == "localhost" || url.hostname === "megaminds-dev.world" || url.hostname === "megaminds.world");
+    console.log("Is megaminds asset", isMegaMindsAsset);
+
+    if (!isMegaMindsAsset && url.protocol != "data:" && url.protocol != "hubs:" && !isLocalModelAsset) {
         const response = await resolveUrl(url.href);
         canonicalUrl = response.origin;
         if (canonicalUrl.startsWith("//")) {
