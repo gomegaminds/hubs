@@ -10,7 +10,6 @@ const isMobileVR = AFRAME.utils.device.isMobileVR();
 const isDebug = qsTruthy("debug");
 const qs = new URLSearchParams(location.search);
 
-import { addMedia } from "./utils/media-utils";
 import { ObjectContentOrigins } from "./object-types";
 import { getAvatarSrc, getAvatarType } from "./utils/avatar-utils";
 import { SOUND_ENTER_SCENE } from "./systems/sound-effects-system";
@@ -211,7 +210,6 @@ export default class SceneEntryManager {
             if (!window.APP.objectHelper.can("can_create")) return;
 
             if (src instanceof MediaStream) {
-
                 // src = `hubs://clients/${NAF.clientId}/video`;
                 console.log("GOT MEDIASTREAM", src);
                 const eid = createNetworkedEntity(APP.world, "media", { src: "hubs://clients/" + NAF.clientId + "/video", recenter: true, resize: true });

@@ -6,6 +6,7 @@ import {
     NetworkedTransform,
     NetworkedVideo,
     NetworkedWaypoint,
+    NetworkedAudio,
     Billboard,
     Locked,
     StudentsCanMove,
@@ -15,6 +16,7 @@ import {
 import { NetworkedMediaFrameSchema } from "./networked-media-frame-schema";
 import { NetworkedTransformSchema } from "./networked-transform-schema";
 import { NetworkedVideoSchema } from "./networked-video-schema";
+import { NetworkedAudioSchema } from "./networked-audio-schema";
 import { NetworkedWaypointSchema } from "./networked-waypoint-schema";
 import type { CursorBuffer, EntityID } from "./networking-types";
 
@@ -48,6 +50,7 @@ export const schemas: Map<Component, NetworkSchema> = new Map();
 schemas.set(NetworkedMediaFrame, NetworkedMediaFrameSchema);
 schemas.set(NetworkedTransform, NetworkedTransformSchema);
 schemas.set(NetworkedVideo, NetworkedVideoSchema);
+schemas.set(NetworkedAudio, NetworkedAudioSchema);
 schemas.set(NetworkedWaypoint, NetworkedWaypointSchema);
 schemas.set(Billboard, BillboardSchema);
 schemas.set(Locked, LockedSchema);

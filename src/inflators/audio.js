@@ -9,23 +9,27 @@ import { applySettings, getCurrentAudioSettings, updateAudioSettings } from "../
 
 export function inflateAudio(world, eid, element) {
     console.log("Got inflateaudio", eid, element);
-    const mesh = createImageMesh(audioTexture, 2);
-    const ref =  MediaAudio.ref[eid] = APP.getSid(element.url)
-
-    let audio = new THREE.PositionalAudio(APP.audioListener);
-    let audioSystem = window.APP.scene.systems["hubs-systems"].audioSystem
+    const mesh = createImageMesh(audioTexture, 1);
 
     addComponent(world, AudioEmitter, eid);
     addComponent(world, MediaAudio, eid);
-    // addObject3DComponent(world, eid, mesh);
-    addObject3DComponent(world, eid, audio);
+    const sound = new THREE.PositionalAudio(APP.audioListener);
 
-    audioSystem.addAudio({ sourceType: 0, node: audio });
-    APP.audios.set(eid, audio);
-    // updateAudioSettings(eid, audio);
+    MediaAudio.ref[eid] = APP.getSid(sound);
+
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load(element.url, function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+    });
+    //
+    let newEid = addObject3DComponent(world, eid, mesh);
 
 
-    console.log("Added audio element", audio);
+    APP.world.eid2obj.get(newEid).add(sound);
+
+    console.log("Added audio element", sound);
 
     return eid;
 }

@@ -43,9 +43,13 @@ const cleanupGLTFs = cleanupObjOnExit(GLTFModel, obj => {
 const cleanupTexts = cleanupObjOnExit(Text, obj => obj.dispose());
 const cleanupMediaFrames = cleanupObjOnExit(MediaFrame, obj => obj.geometry.dispose());
 const cleanupAudioEmitters = cleanupObjOnExit(AudioEmitter, obj => {
-    obj.disconnect();
-    const audioSystem = AFRAME.scenes[0].systems["hubs-systems"].audioSystem;
-    audioSystem.removeAudio({ node: obj });
+    if (obj.name == "Audio") {
+        obj.children[0].stop();
+    } else {
+        obj.disconnect();
+        const audioSystem = AFRAME.scenes[0].systems["hubs-systems"].audioSystem;
+        audioSystem.removeAudio({ node: obj });
+    }
 });
 const cleanupImages = cleanupObjOnExit(MediaImage, obj => {
     releaseTextureByKey(APP.getString(MediaImage.cacheKey[obj.eid]));

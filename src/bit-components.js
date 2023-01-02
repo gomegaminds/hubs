@@ -155,8 +155,14 @@ export const MediaVideo = defineComponent({
 
 export const MediaPDF = defineComponent({
     index: Types.ui8,
+    pageCount: Types.ui8,
     pageRef: Types.ui8
 });
+
+export const PDFSettingsChanged = defineComponent({
+    newIndex: Types.ui8
+});
+
 // MediaPDF.pageRef[$isStringType] = true;
 
 export const NetworkedPDF = defineComponent({

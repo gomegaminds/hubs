@@ -1,4 +1,4 @@
-import errorImageSrc from "../assets/images/media-error.png?inline";
+import errorImageSrc from "../assets/images/audio.png?inline";
 
 const errorImage = new Image();
 errorImage.src = errorImageSrc;

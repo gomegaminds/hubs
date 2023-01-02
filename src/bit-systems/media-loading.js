@@ -18,7 +18,7 @@ const loaderForMediaType = {
     [MediaType.IMAGE]: (world, { accessibleUrl, contentType }) => loadImage(world, accessibleUrl, contentType),
     [MediaType.VIDEO]: (world, { accessibleUrl }) => loadVideo(world, accessibleUrl),
     [MediaType.AUDIO]: (world, { accessibleUrl }) => loadAudio(world, accessibleUrl),
-    [MediaType.PDF]: (world, { accessibleUrl }) => loadPDF(world, accessibleUrl),
+    [MediaType.PDF]: (world, { accessibleUrl }, index) => loadPDF(world, accessibleUrl, index),
     [MediaType.MODEL]: (world, { accessibleUrl }) => loadModel(world, accessibleUrl, true)
 };
 
