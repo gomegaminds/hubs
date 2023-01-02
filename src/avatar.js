@@ -17,7 +17,7 @@ import configs from "./utils/configs";
 import { disableiOSZoom } from "./utils/disable-ios-zoom";
 disableiOSZoom();
 
-import { App } from "./App";
+import { App } from "./app";
 
 import AvatarPreview from "./react-components/avatar-preview";
 
@@ -108,7 +108,7 @@ class AvatarPage extends React.Component {
                 {copyState === "copying" ? (
                   <FormattedMessage id="avatar-page.copying-avatar" defaultMessage="Copying..." />
                 ) : (
-                  <FormattedMessage id="avatar-page.copyied-avatar" defaultMessage="Copied" />
+                  <FormattedMessage id="avatar-page.copied-avatar" defaultMessage="Copied" />
                 )}
               </div>
             ) : (

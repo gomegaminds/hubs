@@ -1,11 +1,13 @@
+import { addComponent } from "bitecs";
+import { AudioSettingsChanged } from "./bit-components";
 import {
   AudioType,
   SourceType,
+  PanningModelType,
   MediaAudioDefaults,
   AvatarAudioDefaults,
   TargetAudioDefaults
 } from "./components/audio-params";
-import { isSafari } from "./utils/detect-safari";
 
 const defaultSettingsForSourceType = Object.freeze(
   new Map([
@@ -15,17 +17,29 @@ const defaultSettingsForSourceType = Object.freeze(
   ])
 );
 
-function applySettings(audio, settings) {
+export function applySettings(audio, settings) {
   if (audio.panner) {
     audio.setDistanceModel(settings.distanceModel);
     audio.setRolloffFactor(settings.rolloffFactor);
     audio.setRefDistance(settings.refDistance);
     audio.setMaxDistance(settings.maxDistance);
+    audio.panner.panningModel = settings.panningModel;
     audio.panner.coneInnerAngle = settings.coneInnerAngle;
     audio.panner.coneOuterAngle = settings.coneOuterAngle;
     audio.panner.coneOuterGain = settings.coneOuterGain;
   }
   audio.gain.gain.setTargetAtTime(settings.gain, audio.context.currentTime, 0.1);
+}
+
+export function getOverriddenPanningModelType() {
+  switch (APP.store.state.preferences.audioPanningQuality) {
+    case "High":
+      return PanningModelType.HRTF;
+    case "Low":
+      return PanningModelType.EqualPower;
+    default:
+      return null;
+  }
 }
 
 export function getCurrentAudioSettings(el) {
@@ -35,9 +49,18 @@ export function getCurrentAudioSettings(el) {
   const audioOverrides = APP.audioOverrides.get(el);
   const audioDebugPanelOverrides = APP.audioDebugPanelOverrides.get(sourceType);
   const zoneSettings = APP.zoneOverrides.get(el);
-  const preferencesOverrides =
-    APP.store.state.preferences.audioOutputMode === "audio" ? { audioType: AudioType.Stereo } : {};
-  const safariOverrides = isSafari() ? { audioType: AudioType.Stereo } : {};
+  const preferencesOverrides = {};
+
+  const overriddenPanningModelType = getOverriddenPanningModelType();
+
+  if (overriddenPanningModelType !== null) {
+    preferencesOverrides.panningModel = overriddenPanningModelType;
+  }
+
+  if (APP.store.state.preferences.disableLeftRightPanning) {
+    preferencesOverrides.audioType = AudioType.Stereo;
+  }
+
   const settings = Object.assign(
     {},
     defaults,
@@ -45,11 +68,10 @@ export function getCurrentAudioSettings(el) {
     audioOverrides,
     audioDebugPanelOverrides,
     zoneSettings,
-    preferencesOverrides,
-    safariOverrides
+    preferencesOverrides
   );
 
-  if (APP.clippingState.has(el) || APP.linkedMutedState.has(el)) {
+  if (APP.clippingState.has(el) || APP.mutedState.has(el)) {
     settings.gain = 0;
   } else if (APP.gainMultipliers.has(el)) {
     settings.gain = settings.gain * APP.gainMultipliers.get(el);
@@ -69,11 +91,24 @@ export function getCurrentAudioSettingsForSourceType(sourceType) {
   return Object.assign({}, defaults, sceneOverrides, audioDebugPanelOverrides);
 }
 
-export function updateAudioSettings(el, audio) {
-  // Follow these rules and you'll have a good time:
-  // - If a THREE.Audio or THREE.PositionalAudio is created, call this function.
-  // - If audio settings change, call this function.
-  applySettings(audio, getCurrentAudioSettings(el));
+// Follow these rules and you'll have a good time:
+// - If a THREE.Audio or THREE.PositionalAudio is created, call this function.
+// - If audio settings change, call this function.
+export function updateAudioSettings(elOrEid, audio) {
+  if (!elOrEid.isEntity) {
+    const eid = elOrEid;
+    addComponent(APP.world, AudioSettingsChanged, eid);
+  } else {
+    const el = elOrEid;
+    const settings = getCurrentAudioSettings(el);
+    if (
+      (audio.panner === undefined && settings.audioType === AudioType.PannerNode) ||
+      (audio.panner !== undefined && settings.audioType === AudioType.Stereo)
+    ) {
+      el.emit("audio_type_changed");
+    }
+    applySettings(audio, settings);
+  }
 }
 
 export function shouldAddSupplementaryAttenuation(el, audio) {
@@ -84,7 +119,7 @@ export function shouldAddSupplementaryAttenuation(el, audio) {
   // This function must distinguish between Audios that are "incidentally"
   // not PositionalAudios from Audios that are "purposefully" not PositionalAudios:
   // - An audio is "incidentally" non-positional if it only non-positional
-  //     because the audioOutputMode pref is set to "audio", or
+  //     because the disableLeftRightPanning pref is set to true, or
   //     because panner nodes are broken on a particular platform, or
   //     because of something else like that.
   // - An audio is "purposefully" non-positional if it was authored to be
@@ -101,7 +136,7 @@ export function shouldAddSupplementaryAttenuation(el, audio) {
   //
   // Instead, we determine what the audioType would be if it were not for the
   // "incidental" factors. In particular, we check if the audioType would have
-  // been PannerNode if we ignored the overrides due to audioOutputMode and platform
+  // been PannerNode if we ignored the overrides due to disableLeftRightPanning and platform
   // problems (e.g. Safari).
   //
   // If the audioType would have been PannerNode, then we should apply "fake",

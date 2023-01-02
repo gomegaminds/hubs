@@ -17,10 +17,11 @@ AFRAME.registerComponent("pen-laser", {
 
   init() {
     let material = new THREE.MeshStandardMaterial({ color: "red", opacity: 0.5, transparent: true, visible: true });
-    const quality = window.APP.store.materialQualitySetting;
+    const quality = window.APP.store.state.preferences.materialQualitySetting;
     material = convertStandardMaterial(material, quality);
 
     const tipMaterial = material.clone();
+    tipMaterial.onBeforeRender = material.onBeforeRender;
 
     const lineCurve = new THREE.LineCurve3(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 2));
     const geometry = new THREE.TubeBufferGeometry(lineCurve, 2, 0.003, 8, true);

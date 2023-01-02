@@ -1,4 +1,4 @@
-import { GUI } from "three/examples/jsm/libs/dat.gui.module.js";
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 import qsTruthy from "../utils/qs_truthy";
 
 import { LUTCubeLoader } from "three/examples/jsm/loaders/LUTCubeLoader";
@@ -17,11 +17,8 @@ const toneMappingOptions = {
 const outputEncodingOptions = {
   LinearEncoding: "LinearEncoding",
   sRGBEncoding: "sRGBEncoding",
-  GammaEncoding: "GammaEncoding",
   GBEEncoding: "GBEEncoding",
-  LogLuvEncoding: "LogLuvEncoding",
   GBM7Encoding: "GBM7Encoding",
-  RGBM16Encoding: "RGBM16Encoding",
   GBDEncoding: "GBDEncoding",
   BasicDepthPacking: "BasicDepthPacking",
   GBADepthPacking: "GBADepthPackig"
@@ -34,7 +31,13 @@ const defaultEnvSettings = {
   physicallyCorrectLights: true,
   envMapTexture: null,
   backgroundTexture: null,
-  backgroundColor: new THREE.Color("#000000")
+  backgroundColor: new THREE.Color("#000000"),
+
+  fogType: null,
+  fogColor: new THREE.Color("#ffffff"),
+  fogDensity: 0.00025,
+  fogFar: 1000,
+  fogNear: 1
 };
 
 let blenderLUTPromise; // lazy loaded
@@ -89,6 +92,8 @@ export class EnvironmentSystem {
   updateEnvironment(envEl) {
     const envSettingsEl = envEl.querySelector("[environment-settings]");
     const skyboxEl = envEl.querySelector("[skybox]");
+    const navmeshEl = envEl.querySelector("[nav-mesh]");
+
     const envSettings = {
       ...defaultEnvSettings,
       skybox: skyboxEl?.components["skybox"]
@@ -97,6 +102,18 @@ export class EnvironmentSystem {
     if (envSettingsEl) {
       Object.assign(envSettings, envSettingsEl.components["environment-settings"].data);
     }
+
+    const navMesh = navmeshEl?.object3D.getObjectByProperty("isMesh", true);
+    if (navMesh) {
+      AFRAME.scenes[0].systems.nav.loadMesh(navMesh, navmeshEl.components["nav-mesh"].data.zone);
+    }
+
+    // TODO animated objects should not be static
+    envEl.object3D.traverse(o => {
+      if (o.isMesh) {
+        o.reflectionProbeMode = "static";
+      }
+    });
 
     this.applyEnvSettings(envSettings);
   }
@@ -178,6 +195,25 @@ export class EnvironmentSystem {
       this.prevEnvMapTextureUUID = null;
     }
 
+    if (this.scene.fog?.name !== settings.fogType) {
+      if (settings.fogType === "linear") {
+        this.scene.fog = new THREE.Fog(settings.fogColor, settings.fogNear, settings.fogFar);
+      } else if (settings.fogType === "exponential") {
+        this.scene.fog = new THREE.FogExp2(settings.fogColor, settings.fogDensity);
+      } else {
+        this.scene.fog = null;
+      }
+      materialsNeedUpdate = true;
+    } else if (settings.fogType) {
+      this.scene.fog.color.copy(settings.fogColor);
+      if (settings.fogType === "linear") {
+        this.scene.fog.near = settings.fogNear;
+        this.scene.fog.far = settings.fogFar;
+      } else if (settings.fogType === "exponential") {
+        this.scene.fog.density = settings.fogDensity;
+      }
+    }
+
     if (materialsNeedUpdate) {
       if (this.debugMode) console.log("materials need updating");
       this.scene.traverse(o => {
@@ -187,10 +223,50 @@ export class EnvironmentSystem {
   }
 }
 
+AFRAME.registerComponent("nav-mesh", {
+  schema: {
+    zone: { default: "character" }
+  }
+});
+
 AFRAME.registerComponent("environment-settings", {
   schema: {
     toneMapping: { default: defaultEnvSettings.toneMapping, oneOf: Object.values(toneMappingOptions) },
     toneMappingExposure: { default: defaultEnvSettings.toneMappingExposure },
-    backgroundColor: { type: "color", default: defaultEnvSettings.background }
+    backgroundColor: { type: "color", default: defaultEnvSettings.background },
+
+    fogType: { type: "string", default: defaultEnvSettings.fogType },
+    fogColor: { type: "color", default: defaultEnvSettings.fogColor },
+    fogDensity: { type: "number", default: defaultEnvSettings.fogDensity },
+    fogNear: { type: "number", default: defaultEnvSettings.forNear },
+    fogFar: { type: "number", default: defaultEnvSettings.fogFar }
+  }
+});
+
+AFRAME.registerComponent("reflection-probe", {
+  schema: {
+    size: { default: 1 },
+    envMapTexture: { type: "map" }
+  },
+
+  init: function() {
+    this.el.object3D.updateMatrices();
+
+    const box = new THREE.Box3()
+      .setFromCenterAndSize(new THREE.Vector3(), new THREE.Vector3().setScalar(this.data.size * 2))
+      .applyMatrix4(this.el.object3D.matrixWorld);
+
+    this.el.setObject3D("probe", new THREE.ReflectionProbe(box, this.data.envMapTexture));
+
+    if (this.el.sceneEl.systems["hubs-systems"].environmentSystem.debugMode) {
+      const debugBox = new THREE.Box3().setFromCenterAndSize(
+        new THREE.Vector3(),
+        new THREE.Vector3().setScalar(this.data.size * 2)
+      );
+      this.el.setObject3D(
+        "helper",
+        new THREE.Box3Helper(debugBox, new THREE.Color(Math.random(), Math.random(), Math.random()))
+      );
+    }
   }
 });

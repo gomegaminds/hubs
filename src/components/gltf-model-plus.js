@@ -9,6 +9,8 @@ import HubsTextureLoader from "../loaders/HubsTextureLoader";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { BasisTextureLoader } from "three/examples/jsm/loaders/BasisTextureLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
@@ -16,6 +18,7 @@ class GLTFCache {
   cache = new Map();
 
   set(src, gltf) {
+    gltf.scene.userData.gltfCacheKey = src;
     this.cache.set(src, {
       gltf,
       count: 0
@@ -52,7 +55,7 @@ class GLTFCache {
     }
   }
 }
-const gltfCache = new GLTFCache();
+export const gltfCache = new GLTFCache();
 const inflightGltfs = new Map();
 
 const extractZipFile = promisifyWorker(new SketchfabZipWorker());
@@ -110,9 +113,10 @@ function generateMeshBVH(object3D) {
 }
 
 function cloneGltf(gltf) {
+  const scene = cloneObject3D(gltf.scene);
   return {
-    animations: gltf.scene.animations,
-    scene: cloneObject3D(gltf.scene)
+    animations: scene.animations,
+    scene
   };
 }
 
@@ -144,7 +148,7 @@ function getHubsComponentsFromMaterial(node) {
 /// or templates associated with any of their nodes.)
 ///
 /// Returns the A-Frame entity associated with the given node, if one was constructed.
-const inflateEntities = function(indexToEntityMap, node, templates, isRoot, modelToWorldScale = 1) {
+const inflateEntities = function (indexToEntityMap, node, templates, isRoot, modelToWorldScale = 1) {
   // TODO: Remove this once we update the legacy avatars to the new node names
   if (node.name === "Chest") {
     node.name = "Spine";
@@ -209,7 +213,7 @@ const inflateEntities = function(indexToEntityMap, node, templates, isRoot, mode
   // the group. See `PropertyBinding.findNode`:
   // https://github.com/mrdoob/three.js/blob/dev/src/animation/PropertyBinding.js#L211
   el.object3D.uuid = node.uuid;
-  node.uuid = THREE.Math.generateUUID();
+  node.uuid = THREE.MathUtils.generateUUID();
 
   if (node.animations) {
     // Pass animations up to the group object so that when we can pass the group as
@@ -373,6 +377,7 @@ function runMigration(version, json) {
 }
 
 let ktxLoader;
+let dracoLoader;
 
 class GLTFHubsPlugin {
   constructor(parser, jsonPreprocessor) {
@@ -436,7 +441,7 @@ class GLTFHubsPlugin {
       // GLTFLoader sets matrixAutoUpdate on animated objects, we want to keep the defaults
       // @TODO: Should this be fixed in the gltf loader?
       object.matrixAutoUpdate = THREE.Object3D.DefaultMatrixAutoUpdate;
-      const materialQuality = window.APP.store.materialQualitySetting;
+      const materialQuality = window.APP.store.state.preferences.materialQualitySetting;
       updateMaterials(object, material => convertStandardMaterial(material, materialQuality));
     });
 
@@ -457,7 +462,6 @@ class GLTFHubsPlugin {
       }
     }
 
-    //
     gltf.scene.animations = gltf.animations;
   }
 }
@@ -560,6 +564,12 @@ class GLTFHubsLightMapExtension {
       const lightMap = results[1];
       material.lightMap = lightMap;
       material.lightMapIntensity = extensionDef.intensity !== undefined ? extensionDef.intensity : 1;
+
+      // See https://github.com/mrdoob/three.js/pull/23613
+      if (material.isMeshBasicMaterial) {
+        material.lightMapIntensity *= Math.PI;
+      }
+
       return material;
     });
   }
@@ -593,7 +603,7 @@ class GLTFHubsTextureBasisExtension {
     console.warn(`The ${this.name} extension is deprecated, you should use KHR_texture_basisu instead.`);
 
     const extensionDef = textureDef.extensions[this.name];
-    const source = json.images[extensionDef.source];
+    const source = extensionDef.source;
 
     return parser.loadTextureImage(textureIndex, source, this.basisLoader);
   }
@@ -616,7 +626,7 @@ class GLTFMozTextureRGBE {
     }
 
     const extensionDef = textureDef.extensions[this.name];
-    const source = json.images[extensionDef.source];
+    const source = extensionDef.source;
     return parser.loadTextureImage(textureIndex, source, this.loader).then(t => {
       // TODO pretty severe artifacting when using mipmaps, disable for now
       if (t.minFilter == THREE.NearestMipmapNearestFilter || t.minFilter == THREE.NearestMipmapLinearFilter) {
@@ -640,7 +650,7 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
 
   const loadingManager = new THREE.LoadingManager();
   loadingManager.setURLModifier(getCustomGLTFParserURLResolver(gltfUrl));
-  const gltfLoader = new THREE.GLTFLoader(loadingManager);
+  const gltfLoader = new GLTFLoader(loadingManager);
   gltfLoader
     .register(parser => new GLTFHubsComponentsExtension(parser))
     .register(parser => new GLTFHubsPlugin(parser, jsonPreprocessor))
@@ -654,9 +664,15 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
   if (!ktxLoader && AFRAME && AFRAME.scenes && AFRAME.scenes[0]) {
     ktxLoader = new KTX2Loader(loadingManager).detectSupport(AFRAME.scenes[0].renderer);
   }
+  if (!dracoLoader && AFRAME && AFRAME.scenes && AFRAME.scenes[0]) {
+    dracoLoader = new DRACOLoader(loadingManager);
+  }
 
   if (ktxLoader) {
     gltfLoader.setKTX2Loader(ktxLoader);
+  }
+  if (dracoLoader) {
+    gltfLoader.setDRACOLoader(dracoLoader);
   }
 
   return new Promise((resolve, reject) => {
@@ -667,6 +683,15 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
       Object.keys(fileMap).forEach(URL.revokeObjectURL);
     }
   });
+}
+
+export function cloneModelFromCache(src) {
+  if (gltfCache.has(src)) {
+    gltfCache.retain(src);
+    return cloneGltf(gltfCache.get(src).gltf);
+  } else {
+    throw new Error(`Model not in cache: ${src}`);
+  }
 }
 
 export async function loadModel(src, contentType = null, useCache = false, jsonPreprocessor = null) {
@@ -717,7 +742,6 @@ AFRAME.registerComponent("gltf-model-plus", {
     contentType: { type: "string" },
     useCache: { default: true },
     inflate: { default: false },
-    batch: { default: false },
     modelToWorldScale: { type: "number", default: 1 }
   },
 
@@ -737,12 +761,11 @@ AFRAME.registerComponent("gltf-model-plus", {
   },
 
   remove() {
-    if (this.data.batch && this.model) {
-      this.el.sceneEl.systems["hubs-systems"].batchManagerSystem.removeObject(this.el.object3DMap.mesh);
-    }
-    const src = resolveAsset(this.data.src);
-    if (src) {
-      gltfCache.release(src);
+    if (this.data.useCache) {
+      const src = resolveAsset(this.data.src);
+      if (src) {
+        gltfCache.release(src);
+      }
     }
   },
 
@@ -781,13 +804,9 @@ AFRAME.registerComponent("gltf-model-plus", {
 
       this.model = gltf.scene;
 
-      if (this.data.batch) {
-        this.el.sceneEl.systems["hubs-systems"].batchManagerSystem.addObject(this.model);
-      }
-
       if (gltf.animations.length > 0) {
         this.el.setAttribute("animation-mixer", {});
-        this.el.components["animation-mixer"].initMixer(this.model.animations);
+        this.el.components["animation-mixer"].initMixer(gltf.animations);
       } else {
         generateMeshBVH(this.model);
       }
@@ -836,7 +855,7 @@ AFRAME.registerComponent("gltf-model-plus", {
         if (el) rewires.push(() => (o.el = el));
       });
 
-      if (lastSrc) {
+      if (lastSrc && this.data.useCache) {
         gltfCache.release(lastSrc);
       }
       this.el.setObject3D("mesh", object3DToSet);

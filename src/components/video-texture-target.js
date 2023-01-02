@@ -20,6 +20,8 @@ AFRAME.registerComponent("video-texture-source", {
   init() {
     this.camera = findNode(this.el.object3D, n => n.isCamera);
 
+    this.camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY);
+
     if (!this.camera) {
       console.warn("video-texture-source added to an entity without a camera");
       return;
@@ -33,7 +35,7 @@ AFRAME.registerComponent("video-texture-source", {
       format: THREE.RGBAFormat,
       minFilter: THREE.LinearFilter,
       magFilter: THREE.NearestFilter,
-      encoding: THREE.GammaEncoding,
+      encoding: THREE.sRGBEncoding,
       depth: false,
       stencil: false
     });
@@ -70,9 +72,16 @@ AFRAME.registerComponent("video-texture-source", {
     delete sceneEl.object3D.onAfterRender;
     renderer.xr.enabled = false;
 
+    // The entire scene graph matrices should already be updated
+    // in tick(). They don't need to be recomputed again in tock().
+    const tmpAutoUpdate = sceneEl.object3D.autoUpdate;
+    sceneEl.object3D.autoUpdate = false;
+
     renderer.setRenderTarget(this.renderTarget);
     renderer.render(sceneEl.object3D, this.camera);
     renderer.setRenderTarget(null);
+
+    sceneEl.object3D.autoUpdate = tmpAutoUpdate;
 
     renderer.xr.enabled = tmpXRFlag;
     sceneEl.object3D.onAfterRender = tmpOnAfterRender;
@@ -144,9 +153,8 @@ AFRAME.registerComponent("video-texture-target", {
         const texture = videoTextureSource.renderTarget.texture;
         this.applyTexture(texture);
 
-        // Bit of a hack here to only update the renderTarget when the screens are in view
-        material.map.isVideoTexture = true;
-        material.map.update = () => {
+        // Only update the renderTarget when the screens are in view
+        material.onBeforeRender = () => {
           videoTextureSource.textureNeedsUpdate = true;
         };
       } else {
@@ -170,6 +178,8 @@ AFRAME.registerComponent("video-texture-target", {
 
           const video = createVideoOrAudioEl("video");
           video.srcObject = stream;
+          // Video is muted so autoplay is allowed
+          video.play();
 
           const texture = new THREE.VideoTexture(video);
           texture.flipY = false;
