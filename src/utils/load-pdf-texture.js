@@ -2,8 +2,8 @@ import * as pdfjs from "pdfjs-dist";
 pdfjs.GlobalWorkerOptions.workerSrc =
     require("!!file-loader?outputPath=assets/js&name=[name]-[hash].js!pdfjs-dist/build/pdf.worker.min.js").default;
 
-export async function loadPDFTexture(src) {
-    console.log("pdftexture src", src);
+export async function loadPDFTexture(src, index) {
+    console.log("pdftexture src", src, index);
 
     const canvas = document.createElement("canvas");
     const canvasContext = canvas.getContext("2d");
@@ -14,8 +14,7 @@ export async function loadPDFTexture(src) {
 
     return new Promise(async (resolve, reject) => {
         const pdf = await pdfjs.getDocument(src).promise;
-        console.log("Getting PDF", pdf);
-        const page = await pdf.getPage(1);
+        const page = await pdf.getPage(index);
 
         const viewport = page.getViewport({ scale: 3 });
         const pw = viewport.width;
@@ -27,7 +26,15 @@ export async function loadPDFTexture(src) {
 
         const promise = await page.render({ canvasContext: canvasContext, viewport }).promise;
 
+        const setPage = async (ind) => {
+            let page = await pdf.getPage(ind);
+            let promise = await page.render({ canvasContext: canvasContext, viewport }).promise;
+        }
+
+
+        // To change a page, first getpage, then render.
+
         console.log("pdf texture image", texture.image);
-        resolve({ texture, ratio, index: 1, page: pdf });
+        resolve({ texture, ratio, page, index });
     });
 }

@@ -11,7 +11,8 @@ export function inflatePDF(world, eid, { texture, ratio, index, page }) {
 
     MediaPDF.index[eid] = APP.getSid(index);
     MediaPDF.pageRef[eid] = APP.getSid(page);
-    console.log(APP.getSid(page));
+
+    console.log(APP.getSid(index));
 
     return eid;
 }

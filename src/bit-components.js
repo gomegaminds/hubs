@@ -164,8 +164,10 @@ export const NetworkedPDF = defineComponent({
 });
 
 export const MediaAudio = defineComponent({
+    ref: Types.ui32,
     autoPlay: Types.ui8
 });
+MediaAudio.ref[$isStringType] = true;
 
 export const AnimationMixer = defineComponent();
 export const NetworkedVideo = defineComponent({

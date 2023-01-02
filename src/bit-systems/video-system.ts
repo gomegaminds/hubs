@@ -44,6 +44,7 @@ function makeAudioSourceEntity(world: HubsWorld, video: HTMLVideoElement, audioS
     audioSystem.addAudio({ sourceType: SourceType.MEDIA_VIDEO, node: audio });
 
     const audioSrcEl = video;
+    console.log(audioSrcEl);
     audio.setMediaElementSource(audioSrcEl);
 
     APP.audios.set(eid, audio);

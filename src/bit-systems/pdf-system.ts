@@ -18,18 +18,16 @@ const mediaPDFQuery = defineQuery([MediaPDF]);
 const mediaPDFEnterQuery = enterQuery(mediaPDFQuery);
 export function pdfSystem(world: HubsWorld) {
     mediaPDFEnterQuery(world).forEach(function (eid) {
-        const pdfObj = world.eid2obj.get(eid) as any;
         const pageRef = MediaPDF.pageRef[eid]
-        setTimeout(() => {
-            pageRef.
-
-        }, 2000);
-
-        console.log("PDFSYSTEM", pdfObj, APP.getString(pageRef));
+        console.log(APP.getString(pageRef));
     });
 
-    networkedPDFQuery(world).forEach(function (eid) {
+    mediaPDFQuery(world).forEach(function (eid) {
         const pdf = world.eid2obj.get(eid);
-        console.log("PDFSYSTEM", pdf);
+
+        const pageRef = MediaPDF.pageRef[eid]
+
+
+
     });
 }

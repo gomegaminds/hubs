@@ -14,14 +14,19 @@ import { createVideoOrAudioEl } from "../utils/media-utils";
 import errorImageSrc from "../assets/images/media-error.png";
 
 export function* loadAudio(world: HubsWorld, url: string) {
+    console.log("Loading audio from", url);
+
     if (window.APP?.scene?.audioListener) {
+        // Create audio element
+        const audioEl = document.createElement("audio");
+
         return renderAsEntity(
             world,
             <entity
                 name="Audio"
                 networked
                 networkedAudio
-                audio={{url: url, autoPlay: false}}
+                audio={{ url: url, autoPlay: false, audioEl: audioEl }}
                 grabbable={{ cursor: true, hand: false }}
             ></entity>
         );

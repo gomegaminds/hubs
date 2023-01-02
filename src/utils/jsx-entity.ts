@@ -242,6 +242,7 @@ export interface JSXComponentData extends ComponentData {
     audio?: {
         url: string;
         autoPlay: boolean;
+        audioEl: any;
     };
     networkedVideo?: true;
     networkedAudio?: true;

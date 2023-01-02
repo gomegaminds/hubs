@@ -8,7 +8,8 @@ export enum SourceType {
     AVATAR_AUDIO_SOURCE = 1,
     SFX = 2,
     AUDIO_TARGET = 3,
-    AUDIO_ZONE = 4
+    AUDIO_ZONE = 4,
+    MEDIA_AUDIO = 5,
 }
 
 export enum AudioType {

@@ -7,25 +7,36 @@ import {
     AudioListener as ThreeAudioListener
 } from "three";
 import { HubsWorld } from "../app";
-import { AudioEmitter, MediaAudio, NetworkedAudio, AudioSettingsChanged, MediaVideo, NetworkedVideo, Owned } from "../bit-components";
+import {
+    AudioEmitter,
+    MediaAudio,
+    NetworkedAudio,
+    AudioSettingsChanged,
+    MediaVideo,
+    NetworkedVideo,
+    Owned
+} from "../bit-components";
 import { AudioType, SourceType } from "../components/audio-params";
 import { AudioSystem } from "../systems/audio-system";
 import { applySettings, getCurrentAudioSettings, updateAudioSettings } from "../update-audio-settings";
 import { addObject3DComponent, swapObject3DComponent } from "../utils/jsx-entity";
 
-
-function makeAudioSourceEntity(world, audioSystem) {
+export function makeAudioSourceEntity(world, audioEl, audioSystem) {
     const eid = addEntity(world);
-    APP.sourceType.set(eid, SourceType.MEDIA_VIDEO);
+    const element = APP.sourceType.set(eid, SourceType.MEDIA_VIDEO);
 
     let audio;
     const { audioType } = getCurrentAudioSettings(eid);
     const audioListener = APP.audioListener;
+
     if (audioType === AudioType.PannerNode) {
         audio = new PositionalAudio(audioListener);
     } else {
         audio = new StereoAudio(audioListener);
     }
+
+    console.log("Started creating audio", audio);
+
     addComponent(world, AudioEmitter, eid);
     addObject3DComponent(world, eid, audio);
 
@@ -33,17 +44,20 @@ function makeAudioSourceEntity(world, audioSystem) {
     // Here we need to set the src
     audioSystem.addAudio({ sourceType: SourceType.MEDIA_VIDEO, node: audio });
 
+    audio.src = audioEl;
+
     APP.audios.set(eid, audio);
     updateAudioSettings(eid, audio);
 
+    // audioEl.volume = 1;
     return eid;
 }
 
 function isPositionalAudio(node) {
-    return (node).panner !== undefined;
+    return node.panner !== undefined;
 }
 
-function swapAudioType( world, audioSystem, eid, NewType) {
+function swapAudioType(world, audioSystem, eid, NewType) {
     const audio = world.eid2obj.get(eid);
     audio.disconnect();
     audioSystem.removeAudio({ node: audio });
@@ -85,17 +99,20 @@ const mediaAudioQuery = defineQuery([MediaAudio]);
 const mediaAudioEnterQuery = enterQuery(mediaAudioQuery);
 export function audioSystem(world, audioSystem) {
     mediaAudioEnterQuery(world).forEach(function (eid) {
-        const object = world.eid2obj.get(eid);
-        const audio = world.eid2obj.get(makeAudioSourceEntity(world, audioSystem));
-        audio.play();
-        console.log(audio);
-        object.add(audio);
+        const audioobj = world.eid2obj.get(eid);
+        console.log("Audio initialized", eid, audioobj);
+        const audioElement = APP.getString(MediaAudio.ref[eid]);
+        console.log("Element should be ref", audioElement);
+
+        const audioFinished = world.eid2obj.get(makeAudioSourceEntity(world, audioElement, audioSystem));
+        console.log("Audio finished and created new audio source entity", audioFinished);
+        // audio.play();
+        // AudioRef
+        // audioobj.add(audioFinished);
 
         // Note in media-video we call updateMatrixWorld here to force PositionalAudio's updateMatrixWorld to run even
         // if it has an invisible parent. We don't want to have invisible parents now.
     });
-
-    audioEmitterSystem(world, audioSystem);
 
     networkedAudioQuery(world).forEach(function (eid) {
         // TODO: Pause and play audio
@@ -117,4 +134,23 @@ export function audioSystem(world, audioSystem) {
         }
         */
     });
+    /*
+    networkedAudioQuery(world).forEach(function (eid) {
+        const video = (world.eid2obj.get(eid) as any).material.map.image as HTMLVideoElement;
+        if (hasComponent(world, Owned, eid)) {
+            NetworkedVideo.time[eid] = video.currentTime;
+            let flags = 0;
+            flags |= video.paused ? Flags.PAUSED : 0;
+            NetworkedVideo.flags[eid] = flags;
+        } else {
+            const networkedPauseState = !!(NetworkedVideo.flags[eid] & Flags.PAUSED);
+            if (networkedPauseState !== video.paused) {
+                video.paused ? video.play() : video.pause();
+            }
+            if (networkedPauseState || Math.abs(NetworkedVideo.time[eid] - video.currentTime) > OUT_OF_SYNC_SEC) {
+                video.currentTime = NetworkedVideo.time[eid];
+            }
+        }
+    });
+    */
 }
