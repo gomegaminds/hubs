@@ -33,10 +33,7 @@ function spawnFromUrl(text: string) {
 async function spawnFromFileList(files: FileList) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
-        const title = "None";
-        const description = "None";
-
-        const params = await upload(file, title, description)
+        const params = await upload(file, desiredContentType)
             .then(function (response: UploadResponse) {
                 const srcUrl = new URL(response.origin);
                 srcUrl.searchParams.set("token", response.meta.access_token);

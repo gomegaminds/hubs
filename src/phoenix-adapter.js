@@ -171,6 +171,7 @@ export default class PhoenixAdapter {
     if (this.frozen && (message.dataType === "um" || message.dataType === "u")) {
       this.storeMessage(message);
     } else {
+        console.log("Naf message received", message);
       this.nafMessageReceived(message.from_session_id, message.dataType, message.data, message.source);
     }
   };

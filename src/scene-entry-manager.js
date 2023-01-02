@@ -202,6 +202,7 @@ export default class SceneEntryManager {
                 !(src instanceof MediaStream),
                 true
             );
+
             orientation.then(or => {
                 entity.setAttribute("offset-relative-to", {
                     target: "#avatar-pov-node",
@@ -209,6 +210,8 @@ export default class SceneEntryManager {
                     orientation: or
                 });
             });
+
+            console.log("spawning entity", entity);
 
             entity.addEventListener("media_resolved", () => {
                 window.APP.objectHelper.save(entity);

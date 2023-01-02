@@ -6,8 +6,9 @@ import { updateMaterials } from "./material-utils";
 import HubsTextureLoader from "../loaders/HubsTextureLoader";
 import { validMaterials } from "../components/hoverable-visuals";
 import { isNonCorsProxyDomain, proxiedUrlFor, guessContentType } from "../utils/media-url-utils";
-import { guessContentTypeForUpload } from "../mega-src/utils/media-types";
 import { isIOS as detectIOS } from "./is-mobile";
+import Linkify from "linkify-it";
+import tlds from "tlds";
 import { mediaTypeFor } from "./media-type";
 
 import anime from "animejs";
@@ -22,6 +23,9 @@ export const MediaType = {
 };
 MediaType.ALL = MediaType.MODEL | MediaType.IMAGE | MediaType.VIDEO | MediaType.PDF | MediaType.HTML | MediaType.AUDIO;
 MediaType.ALL_2D = MediaType.IMAGE | MediaType.VIDEO | MediaType.PDF | MediaType.HTML;
+
+const linkify = Linkify();
+linkify.tlds(tlds);
 
 const mediaAPIEndpoint = getReticulumFetchUrl("/api/v1/media");
 const getDirectMediaAPIEndpoint = () => getDirectReticulumFetchUrl("/api/v1/media");
@@ -45,7 +49,6 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ media: { url, quality: quality || getDefaultResolveQuality() }, version })
     }).then(async response => {
-        console.log(response);
         if (!response.ok) {
             const message = `Error resolving url "${url}":`;
             try {
@@ -62,29 +65,21 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     return resultPromise;
 };
 
-export const upload = (src, title = "", description = "None") => {
+export const upload = (file, desiredContentType) => {
     const formData = new FormData();
-    formData.append("file", src);
-    formData.append("title", title ? title : src.name);
-    formData.append("description", description);
-    formData.append("origin_classroom", window.APP.hub.hub_id);
-    formData.append("media_type", guessContentTypeForUpload(src.name));
+    formData.append("media", file);
+    formData.append("promotion_mode", "with_token");
 
-    if (!!window.APP.store.state.credentials.auth_token) {
-        console.log("making authenticated request to upload");
-        return fetch("http://localhost:8000/api/assets/", {
-            method: "POST",
-            body: formData,
-            headers: {
-                Authorization: "Bearer " + window.APP.store.state.credentials.auth_token
-            }
-        }).then(r => r.json());
-    } else {
-        return fetch("http://localhost:8000/api/assets/", {
-            method: "POST",
-            body: formData
-        }).then(r => r.json());
+    if (desiredContentType) {
+        formData.append("desired_content_type", desiredContentType);
     }
+
+    // To eliminate the extra hop and avoid proxy timeouts, upload files directly
+    // to a reticulum host.
+    return fetch(getDirectMediaAPIEndpoint(), {
+        method: "POST",
+        body: formData
+    }).then(r => r.json());
 };
 
 // https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side/32490603#32490603
@@ -142,6 +137,9 @@ function getLatestMediaVersionOfSrc(src) {
 }
 
 export function coerceToUrl(urlOrText) {
+    if (!linkify.test(urlOrText)) return urlOrText;
+
+    // See: https://github.com/Soapbox/linkifyjs/blob/master/src/linkify.js#L52
     return urlOrText.indexOf("://") >= 0 ? urlOrText : `https://${urlOrText}`;
 }
 
@@ -213,29 +211,19 @@ export const addMedia = (
             resolve(1);
         }
     });
-
-    let fileasset = null;
-
     if (needsToBeUploaded) {
         // Video camera videos are converted to mp4 for compatibility
         const desiredContentType =
             contentSubtype === "video-camera" ? "video/mp4" : src.type || guessContentType(src.name);
 
-        upload(src)
+        upload(src, desiredContentType)
             .then(response => {
-                if (response.file.startsWith("/")) {
-                    entity.setAttribute("media-loader", {
-                        resolve: false,
-                        src: "http://localhost:8000" + response.file,
-                        fileId: response.id
-                    });
-                } else {
-                    entity.setAttribute("media-loader", {
-                        resolve: false,
-                        src: response.file,
-                        fileId: response.id,
-                    });
-                }
+                const srcUrl = new URL(proxiedUrlFor(response.origin));
+                srcUrl.searchParams.set("token", response.meta.access_token);
+                entity.setAttribute("media-loader", { resolve: false, src: srcUrl.href, fileId: response.file_id });
+                window.APP.store.update({
+                    uploadPromotionTokens: [{ fileId: response.file_id, promotionToken: response.meta.promotion_token }]
+                });
             })
             .catch(e => {
                 console.error("Media upload failed", e);
@@ -251,8 +239,6 @@ export const addMedia = (
             scene.emit("object_spawned", { objectType });
         });
     }
-
-    entity.setAttribute("owner", { name: window.APP.store.state.profile.displayName });
 
     return { entity, orientation };
 };
@@ -336,7 +322,6 @@ export function injectCustomShaderChunks(obj) {
                         `#include <skinning_vertex>
              if (hubs_HighlightInteractorOne || hubs_HighlightInteractorTwo || hubs_IsFrozen) {
               vec4 wt = modelMatrix * vec4(transformed, 1);
-
               // Used in the fragment shader below.
               hubs_WorldPosition = wt.xyz;
             }`
@@ -368,6 +353,10 @@ export function injectCustomShaderChunks(obj) {
     });
 
     return shaderUniforms;
+}
+
+export function getPromotionTokenForFile(fileId) {
+    return window.APP.store.state.uploadPromotionTokens.find(upload => upload.fileId === fileId);
 }
 
 const mediaPos = new THREE.Vector3();
