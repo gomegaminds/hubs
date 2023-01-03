@@ -1,4 +1,7 @@
+import { addComponent } from "bitecs";
+import { takeOwnership } from "./utils/take-ownership";
 import { createNetworkedEntity } from "./utils/create-networked-entity";
+import { NetworkedTransform, Owned } from "./bit-components";
 import { upload, parseURL } from "./utils/media-utils";
 import { guessContentType } from "./utils/media-url-utils";
 import { AElement } from "aframe";
@@ -28,6 +31,9 @@ export function spawnFromUrl(text: string) {
     obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
 
+    setTimeout(() => {
+        window.APP.objectHelper.save(eid);
+    }, 1000);
     return obj;
 }
 
@@ -58,8 +64,12 @@ export async function spawnFromFileList(files: FileList) {
         const obj = APP.world.eid2obj.get(eid)!;
         obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
         obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+        obj.updateMatrix();
+        obj.matrixNeedsUpdate = true;
 
-        // window.APP.objectHelper.save(eid);
+        setTimeout(() => {
+            window.APP.objectHelper.save(eid);
+        }, 1000);
     }
 }
 

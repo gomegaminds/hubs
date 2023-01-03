@@ -23,7 +23,7 @@ export function isStorableMessage(node: any): node is StorableMessage {
 }
 
 async function fetchStoredRoomMessages(hubId: string) {
-    const objectsUrl = "http://localhost:8000/api/inside/L3ruGue/objects.gltf";
+    const objectsUrl = "http://localhost:8000/api/inside/" + hubId + "/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredRoomData = await response.json();
     const messages: StorableMessage[] = roomData.nodes.filter(node => isStorableMessage(node));
@@ -32,6 +32,7 @@ async function fetchStoredRoomMessages(hubId: string) {
 
 export async function loadStoredRoomData(hubId: string) {
     const messages = await fetchStoredRoomMessages(hubId);
+    console.log(messages);
     if (hubId === APP.hub!.hub_id) {
         if (!localClientID) {
             throw new Error("Cannot apply stored messages without a local client ID");

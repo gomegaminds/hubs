@@ -45,6 +45,9 @@ export const NetworkedTransform = defineComponent({
     scale: [Types.f32, 3]
 });
 
+window.NetworkedTransform = NetworkedTransform;
+
+
 export const AEntity = defineComponent();
 export const Object3DTag = defineComponent();
 export const GLTFModel = defineComponent();

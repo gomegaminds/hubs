@@ -212,7 +212,11 @@ export default class SceneEntryManager {
             if (src instanceof MediaStream) {
                 // src = `hubs://clients/${NAF.clientId}/video`;
                 console.log("GOT MEDIASTREAM", src);
-                const eid = createNetworkedEntity(APP.world, "media", { src: "hubs://clients/" + NAF.clientId + "/video", recenter: true, resize: true });
+                const eid = createNetworkedEntity(APP.world, "media", {
+                    src: "hubs://clients/" + NAF.clientId + "/video",
+                    recenter: true,
+                    resize: true
+                });
                 const avatarPov = document.querySelector("#avatar-pov-node").object3D;
                 const obj = APP.world.eid2obj.get(eid);
                 obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
@@ -225,10 +229,11 @@ export default class SceneEntryManager {
                 obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
                 obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
-                // window.APP.objectHelper.save(eid);
+                setTimeout(() => {
+                    window.APP.objectHelper.save(eid);
+                }, 1000);
                 return eid;
             }
-
         };
 
         this.scene.addEventListener("add_media", e => {

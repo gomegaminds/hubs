@@ -55,7 +55,6 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     const key = `${url}_${version}`;
     if (!bustCache && resolveUrlCache.has(key)) return resolveUrlCache.get(key);
 
-    console.log("Resolving url from media api endpoint", url);
 
     const resultPromise = fetch(mediaAPIEndpoint, {
         method: "POST",
@@ -88,7 +87,6 @@ export const upload = (src, title = "", description = "None") => {
     formData.append("media_type", guessContentType(src.name));
 
     if (!!window.APP.store.state.credentials.auth_token) {
-        console.log("making authenticated request to upload");
         return fetch("http://localhost:8000/api/assets/", {
             method: "POST",
             body: formData,
@@ -656,14 +654,11 @@ export async function resolveMediaInfo(urlString) {
 
     const isMegaMindsAsset = (url.hostname == "localhost" || url.hostname === "megaminds-dev.world" || url.hostname === "megaminds.world");
 
-    console.log("Testing asset type (megaminds, local, url)", isMegaMindsAsset, isLocalModelAsset, url);
     const shouldBeProxied = url.hostname === "sketchfab.com"
     
-    console.log("Should be proxied? ", shouldBeProxied);
 
     if (!isMegaMindsAsset && url.protocol != "data:" && url.protocol != "hubs:" && !isLocalModelAsset && shouldBeProxied) {
         const response = await resolveUrl(url.href);
-        console.log("Response from media endpoint ", response);
         canonicalUrl = response.origin;
         if (canonicalUrl.startsWith("//")) {
             canonicalUrl = `${location.protocol}${canonicalUrl}`;

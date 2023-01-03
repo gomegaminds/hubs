@@ -24,7 +24,6 @@ export function renderAsNetworkedEntity(
     creator: ClientID
 ) {
     const eid = renderAsEntity(world, prefabs.get(prefabName)!.template(initialData));
-    console.log("Inside createNetworkedentity", eid, prefabName);
     if (!hasComponent(world, Networked, eid)) {
         throw new Error("Networked prefabs must have the Networked component");
     }

@@ -71,6 +71,7 @@ export function read(prop: any, eid: EntityID) {
 }
 
 export function write(prop: any, eid: EntityID, value: any) {
+    console.log("Writing", prop, value);
     if (ArrayBuffer.isView(prop[eid])) {
         console.log("Got write from storage, seting prop", prop, prop[eid], value);
         prop[eid].set(value);

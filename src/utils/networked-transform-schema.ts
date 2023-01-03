@@ -12,6 +12,7 @@ function apply(eid: EntityID, { version, data }: StoredComponent) {
     if (version !== 1) return false;
 
     const { position, rotation, scale }: { position: ArrayVec3; rotation: number[]; scale: ArrayVec3 } = data;
+    console.log(data);
     write(NetworkedTransform.position, eid, position);
     write(NetworkedTransform.rotation, eid, rotation);
     write(NetworkedTransform.scale, eid, scale);
