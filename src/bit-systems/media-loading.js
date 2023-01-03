@@ -19,7 +19,7 @@ const loaderForMediaType = {
     [MediaType.VIDEO]: (world, { accessibleUrl }) => loadVideo(world, accessibleUrl),
     [MediaType.AUDIO]: (world, { accessibleUrl }) => loadAudio(world, accessibleUrl),
     [MediaType.PDF]: (world, { accessibleUrl }, index) => loadPDF(world, accessibleUrl, index),
-    [MediaType.MODEL]: (world, { accessibleUrl }) => loadModel(world, accessibleUrl, true)
+    [MediaType.MODEL]: (world, { accessibleUrl, contentType }) => loadModel(world, accessibleUrl, true, contentType)
 };
 
 export const MEDIA_LOADER_FLAGS = {
@@ -114,10 +114,14 @@ function* loadMedia(world, eid) {
     }, 400);
     yield makeCancelable(() => loadingObjEid && removeEntity(world, loadingObjEid));
     const src = APP.getString(MediaLoader.src[eid]);
+
+    console.log("getting src", src);
+
     let media;
     try {
         const urlData = yield resolveMediaInfo(src);
         const loader = loaderForMediaType[urlData.mediaType];
+        console.log("Got loader for mediatype", loader, urlData.mediaType);
         if (!loader) {
             throw new UnsupportedMediaTypeError(eid, urlData.mediaType);
         }

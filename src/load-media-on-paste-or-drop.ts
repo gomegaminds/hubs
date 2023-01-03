@@ -10,7 +10,7 @@ type UploadResponse = {
     id: string;
 };
 
-function spawnFromUrl(text: string) {
+export function spawnFromUrl(text: string) {
     if (!text) {
         return;
     }
@@ -27,6 +27,8 @@ function spawnFromUrl(text: string) {
     const obj = APP.world.eid2obj.get(eid)!;
     obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
+
+    return obj;
 }
 
 export async function spawnFromFileList(files: FileList) {

@@ -248,6 +248,21 @@ export const Billboard = defineComponent({
     toggled: Types.ui8
 });
 
+export const Question = defineComponent({
+    obj2d: Types.ui32
+});
+Question.obj2d[$isStringType] = true;
+
+export const YouTube = defineComponent({
+    obj3d: Types.ui32
+});
+YouTube.obj3d[$isStringType] = true;
+
+export const Link = defineComponent({
+    url: Types.ui32
+});
+Link.url[$isStringType] = true;
+
 export const Description = defineComponent({
     value: Types.ui32
 });
@@ -268,3 +283,5 @@ export const Owner = defineComponent({
     value: Types.ui32
 });
 Owner.value[$isStringType] = true;
+
+export const MegaText = defineComponent();

@@ -6,6 +6,8 @@ import {
     ObjectMenu,
     Locked,
     Billboard,
+    Question,
+    Link,
     Description,
     StudentsCanMove,
     SpinningAnimation,
@@ -46,6 +48,9 @@ import { inflateMediaFrame } from "../inflators/media-frame";
 import { GrabbableParams, inflateGrabbable } from "../inflators/grabbable";
 import { inflateImage } from "../inflators/image";
 import { inflatePDF } from "../inflators/pdf";
+import { inflateQuestion } from "../inflators/question";
+import { inflateLink } from "../inflators/link";
+import { inflateYouTube } from "../inflators/youtube";
 import { inflateVideo } from "../inflators/video";
 import { inflateVideoLoader, VideoLoaderParams } from "../inflators/video-loader";
 
@@ -56,6 +61,7 @@ import { inflateImageLoader, ImageLoaderParams } from "../inflators/image-loader
 import { inflateModel, ModelParams } from "../inflators/model";
 import { inflateSlice9 } from "../inflators/slice9";
 import { inflateText } from "../inflators/text";
+import { inflateMegaText } from "../inflators/mega-text";
 import { inflateParticleEmitter } from "../inflators/particle-emitter";
 import { inflateEnvironmentSettings } from "../inflators/environment-settings";
 import { inflateWaypoint, WaypointParams } from "../inflators/waypoint";
@@ -277,6 +283,9 @@ export interface JSXComponentData extends ComponentData {
     networkedTransform?: any;
     locked?: any;
     billboard?: any;
+    question?: any;
+    link?: any;
+    youtube?: any;
     spinningAnimation?: any;
     description?: any;
     studentsCanMove?: any;
@@ -317,6 +326,7 @@ export interface JSXComponentData extends ComponentData {
     mediaFrame?: any;
     object3D?: any;
     text?: any;
+    megaText?: any;
     model?: ModelParams;
     networkDebug?: boolean;
     waypointPreview?: boolean;
@@ -400,9 +410,13 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     object3D: addObject3DComponent,
     slice9: inflateSlice9,
     text: inflateText,
+    megaText: inflateMegaText,
     model: inflateModel,
     image: inflateImage,
     pdf: inflatePDF,
+    question: inflateQuestion,
+    link: inflateLink,
+    youtube: inflateYouTube,
     video: inflateVideo,
     audio: inflateAudio
 };

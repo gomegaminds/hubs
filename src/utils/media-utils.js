@@ -55,6 +55,8 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     const key = `${url}_${version}`;
     if (!bustCache && resolveUrlCache.has(key)) return resolveUrlCache.get(key);
 
+    console.log("Resolving url from media api endpoint", url);
+
     const resultPromise = fetch(mediaAPIEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,6 +75,7 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     });
 
     resolveUrlCache.set(key, resultPromise);
+
     return resultPromise;
 };
 
@@ -644,16 +647,23 @@ export async function resolveMediaInfo(urlString) {
     let contentType;
     let thumbnail;
 
+
+
     // We want to resolve and proxy some hubs urls, like rooms and scene links,
     // but want to avoid proxying assets in order for this to work in dev environments
     const isLocalModelAsset =
         isNonCorsProxyDomain(url.hostname) && (guessContentType(url.href) || "").startsWith("model/gltf");
 
     const isMegaMindsAsset = (url.hostname == "localhost" || url.hostname === "megaminds-dev.world" || url.hostname === "megaminds.world");
-    console.log("Is megaminds asset", isMegaMindsAsset);
 
-    if (!isMegaMindsAsset && url.protocol != "data:" && url.protocol != "hubs:" && !isLocalModelAsset) {
+    console.log("Testing asset type (megaminds, local, url)", isMegaMindsAsset, isLocalModelAsset, url);
+    const shouldBeProxied = url.hostname === "sketchfab.com"
+    
+    console.log("Should be proxied? ", shouldBeProxied);
+
+    if (!isMegaMindsAsset && url.protocol != "data:" && url.protocol != "hubs:" && !isLocalModelAsset && shouldBeProxied) {
         const response = await resolveUrl(url.href);
+        console.log("Response from media endpoint ", response);
         canonicalUrl = response.origin;
         if (canonicalUrl.startsWith("//")) {
             canonicalUrl = `${location.protocol}${canonicalUrl}`;

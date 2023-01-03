@@ -2,6 +2,7 @@ import { addComponent, removeComponent, defineQuery, hasComponent } from "bitecs
 import {
     HoverButton,
     HoveredHandLeft,
+    Link,
     HoveredHandRight,
     HoveredRemoteLeft,
     HoveredRemoteRight,
@@ -18,6 +19,18 @@ function interact(world, entities, path, interactor) {
         for (let i = 0; i < entities.length; i++) {
             const eid = entities[i];
             addComponent(world, Interacted, eid);
+
+            const obj = world.eid2obj.get(eid);
+
+            console.log("interacted", world.eid2obj.get(eid));
+            if (obj.parent && hasComponent(world, Link, obj.parent.eid)) {
+                let url = APP.getString(Link.url[obj.parent.eid]);
+                console.log("Clicked a link!!", url);
+                if (!/^https?:\/\//i.test(url)) {
+                    url = "https://" + url;
+                }
+                window.open(url);
+            }
 
             // TODO: New systems should not listen for this event
             // Delete this when we're done interoping with old world systems

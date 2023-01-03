@@ -45,6 +45,7 @@ import { mediaFramesSystem } from "./bit-media-frames";
 import { videoSystem } from "../bit-systems/video-system";
 import { audioSystem } from "../bit-systems/audio-system";
 import { pdfSystem } from "../bit-systems/pdf-system";
+import { questionSystem } from "../bit-systems/question-system";
 import { billboardSystem } from "../mega-src/bit-systems/billboard-system";
 import { spinningAnimationSystem } from "../mega-src/bit-systems/spinning-animation-system";
 import { cameraToolSystem } from "../bit-systems/camera-tool";
@@ -230,6 +231,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     videoSystem(world, hubsSystems.audioSystem);
     audioSystem(world, hubsSystems.audioSystem);
     pdfSystem(world);
+    questionSystem(world);
     billboardSystem(world, APP.scene);
     particleEmitterSystem(world, dt);
     spinningAnimationSystem(world);

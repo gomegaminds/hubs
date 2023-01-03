@@ -665,12 +665,16 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
     let gltfUrl = src;
     let fileMap;
 
+    console.log("Got all the way to loadgltf", src, contentType);
+
     if (
         contentType &&
         (contentType.includes("model/gltf+zip") || contentType.includes("application/x-zip-compressed"))
     ) {
         fileMap = await extractZipFile(gltfUrl);
         gltfUrl = fileMap["scene.gtlf"];
+
+        console.log("Got GLTF from ZIP!");
     }
 
     const useRangeRequests = qsTruthy("rangerequests");
@@ -845,6 +849,7 @@ export async function loadModel(src, contentType = null, useCache = false, jsonP
             }
         }
     } else {
+        console.log("Not in cache");
         return loadGLTF(src, contentType, null, jsonPreprocessor);
     }
 }

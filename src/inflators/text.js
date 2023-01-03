@@ -16,10 +16,12 @@ const DEFAULTS = {
 };
 
 export function inflateText(world, eid, componentProps) {
+    console.log(componentProps);
     componentProps = Object.assign({}, DEFAULTS, componentProps);
     addComponent(world, Text, eid);
     const text = new TroikaText();
     Object.entries(componentProps).forEach(([name, value]) => {
+        console.log("got name in stepper", name);
         switch (name) {
             case "value":
                 text.text = value;

@@ -137,6 +137,8 @@ NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
 const isDebug = qsTruthy("debug");
+// import "./mega-src/systems/CSS3DRenderingSystem";
+import "./mega-src/systems/CSS2DRenderingSystem";
 
 disableiOSZoom();
 detectConcurrentLoad();
@@ -355,7 +357,6 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
     scene.addEventListener(
         "didConnectToNetworkedScene",
         () => {
-            
             loadStoredRoomData(hub.hub_id);
 
             /*
@@ -451,7 +452,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const hubId = getCurrentHubId();
-
 
     await fetch("http://localhost:8000/api/inside/" + hubId)
         .then(resp => resp.json())
