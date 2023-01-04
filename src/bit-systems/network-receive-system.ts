@@ -67,7 +67,6 @@ export function networkReceiveSystem(world: HubsWorld) {
 
     for (let i = 0; i < pendingMessages.length; i++) {
         const message = pendingMessages[i];
-        console.log("Message",message);
 
         for (let j = 0; j < message.deletes.length; j += 1) {
             const nid = APP.getSid(message.deletes[j]);
@@ -87,7 +86,6 @@ export function networkReceiveSystem(world: HubsWorld) {
                 createMessageDatas.delete(eid);
                 world.nid2eid.delete(nid);
                 removeEntity(world, eid);
-                console.log("Deleting ", APP.getString(nid));
             }
         }
     }
@@ -121,7 +119,6 @@ export function networkReceiveSystem(world: HubsWorld) {
                 // world.ignoredNids.delete(nid);
 
                 const eid = renderAsNetworkedEntity(world, prefabName, initialData, nidString, creator);
-                console.log("got create message for", nidString, eid);
             }
         }
     }

@@ -24,5 +24,4 @@ export function inflateMediaLoader(
     if (isObjectMenuTarget) flags |= MEDIA_LOADER_FLAGS.IS_OBJECT_MENU_TARGET;
     MediaLoader.flags[eid] = flags;
     MediaLoader.src[eid] = APP.getSid(src)!;
-    console.log("SRC From medialoader", src);
 }

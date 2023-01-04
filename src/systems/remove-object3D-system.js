@@ -44,7 +44,10 @@ const cleanupTexts = cleanupObjOnExit(Text, obj => obj.dispose());
 const cleanupMediaFrames = cleanupObjOnExit(MediaFrame, obj => obj.geometry.dispose());
 const cleanupAudioEmitters = cleanupObjOnExit(AudioEmitter, obj => {
     if (obj.name == "Audio") {
-        obj.children[0].stop();
+        // If the audio is playing, stop it
+        if (obj.children[0].source) {
+            obj.children[0].stop();
+        }
     } else {
         obj.disconnect();
         const audioSystem = AFRAME.scenes[0].systems["hubs-systems"].audioSystem;

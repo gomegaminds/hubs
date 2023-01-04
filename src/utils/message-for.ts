@@ -2,6 +2,7 @@ import { hasComponent } from "bitecs";
 import { HubsWorld } from "../app";
 import { Networked } from "../bit-components";
 import { createMessageDatas } from "../bit-systems/networking";
+import { guessContentType } from "./media-url-utils";
 import { MediaLoaderParams } from "../inflators/media-loader";
 import { defineNetworkSchemaForProps } from "./define-network-schema";
 import { networkableComponents, schemas } from "./network-schemas";
@@ -103,6 +104,7 @@ export function messageForStorage(world: HubsWorld, created: EntityID[], updated
     };
 
     created.forEach(eid => {
+        console.log("getting for eid", eid, createMessageDatas);
         const { prefabName, initialData } = createMessageDatas.get(eid)!;
         message.creates.push([APP.getString(Networked.id[eid])!, prefabName, initialData]);
     });
@@ -134,10 +136,9 @@ export function messageForStorage(world: HubsWorld, created: EntityID[], updated
         message.deletes.push(APP.getString(nid)!);
     });
 
-
     console.log("Created final message to be sent", message);
     // This is all good, the update message is contained here.
-    
+
     if (message.creates.length || message.updates.length || message.deletes.length) {
         return message;
     }
@@ -154,6 +155,8 @@ export interface LegacyRoomObject {
                 id: NetworkID;
                 contentSubtype?: string;
             };
+            text?: any;
+            question?: any;
             pinnable: {
                 pinned: boolean;
             };
@@ -162,6 +165,32 @@ export interface LegacyRoomObject {
     name: NetworkID;
     rotation: [number, number, number, number];
     translation: [number, number, number];
+    scale: [number, number, number];
+}
+
+export function messageForLegacyRoomObjectsList(objects: LegacyRoomObject[]) {
+    const message: any = {
+        objects: []
+    };
+
+    objects.forEach(obj => {
+        const initialData: any = {
+            src: obj.extensions.HUBS_components.media.src,
+            originalPos: obj.translation,
+            originalRot: obj.rotation,
+            originalScale: obj.scale,
+            contentType: guessContentType(obj.extensions.HUBS_components.media.src),
+            textComponent: obj.extensions.HUBS_components.text ? obj.extensions.HUBS_components.text : null,
+            questionComponent: obj.extensions.HUBS_components.question ? obj.extensions.HUBS_components.question : null
+        };
+        // Skip text and such
+        message.objects.push(initialData);
+    });
+
+    if (message.objects.length) {
+        return message;
+    }
+    return null;
 }
 
 export function messageForLegacyRoomObjects(objects: LegacyRoomObject[]) {
@@ -183,20 +212,21 @@ export function messageForLegacyRoomObjects(objects: LegacyRoomObject[]) {
         const createMessage: CreateMessage = [nid, "media", initialData];
         message.creates.push(createMessage);
 
+        console.log("Trying to load legacy obj", obj);
         const updateMessage: StorableUpdateMessage = {
             data: {
                 "networked-transform": {
                     version: 1,
                     data: {
-                        position: obj.translation,
+                        position: [Math.random(), 1, Math.random()],
                         rotation: obj.rotation,
-                        scale: [1, 1, 1]
+                        scale: [0.3, 0.3, 0.3]
                     }
                 }
             },
             nid,
-            lastOwnerTime: -1,
-            timestamp: -1,
+            lastOwnerTime: 0,
+            timestamp: 0,
             owner: "reticulum",
             creator: "reticulum"
         };

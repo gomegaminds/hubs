@@ -1,5 +1,5 @@
 import { localClientID, pendingMessages } from "../bit-systems/networking";
-import { messageForLegacyRoomObjects } from "./message-for";
+import { messageForLegacyRoomObjects, messageForLegacyRoomObjectsList } from "./message-for";
 import { NetworkID } from "./networking-types";
 import { getReticulumFetchUrl } from "./phoenix-utils";
 import { StorableMessage } from "./store-networked-state";
@@ -49,24 +49,30 @@ export async function loadStoredRoomData(hubId: string) {
     }
 }
 
-export async function loadLegacyRoomObjects(hubId: string) {
-    const objectsUrl = window.APP.endpoint + "/api/inside/" + hubId + "/objects.gltf";
+export async function listLegacyRoomObjects(hubId: string) {
+    const objectsUrl = "https://megaminds.world/" + hubId + "/objects.gltf";
+
     const response = await fetch(objectsUrl);
     const roomData: StoredRoomData = await response.json();
     const legacyRoomObjects: LegacyRoomObject[] = roomData.nodes.filter(node => !isStorableMessage(node));
 
-    if (hubId === APP.hub!.hub_id) {
-        const message = messageForLegacyRoomObjects(legacyRoomObjects);
-        if (message) {
-            message.fromClientId = "reticulum";
-            message.hubId = hubId;
+    const message = messageForLegacyRoomObjectsList(legacyRoomObjects);
+    return message;
+}
+export async function loadLegacyRoomObjects(hubId: string) {
+    // const objectsUrl = window.APP.endpoint + "/api/inside/" + hubId + "/objects.gltf";
+    const objectsUrl = "https://megaminds.world/" + hubId + "/objects.gltf";
 
-            pendingMessages.push(message);
-            // TODO All clients must use the new loading path for this to work correctly,
-            // because all clients must agree on which netcode to use (hubs networking
-            // systems or networked aframe) for a given object.
-        }
-        console.log({ legacyRoomObjects, message });
+    const response = await fetch(objectsUrl);
+    const roomData: StoredRoomData = await response.json();
+    const legacyRoomObjects: LegacyRoomObject[] = roomData.nodes.filter(node => !isStorableMessage(node));
+
+    if (legacyRoomObjects) {
+        console.log("Legacy objects found, initiate user flow");
+        return true
+    } else {
+        console.log("No legacy objects found");
+        return false
     }
 }
 
