@@ -87,7 +87,7 @@ export const upload = (src, title = "", description = "None") => {
     formData.append("media_type", guessContentType(src.name));
 
     if (!!window.APP.store.state.credentials.auth_token) {
-        return fetch("http://localhost:8000/api/assets/", {
+        return fetch(window.APP.endpoint + "/api/assets/", {
             method: "POST",
             body: formData,
             headers: {
@@ -95,7 +95,7 @@ export const upload = (src, title = "", description = "None") => {
             }
         }).then(r => r.json());
     } else {
-        return fetch("http://localhost:8000/api/assets/", {
+        return fetch(window.APP.endpoint + "/api/assets/", {
             method: "POST",
             body: formData
         }).then(r => r.json());

@@ -2,7 +2,10 @@ import { addComponent, removeComponent, defineQuery, hasComponent } from "bitecs
 import {
     HoverButton,
     HoveredHandLeft,
+    PDFSettingsChanged,
     Link,
+    MediaPDF,
+    MediaAudio,
     HoveredHandRight,
     HoveredRemoteLeft,
     HoveredRemoteRight,
@@ -22,7 +25,48 @@ function interact(world, entities, path, interactor) {
 
             const obj = world.eid2obj.get(eid);
 
-            console.log("interacted", world.eid2obj.get(eid));
+            if (obj.parent && hasComponent(world, MediaAudio, obj.parent.eid)) {
+                if (obj.name === "play") {
+                    obj.parent.children[0].play();
+                }
+                if (obj.name === "pause") {
+                    obj.parent.children[0].pause();
+                }
+                if (obj.name === "stop") {
+                    obj.parent.children[0].stop();
+                }
+            }
+
+            if (obj.parent && hasComponent(world, MediaPDF, obj.parent.eid)) {
+                // let url = APP.getString(Link.url[obj.parent.eid]);
+                console.log("Current index is", MediaPDF.index[obj.parent.eid]);
+                console.log("Current max index is", MediaPDF.pageCount[obj.parent.eid]);
+
+                if (obj.name === "next") {
+                    const newIndex = MediaPDF.index[obj.parent.eid] + 1;
+
+                    if (newIndex <= MediaPDF.pageCount[obj.parent.eid]) {
+                        addComponent(world, PDFSettingsChanged, obj.parent.eid);
+                        PDFSettingsChanged.newIndex[obj.parent.eid] = newIndex;
+                        MediaPDF.index[obj.parent.eid] = newIndex;
+                        console.log("Going next to index ", newIndex);
+                    } else {
+                        console.log("Next denied", newIndex, " is not a valid, out of reach");
+                    }
+                }
+                if (obj.name === "prev") {
+                    const newIndex = MediaPDF.index[obj.parent.eid] - 1;
+                    if (newIndex > 0) {
+                        addComponent(world, PDFSettingsChanged, obj.parent.eid);
+                        PDFSettingsChanged.newIndex[obj.parent.eid] = newIndex;
+                        MediaPDF.index[obj.parent.eid] = newIndex;
+                        console.log("Going prev to index ", newIndex);
+                    } else {
+                        console.log("prev denied", newIndex, " is not a valid, out of reach");
+                    }
+                }
+            }
+
             if (obj.parent && hasComponent(world, Link, obj.parent.eid)) {
                 let url = APP.getString(Link.url[obj.parent.eid]);
                 console.log("Clicked a link!!", url);

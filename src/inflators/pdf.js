@@ -12,7 +12,7 @@ export function inflatePDF(world, eid, { texture, ratio, index, page }) {
 
     console.log("got page to set max pages from", page.pageCount);
 
-    MediaPDF.index[eid] = APP.getSid(index);
+    MediaPDF.index[eid] = index;
     MediaPDF.pageRef[eid] = APP.getSid(page);
     MediaPDF.pageCount[eid] = page.pageCount;
 

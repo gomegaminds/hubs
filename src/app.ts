@@ -68,6 +68,7 @@ export class App {
     scene?: AScene;
     hubChannel?: HubChannel;
     hub?: HubDescription;
+    endpoint?: string;
     mediaDevicesManager?: MediaDevicesManager;
     entryManager?: SceneEntryManager;
     messageDispatch?: any;

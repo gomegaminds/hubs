@@ -25,12 +25,14 @@ export interface Button3DParams extends Attrs {
     name?: string;
     type: ButtonType;
     labelRef?: Ref;
+    userData?: any;
 }
 
 export function Button3D({
     text,
     width,
     height,
+    userData,
     texture = buttonTexture,
     name = "Button",
     type,
@@ -39,7 +41,7 @@ export function Button3D({
     const labelRef = createRef();
     return (
         <entity
-            name={name}
+            name={userData ? userData.way : name}
             slice9={{ size: [width, height], insets: [64, 66, 64, 66], texture }}
             cursorRaycastable
             remoteHoverTarget

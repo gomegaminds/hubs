@@ -16,7 +16,7 @@ export function LinkPrefab({ url }) {
 
     const openRef = createRef();
     const buttonScale = [0.4, 0.4, 0.4];
-    const uiZ = 0.1;
+    const uiZ = 0.01;
     const buttonHeight = 0.2;
 
     return (

@@ -23,7 +23,7 @@ export function isStorableMessage(node: any): node is StorableMessage {
 }
 
 async function fetchStoredRoomMessages(hubId: string) {
-    const objectsUrl = "http://localhost:8000/api/inside/" + hubId + "/objects.gltf";
+    const objectsUrl = window.APP.endpoint + "/api/inside/" + hubId + "/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredRoomData = await response.json();
     const messages: StorableMessage[] = roomData.nodes.filter(node => isStorableMessage(node));
@@ -50,8 +50,7 @@ export async function loadStoredRoomData(hubId: string) {
 }
 
 export async function loadLegacyRoomObjects(hubId: string) {
-    console.log("loading legacy room objects...");
-    const objectsUrl = "http://localhost:8000/api/inside/" + hubId + "/objects.gltf";
+    const objectsUrl = window.APP.endpoint + "/api/inside/" + hubId + "/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredRoomData = await response.json();
     const legacyRoomObjects: LegacyRoomObject[] = roomData.nodes.filter(node => !isStorableMessage(node));
@@ -82,7 +81,7 @@ type StoredMessage = {
 };
 
 async function fetchEntityMessages(hubId: string) {
-    const objectsUrl = "http://localhost:8000/api/inside/" + hubId + "/objects.gltf";
+    const objectsUrl = window.APP.endpoint + "/api/inside/" + hubId + "/objects.gltf";
     const response = await fetch(objectsUrl);
     const roomData: StoredMessageList = await response.json();
     console.log(roomData);

@@ -9,7 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import ReactGA from "react-ga4";
 
-const dev = process.env.NODE_ENV === "development";
+const dev = process.env.NODE_ENV === "development" || window.location.hostname === "megaminds-dev.world";
 
 if (!dev) {
     Sentry.init({
@@ -17,7 +17,7 @@ if (!dev) {
         integrations: [new BrowserTracing()],
 
         release: "1.0.1",
-        environment: "prod",
+        environment: dev ? "dev" : "prod",
         // We recommend adjusting this value in production, or using tracesSampler
         // for finer control
         tracesSampleRate: 1.0
@@ -104,6 +104,15 @@ import { loadEntityMessages, loadStoredRoomData, loadLegacyRoomObjects } from ".
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
 renderAsEntity(APP.world, VideoMenuPrefab());
+
+if (window.location.hostname === "localhost") {
+    window.APP.endpoint = "http://localhost:8000";
+} else if (window.location.hostname === "megaminds-dev.world") {
+    window.APP.endpoint = "https://api.megaminds-dev.world";
+} else {
+    window.APP.endpoint = "https://api.megaminds.world";
+}
+
 
 const store = window.APP.store;
 store.update({ preferences: { shouldPromptForRefresh: false } }); // Clear flag that prompts for refresh from preference screen
@@ -453,7 +462,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const hubId = getCurrentHubId();
 
-    await fetch("http://localhost:8000/api/inside/" + hubId)
+    await fetch(window.APP.endpoint + "/api/inside/" + hubId)
         .then(resp => resp.json())
         .then(data => {
             classroom = data;

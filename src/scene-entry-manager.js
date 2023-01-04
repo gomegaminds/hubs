@@ -162,7 +162,7 @@ export default class SceneEntryManager {
     _setPlayerInfoFromProfile = async (force = false) => {
         const avatarId = this.store.state.profile.avatarId;
 
-        await fetch(`http://localhost:8000/api/avatars/${avatarId}`)
+        await fetch(window.APP.endpoint + "/api/avatars/${avatarId}")
             .then(resp => resp.json())
             .then(data => {
                 console.log(data, "from avatar api");
