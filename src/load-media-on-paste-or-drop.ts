@@ -10,7 +10,7 @@ import qsTruthy from "./utils/qs_truthy";
 
 type UploadResponse = {
     file: string;
-    id: string;
+    id?: number;
 };
 
 export function spawnFromUrl(text: string) {
@@ -40,18 +40,20 @@ export function spawnFromUrl(text: string) {
 export async function spawnFromFileList(files: FileList) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
-        const src = await upload(file, desiredContentType)
+        const { src, id } = await upload(file, desiredContentType)
             .then(function (response: UploadResponse) {
+                console.log(response.id);
                 if (response.file.startsWith("/")) {
-                    return "http://localhost:8000" + response.file;
+                    return { src: "http://localhost:8000" + response.file, id: response.id };
                 } else {
-                    return response.file;
+                    return { src: response.file, id: response.id };
                 }
             })
             .catch(e => {
                 console.error("Media upload failed", e);
                 return {
                     src: "error",
+                    id: null,
                     recenter: true,
                     resize: true,
                     animateLoad: true,
@@ -68,7 +70,7 @@ export async function spawnFromFileList(files: FileList) {
         obj.matrixNeedsUpdate = true;
 
         setTimeout(() => {
-            window.APP.objectHelper.save(eid);
+            window.APP.objectHelper.save(eid, id);
         }, 1000);
     }
 }
