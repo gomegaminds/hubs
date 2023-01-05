@@ -47,21 +47,20 @@ import { inflateMediaLoader } from "../inflators/media-loader";
 import { inflateMediaFrame } from "../inflators/media-frame";
 import { GrabbableParams, inflateGrabbable } from "../inflators/grabbable";
 import { inflateImage } from "../inflators/image";
-import { inflatePDF } from "../inflators/pdf";
-import { inflateQuestion } from "../inflators/question";
-import { inflateLink } from "../inflators/link";
-import { inflateYouTube } from "../inflators/youtube";
+import { inflatePDF } from "../mega-src/inflators/pdf";
+import { inflateQuestion } from "../mega-src/inflators/question";
+import { inflateLink } from "../mega-src/inflators/link";
+import { inflateYouTube } from "../mega-src/inflators/youtube";
 import { inflateVideo } from "../inflators/video";
 import { inflateVideoLoader, VideoLoaderParams } from "../inflators/video-loader";
 
-import { inflateAudio } from "../inflators/audio";
-import { inflateAudioLoader, AudioLoaderParams } from "../inflators/audio-loader";
+import { inflateAudio } from "../mega-src/inflators/audio";
 
 import { inflateImageLoader, ImageLoaderParams } from "../inflators/image-loader";
 import { inflateModel, ModelParams } from "../inflators/model";
 import { inflateSlice9 } from "../inflators/slice9";
 import { inflateText } from "../inflators/text";
-import { inflateMegaText } from "../inflators/mega-text";
+import { inflateMegaText } from "../mega-src/inflators/mega-text";
 import { inflateParticleEmitter } from "../inflators/particle-emitter";
 import { inflateEnvironmentSettings } from "../inflators/environment-settings";
 import { inflateWaypoint, WaypointParams } from "../inflators/waypoint";
@@ -335,7 +334,6 @@ export interface JSXComponentData extends ComponentData {
 
 export interface GLTFComponentData extends ComponentData {
     video?: VideoLoaderParams;
-    audio?: AudioLoaderParams;
     image?: ImageLoaderParams;
     environmentSettings?: any;
     reflectionProbe?: ReflectionProbeParams;
@@ -424,7 +422,6 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
 export const gltfInflators: Required<{ [K in keyof GLTFComponentData]: InflatorFn }> = {
     ...commonInflators,
     video: inflateVideoLoader,
-    audio: inflateAudioLoader,
     image: inflateImageLoader,
     reflectionProbe: inflateReflectionProbe,
     navMesh: createDefaultInflator(NavMesh),

@@ -8,6 +8,7 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
     return (
         <entity
             name="Interactable Media"
+            spinningAnimation
             networked
             networkedTransform
             billboard

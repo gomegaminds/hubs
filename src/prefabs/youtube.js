@@ -7,10 +7,6 @@ import { MediaLoaderParams } from "../inflators/media-loader";
 import question_model from "../assets/models/question.glb";
 
 export function YouTubePrefab({ src, recenter, resize, link }) {
-
-
-    console.log("YoutubePrefab", src, recenter, resize, link);
-
     return (
         <entity
             name="Youtube"

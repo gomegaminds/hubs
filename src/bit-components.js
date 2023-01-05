@@ -47,7 +47,6 @@ export const NetworkedTransform = defineComponent({
 
 window.NetworkedTransform = NetworkedTransform;
 
-
 export const AEntity = defineComponent();
 export const Object3DTag = defineComponent();
 export const GLTFModel = defineComponent();
@@ -279,8 +278,12 @@ ParticleEmitter.src[$isStringType] = true;
 
 export const SpinningAnimation = defineComponent({
     toggled: Types.ui8,
+    animeRef: Types.ui32,
     speed: Types.ui8
 });
+SpinningAnimation.animeRef[$isStringType] = true;
+
+export const SpinningAnimationUpdated = defineComponent();
 
 export const Owner = defineComponent({
     value: Types.ui32

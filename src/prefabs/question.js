@@ -7,10 +7,6 @@ import { MediaLoaderParams } from "../inflators/media-loader";
 import question_model from "../assets/models/question.glb";
 
 export function QuestionPrefab({ src, recenter, resize, questions }) {
-
-
-    console.log("QuestionPrefab", src, recenter, resize, questions);
-
     return (
         <entity
             name="Question"

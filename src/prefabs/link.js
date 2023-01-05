@@ -12,8 +12,6 @@ export function Label({ text = {}, ...props }, ...children) {
 }
 
 export function LinkPrefab({ url }) {
-    console.log("LinkPrefab", url);
-
     const openRef = createRef();
     const buttonScale = [0.4, 0.4, 0.4];
     const uiZ = 0.01;

@@ -146,7 +146,7 @@ NAF.options.firstSyncSource = PHOENIX_RELIABLE_NAF;
 NAF.options.syncSource = PHOENIX_RELIABLE_NAF;
 
 const isDebug = qsTruthy("debug");
-// import "./mega-src/systems/CSS3DRenderingSystem";
+import "./mega-src/systems/CSS3DRenderingSystem";
 import "./mega-src/systems/CSS2DRenderingSystem";
 
 disableiOSZoom();

@@ -5,8 +5,6 @@ import { FLOATY_OBJECT_FLAGS } from "../systems/floaty-object-system";
 import { MediaLoaderParams } from "../inflators/media-loader";
 
 export function MegaTextPrefab(params: any): EntityDef {
-    console.log("Inside text prefab", params);
-
     return (
         <entity
             name="Interactable Text"
