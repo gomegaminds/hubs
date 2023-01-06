@@ -1,7 +1,7 @@
 import { waitForDOMContentLoaded } from "../utils/async-utils";
 import { childMatch, setMatrixWorld, calculateViewingDistance } from "../utils/three-utils";
 import { paths } from "./userinput/paths";
-import { getBox } from "../utils/auto-box-collider";
+import { getBoxForObject3D } from "../utils/auto-box-collider";
 import qsTruthy from "../utils/qs_truthy";
 import { isTagged } from "../components/tags";
 import { qsGet } from "../utils/qs_truthy";
@@ -132,18 +132,19 @@ const moveRigSoCameraLooksAtPivot = (function () {
         decompose(camera.matrixWorld, cwp, cwq);
         rig.getWorldQuaternion(cwq);
 
-        const box = getBox(inspectable.el, inspectable.el.getObject3D("mesh") || inspectable, true);
+        const box = getBoxForObject3D(inspectable, inspectable.children[0]);
+
         if (box.min.x === Infinity) {
             // fix edgecase where inspectable object has no mesh / dimensions
             box.min.subVectors(owp, defaultBoxMax);
             box.max.addVectors(owp, defaultBoxMax);
         }
         box.getCenter(center);
-        const vrMode = inspectable.el.sceneEl.is("vr-mode");
+        const vrMode = false;
         const dist =
             calculateViewingDistance(
-                inspectable.el.sceneEl.camera.fov,
-                inspectable.el.sceneEl.camera.aspect,
+                80,
+                window.APP.scene.sceneEl.camera.aspect,
                 box,
                 center,
                 vrMode
@@ -242,7 +243,12 @@ export class CameraSystem {
     }
 
     inspect(el, distanceMod, fireChangeEvent = true) {
-        const { inspectable, pivot } = getInspectableAndPivot(el);
+        // const { inspectable, pivot } = getInspectableAndPivot(el);
+        // Inspectable is an object3d
+        // Pivor is also object3d if no child elements
+        console.log("Got inspect for el", el);
+        const inspectable = el;
+        const pivot = el;
 
         this.scene.classList.add("hand-cursor");
         this.scene.classList.remove("no-cursor");
@@ -266,8 +272,8 @@ export class CameraSystem {
         this.viewingCamera.updateMatrices();
         this.snapshot.matrixWorld.copy(this.viewingRig.object3D.matrixWorld);
 
-        this.snapshot.audio =
-            !(inspectable.el && isTagged(inspectable.el, "preventAudioBoost")) && getAudio(inspectable);
+        this.snapshot.audio = getAudio(inspectable);
+
         if (this.snapshot.audio) {
             this.snapshot.audio.updateMatrices();
             this.snapshot.audioTransform.copy(this.snapshot.audio.matrixWorld);
@@ -352,11 +358,6 @@ export class CameraSystem {
 
             if (this.userinput.get(paths.actions.stopInspecting)) {
                 this.uninspect();
-                if (this.isInsideMenu) {
-                    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                }
-                this.isInsideMenu = null;
-                scene.emit("right_menu_changed", null);
             }
 
             if (this.userinput.get(paths.actions.startInspecting)) {
