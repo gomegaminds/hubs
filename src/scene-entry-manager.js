@@ -207,11 +207,9 @@ export default class SceneEntryManager {
     _setupMedia = () => {
         const offset = { x: 0, y: 0, z: -1.5 };
         const spawnMediaInfrontOfPlayer = (src, contentOrigin) => {
-            if (!window.APP.objectHelper.can("can_create")) return;
 
             if (src instanceof MediaStream) {
-                // src = `hubs://clients/${NAF.clientId}/video`;
-                console.log("GOT MEDIASTREAM", src);
+                if (!window.APP.objectHelper.can("can_share_video")) return;
                 const eid = createNetworkedEntity(APP.world, "media", {
                     src: "hubs://clients/" + NAF.clientId + "/video",
                     recenter: true,
@@ -223,6 +221,7 @@ export default class SceneEntryManager {
                 obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
                 return eid;
             } else {
+                if (!window.APP.objectHelper.can("can_create")) return;
                 const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
                 const avatarPov = document.querySelector("#avatar-pov-node").object3D;
                 const obj = APP.world.eid2obj.get(eid);
