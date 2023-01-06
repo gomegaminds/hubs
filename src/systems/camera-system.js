@@ -20,7 +20,7 @@ import {
     HoveredRemoteRight,
 } from "../bit-components";
 
-const queryHeld = defineQuery([Holdable, HoveredRemoteRight]);
+const queryHeld = defineQuery([HoveredRemoteRight]);
 
 function getInspectableInHierarchy(el) {
     let inspectable = el;

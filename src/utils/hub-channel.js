@@ -332,8 +332,7 @@ export default class HubChannel extends EventTarget {
     };
 
     sendTeleportRequest = (body, type = "teleportRequest") => {
-        if (!this._permissions.kick_users) return "unauthorized";
-        console.log("Teleport request received");
+        if (!window.APP.objectHelper.can("kick_users")) return "unauthorized";
         if (!body) return;
         this.channel.push("message", { body, type });
     };
@@ -450,7 +449,10 @@ export default class HubChannel extends EventTarget {
         });
     };
 
-    mute = sessionId => this.channel.push("mute", { session_id: sessionId });
+    mute = sessionId => {
+        this.channel.push("mute", { session_id: sessionId });
+        this.sendMuteRequest();
+    };
     addOwner = sessionId => this.channel.push("add_owner", { session_id: sessionId });
     removeOwner = sessionId => this.channel.push("remove_owner", { session_id: sessionId });
 

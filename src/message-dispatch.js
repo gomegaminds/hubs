@@ -54,6 +54,24 @@ export default class MessageDispatch extends EventTarget {
     }
 
     receive(message) {
+        if (message.type == "teleportRequest") {
+            console.log("Teleport request received");
+            if (NAF.clientId != message.sessionId) {
+                let pos = message.body;
+                // Scatter players around the person making request TODO: Make better
+                pos.x = pos.x + Math.random() * (0.3 - 1) + 1;
+                pos.z = pos.z + Math.random() * (0.3 - 1) + 1;
+                this.scene.systems["hubs-systems"].characterController.teleportTo(pos);
+            }
+        }
+        if (message.type == "muteRequest") {
+            console.log("Mute request received");
+            window.APP.mediaDevicesManager.stopMicShare();
+        }
+        if (message.type == "unMuteRequest") {
+            window.APP.mediaDevicesManager.startMicShare({});
+        }
+
         this.addToPresenceLog(message);
         this.dispatchEvent(new CustomEvent("message", { detail: message }));
     }
