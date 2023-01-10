@@ -52,9 +52,9 @@ function occupyWaypoint(world: HubsWorld, eid: EntityID) {
 
 function nonOccupiableSpawnPoints(world: HubsWorld) {
     return waypointQuery(world).filter(eid => {
-        const canBeSpawnPoint = Waypoint.flags[eid] & WaypointFlags.canBeSpawnPoint;
-        const canBeOccupied = Waypoint.flags[eid] & WaypointFlags.canBeOccupied;
-        return canBeSpawnPoint && !canBeOccupied && findAncestorWithComponent(world, SceneRoot, eid);
+        const canBeSpawnPoint = true;
+        const canBeOccupied = true;
+        return canBeSpawnPoint;
     });
 }
 
@@ -73,10 +73,10 @@ function occupiableSpawnPoints(world: HubsWorld) {
 
 function* tryOccupyAndSpawn(world: HubsWorld, characterController: CharacterControllerSystem, spawnPoint: EntityID) {
     moveToWaypoint(world, spawnPoint, characterController, true);
-    takeOwnershipWithTime(world, spawnPoint, 0);
+    takeOwnershipWithTime(world, spawnPoint, Networked.timestamp[spawnPoint] + 1);
     occupyWaypoint(world, spawnPoint);
     // TODO: We could check if we lost ownership, and not wait as long "lostOwnershipWithTimeout"
-    yield sleep(4000);
+    yield sleep(2000);
     if (entityExists(world, spawnPoint) && hasComponent(world, Owned, spawnPoint)) {
         takeOwnership(world, spawnPoint);
         return true;
@@ -101,9 +101,11 @@ function* moveToSpawnPointJob(world: HubsWorld, characterController: CharacterCo
     if (yield* trySpawnIntoOccupiable(world, characterController)) return;
 
     const spawnPoints = nonOccupiableSpawnPoints(world);
+    console.log("Moving to spawn point", spawnPoints);
     if (spawnPoints.length) {
         const waypoint = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
         moveToWaypoint(world, waypoint, characterController, true);
+        console.log("Moving to way point", waypoint);
     } else {
         console.warn("Could not find any available spawn points, spawning at the origin.");
         characterController.enqueueWaypointTravelTo(new Matrix4().identity(), true, {
@@ -191,10 +193,12 @@ export function waypointSystem(
     });
 
     const hovered = hoveredRightWaypointQuery(world) || hoveredLeftWaypointQuery(world);
-    if (!preview) {
+    /* if (!preview) {
         preview = world.eid2obj.get(anyEntityWith(world, WaypointPreview)!)!;
+        console.log(preview);
     }
     preview.visible = !!hovered.length;
+    */
     if (hovered.length) {
         const eid = hovered[0];
         const obj = world.eid2obj.get(eid)!;

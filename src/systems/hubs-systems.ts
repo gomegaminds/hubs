@@ -63,6 +63,7 @@ import { HubsWorld } from "../app";
 import { EffectComposer } from "postprocessing";
 import { sceneLoadingSystem } from "../bit-systems/scene-loading";
 import { networkDebugSystem } from "../bit-systems/network-debug";
+import { waypointSystem } from "../bit-systems/waypoint";
 
 import { particleEmitterSystem } from "../mega-src/bit-systems/particle-emitter-system";
 
@@ -190,6 +191,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     // We run this earlier in the frame so things have a chance to override properties run by animations
     hubsSystems.animationMixerSystem.tick(dt);
 
+    waypointSystem(world, hubsSystems.characterController, sceneEl.is("frozen"));
     hubsSystems.characterController.tick(t, dt);
     hubsSystems.cursorTogglingSystem.tick(aframeSystems.interaction, aframeSystems.userinput, hubsSystems.el);
     hubsSystems.interactionSfxSystem.tick(
