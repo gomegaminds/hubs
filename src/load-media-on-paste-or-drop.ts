@@ -1,4 +1,7 @@
-import { createNetworkedEntity } from "./systems/netcode.js";
+import { addComponent } from "bitecs";
+import { takeOwnership } from "./utils/take-ownership";
+import { createNetworkedEntity } from "./utils/create-networked-entity";
+import { NetworkedTransform, Owned } from "./bit-components";
 import { upload, parseURL } from "./utils/media-utils";
 import { guessContentType } from "./utils/media-url-utils";
 import { AElement } from "aframe";
@@ -6,16 +9,11 @@ import { Vector3 } from "three";
 import qsTruthy from "./utils/qs_truthy";
 
 type UploadResponse = {
-    file_id: string;
-    meta: {
-        access_token: string;
-        expected_content_type: string; // TODO  one of valid mime types ("image/jpeg" etc)
-        promotion_token: string;
-    };
-    origin: string;
+    file: string;
+    id?: number;
 };
 
-function spawnFromUrl(text: string) {
+export function spawnFromUrl(text: string) {
     if (!text) {
         return;
     }
@@ -23,43 +21,57 @@ function spawnFromUrl(text: string) {
         console.warn(`Could not parse URL. Ignoring pasted text:\n${text}`);
         return;
     }
-    const eid = createNetworkedEntity(APP.world, "media", { src: text, recenter: true, resize: true });
+    const eid = createNetworkedEntity(APP.world, "media", {
+        src: text,
+        recenter: true,
+        resize: true
+    });
     const avatarPov = (document.querySelector("#avatar-pov-node")! as AElement).object3D;
     const obj = APP.world.eid2obj.get(eid)!;
     obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
+
+    setTimeout(() => {
+        window.APP.objectHelper.save(eid);
+    }, 1000);
+    return obj;
 }
 
-async function spawnFromFileList(files: FileList) {
+export async function spawnFromFileList(files: FileList) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
-        const params = await upload(file, desiredContentType)
+        const { src, id } = await upload(file, desiredContentType)
             .then(function (response: UploadResponse) {
-                const srcUrl = new URL(response.origin);
-                srcUrl.searchParams.set("token", response.meta.access_token);
-                window.APP.store.update({
-                    uploadPromotionTokens: [{ fileId: response.file_id, promotionToken: response.meta.promotion_token }]
-                });
-                return {
-                    src: srcUrl.href,
-                    recenter: true,
-                    resize: true
-                };
+                console.log(response.id);
+                if (response.file.startsWith("/")) {
+                    return { src: "http://localhost:8000" + response.file, id: response.id };
+                } else {
+                    return { src: response.file, id: response.id };
+                }
             })
             .catch(e => {
                 console.error("Media upload failed", e);
                 return {
                     src: "error",
+                    id: null,
                     recenter: true,
-                    resize: true
+                    resize: true,
+                    animateLoad: true,
+                    isObjectMenuTarget: true
                 };
             });
 
-        const eid = createNetworkedEntity(APP.world, "media", params);
+        const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
         const avatarPov = (document.querySelector("#avatar-pov-node")! as AElement).object3D;
         const obj = APP.world.eid2obj.get(eid)!;
-        obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
-        obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
+        obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+        obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+        obj.updateMatrix();
+        obj.matrixNeedsUpdate = true;
+
+        setTimeout(() => {
+            window.APP.objectHelper.save(eid, id);
+        }, 1000);
     }
 }
 
@@ -100,7 +112,5 @@ function onDrop(e: DragEvent) {
     }
 }
 
-if (qsTruthy("newLoader")) {
-    document.addEventListener("paste", onPaste);
-    document.addEventListener("drop", onDrop);
-}
+document.addEventListener("paste", onPaste);
+document.addEventListener("drop", onDrop);

@@ -1,42 +1,43 @@
 // Brief overview of client authorization can be found in the wiki:
 
 import { hasComponent } from "bitecs";
-import { HoldableButton } from "../bit-components";
+import { HoldableButton, Locked, Owner, StudentsCanMove } from "../bit-components";
 
 // https://github.com/mozilla/hubs/wiki/Hubs-authorization
 export function showHoverEffect(el) {
-    return canMove;
+    const isFrozen = el.sceneEl.is("frozen");
+    const isPinned = el.components.pinnable && el.components.pinnable.data.pinned;
+    const isSpawner = !!el.components["super-spawner"];
+    const isEmojiSpawner = isSpawner && el.components["super-spawner"].data.template === "#interactable-emoji";
+    const isEmoji = !!el.components.emoji;
+    const canMove =
+        (isEmoji || isEmojiSpawner
+            ? window.APP.hubChannel.can("spawn_emoji")
+            : window.APP.hubChannel.can("spawn_and_move_media")) &&
+        (!isPinned || window.APP.hubChannel.can("pin_objects"));
+    return (isSpawner || !isPinned || isFrozen) && canMove;
 }
 
-export function canMove(entity) {
-    if (entity.components.locked !== undefined) {
-        const shouldMove = entity.components["locked"].data.enabled === true;
-        if (shouldMove) {
-            return false;
-        }
+export function canMove(eid) {
+    if (hasComponent(APP.world, Locked, eid) && Locked.toggled[eid] === 1) {
+        console.log("Trying to move locked component");
+        return false;
     }
 
-    if (window.APP.hubChannel.can("update_hub")) {
+    if (window.APP.objectHelper.can("can_change")) {
         return true;
     }
 
-    if (entity.components.owner !== undefined) {
-        if (
-            entity.components.owner.data &&
-            entity.components.owner.data.name === window.APP.store.state.profile.displayName
-        ) {
-            return true;
-        }
+    if (hasComponent(APP.world, Owner, eid) && Owner.value[eid] === window.APP.store.state.profile.displayName) {
+        return true;
     }
 
-    if (entity.components["students-can-move"] !== undefined) {
-        const shouldMove = entity.components["students-can-move"].data.enabled === true;
-        return shouldMove;
-    } else {
-        return false;
+    if (hasComponent(APP.world, StudentsCanMove, eid) && StudentsCanMove.toggled[eid] === 1) {
+        return true;
     }
+
+    return false;
 }
-
 function indexForComponent(component, schema) {
     const fullComponent = typeof component === "string";
     const componentName = fullComponent ? component : component.component;
@@ -63,7 +64,7 @@ function initializeNonAuthorizedSchemas() {
     nonAuthorizedSchemas = {};
     const { schemaDict } = NAF.schemas;
     for (const template in schemaDict) {
-        if (!schemaDict.hasOwnProperty(template)) continue;
+        if (!Object.prototype.hasOwnProperty.call(schemaDict, template)) continue;
         const schema = schemaDict[template];
         nonAuthorizedSchemas[template] = (schema.nonAuthorizedComponents || [])
             .map(nonAuthorizedComponent => indexForComponent(nonAuthorizedComponent, schema))
@@ -77,7 +78,7 @@ function sanitizeMessageData(template, data) {
     }
     const nonAuthorizedIndices = nonAuthorizedSchemas[template];
     for (const index in data.components) {
-        if (!data.components.hasOwnProperty(index)) continue;
+        if (!Object.prototype.hasOwnProperty.call(data.components, index)) continue;
         if (!nonAuthorizedIndices.includes(index)) {
             data.components[index] = null;
         }
@@ -189,7 +190,7 @@ export function authorizeOrSanitizeMessage(message) {
         let sanitizedAny = false;
         let stashedAny = false;
         for (const index in message.data.d) {
-            if (!message.data.d.hasOwnProperty(index)) continue;
+            if (!Object.prototype.hasOwnProperty.call(message.data.d, index)) continue;
             const entityData = message.data.d[index];
             if (entityData.persistent && !NAF.entities.getEntity(entityData.networkId)) {
                 stashPersistentSync(message, entityData);

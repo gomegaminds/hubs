@@ -13,7 +13,7 @@ import {
     HeldHandRight,
     HoveredHandLeft,
     HeldHandLeft,
-    AEntity,
+    AEntity
 } from "../bit-components";
 import { canMove } from "../utils/permissions-utils";
 
@@ -27,10 +27,8 @@ const GRAB_HAND_LEFT = paths.actions.leftHand.grab;
 const DROP_HAND_LEFT = paths.actions.leftHand.drop;
 
 function hasPermissionToGrab(world, eid) {
-    if (!hasComponent(world, AEntity, eid)) return true;
-    return canMove(world.eid2obj.get(eid).el);
+    return canMove(eid);
 }
-
 
 function grab(world, userinput, queryHovered, held, grabPath) {
     const hovered = queryHovered(world)[0];
@@ -45,6 +43,8 @@ function drop(world, userinput, queryHeld, held, dropPath) {
     if (heldEid && userinput.get(dropPath)) {
         // TODO: Drop on ownership lost
         removeComponent(world, held, heldEid);
+
+        window.APP.objectHelper.change(heldEid);
 
         if (
             !hasComponent(world, HeldRemoteRight, heldEid) &&

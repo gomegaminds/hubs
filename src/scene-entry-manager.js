@@ -2,7 +2,7 @@ import qsTruthy from "./utils/qs_truthy";
 import nextTick from "./utils/next-tick";
 import { hackyMobileSafariTest } from "./utils/detect-touchscreen";
 import { SignInMessages } from "./mega-src/react-components/misc/messages";
-import { createNetworkedEntity } from "./systems/netcode";
+import { createNetworkedEntity } from "./utils/create-networked-entity";
 
 const isMobile = AFRAME.utils.device.isMobile();
 const forceEnableTouchscreen = hackyMobileSafariTest();
@@ -10,7 +10,6 @@ const isMobileVR = AFRAME.utils.device.isMobileVR();
 const isDebug = qsTruthy("debug");
 const qs = new URLSearchParams(location.search);
 
-import { addMedia } from "./utils/media-utils";
 import { ObjectContentOrigins } from "./object-types";
 import { getAvatarSrc, getAvatarType } from "./utils/avatar-utils";
 import { SOUND_ENTER_SCENE } from "./systems/sound-effects-system";
@@ -18,6 +17,7 @@ import { MediaDevices, MediaDevicesEvents } from "./utils/media-devices-utils";
 import { addComponent, removeEntity } from "bitecs";
 import { MyCameraTool } from "./bit-components";
 import { anyEntityWith } from "./utils/bit-utils";
+import { moveToSpawnPoint } from "./bit-systems/waypoint";
 
 export default class SceneEntryManager {
     constructor(hubChannel, authChannel, history) {
@@ -55,15 +55,26 @@ export default class SceneEntryManager {
     };
 
     enterScene = async (enterInVR, muteOnEntry) => {
+        console.log("Entering scene...");
         document.getElementById("viewing-camera").removeAttribute("scene-preview-camera");
 
         if (isDebug && NAF.connection.adapter.session) {
             NAF.connection.adapter.session.options.verbose = true;
         }
 
-        const waypointSystem = this.scene.systems["hubs-systems"].waypointSystem;
-        waypointSystem.moveToSpawnPoint();
+        if (enterInVR) {
+            // This specific scene state var is used to check if the user went through the
+            // entry flow and chose VR entry, and is used to preempt VR mode on refreshes.
+            this.scene.addState("vr-entered");
 
+            // HACK - A-Frame calls getVRDisplays at module load, we want to do it here to
+            // force gamepads to become live.
+            "getVRDisplays" in navigator && navigator.getVRDisplays();
+
+            await exit2DInterstitialAndEnterVR(true);
+        }
+
+        moveToSpawnPoint(APP.world, this.scene.systems["hubs-systems"].characterController);
         if (isMobile || forceEnableTouchscreen || qsTruthy("force_enable_touchscreen")) {
             this.avatarRig.setAttribute("virtual-gamepad-controls", {});
         }
@@ -72,9 +83,12 @@ export default class SceneEntryManager {
         this._setupKicking();
         this._setupMedia();
         this._setupCamera();
+
+        if (qsTruthy("offline")) return;
+
         this._spawnAvatar();
 
-        this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
+        // this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
 
         this.scene.classList.remove("hand-cursor");
         this.scene.classList.add("no-cursor");
@@ -147,12 +161,17 @@ export default class SceneEntryManager {
 
     _setPlayerInfoFromProfile = async (force = false) => {
         const avatarId = this.store.state.profile.avatarId;
-        if (!force && this._lastFetchedAvatarId === avatarId) return; // Avoid continually refetching based upon state changing
 
-        this._lastFetchedAvatarId = avatarId;
-        const avatarSrc = await getAvatarSrc(avatarId);
-
-        this.avatarRig.setAttribute("player-info", { avatarSrc, avatarType: getAvatarType(avatarId) });
+        await fetch(window.APP.endpoint + "/api/avatars/" + avatarId)
+            .then(resp => resp.json())
+            .then(data => {
+                console.log(data, "from avatar api");
+                if (data.glb.startsWith("/")) {
+                    this.avatarRig.setAttribute("player-info", { avatarSrc: "http://localhost:8000" + data.glb });
+                } else {
+                    this.avatarRig.setAttribute("player-info", { avatarSrc: data.glb });
+                }
+            });
     };
 
     _setupKicking = () => {
@@ -166,7 +185,7 @@ export default class SceneEntryManager {
 
                 if (entity.components.networked.data.persistent) {
                     NAF.utils.takeOwnership(entity);
-                    window.APP.pinningHelper.unpinElement(entity);
+                    window.APP.objectHelper.delete(entity);
                     entity.parentNode.removeChild(entity);
                 } else {
                     NAF.entities.removeEntity(id);
@@ -188,28 +207,32 @@ export default class SceneEntryManager {
     _setupMedia = () => {
         const offset = { x: 0, y: 0, z: -1.5 };
         const spawnMediaInfrontOfPlayer = (src, contentOrigin) => {
-            if (!this.hubChannel.can("spawn_and_move_media")) return;
-            const { entity, orientation } = addMedia(
-                src,
-                "#interactable-media",
-                contentOrigin,
-                null,
-                !(src instanceof MediaStream),
-                true
-            );
-            orientation.then(or => {
-                entity.setAttribute("offset-relative-to", {
-                    target: "#avatar-pov-node",
-                    offset,
-                    orientation: or
+
+            if (src instanceof MediaStream) {
+                if (!window.APP.objectHelper.can("can_share_video")) return;
+                const eid = createNetworkedEntity(APP.world, "media", {
+                    src: "hubs://clients/" + NAF.clientId + "/video",
+                    recenter: true,
+                    resize: true
                 });
-            });
+                const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+                const obj = APP.world.eid2obj.get(eid);
+                obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+                obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+                return eid;
+            } else {
+                if (!window.APP.objectHelper.can("can_create")) return;
+                const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
+                const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+                const obj = APP.world.eid2obj.get(eid);
+                obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+                obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
-            entity.addEventListener("media_resolved", () => {
-                window.APP.pinningHelper.setPinned(entity, true);
-            });
-
-            return entity;
+                setTimeout(() => {
+                    window.APP.objectHelper.save(eid);
+                }, 1000);
+                return eid;
+            }
         };
 
         this.scene.addEventListener("add_media", e => {
@@ -223,78 +246,16 @@ export default class SceneEntryManager {
         });
 
         this.scene.addEventListener("action_kick_client", ({ detail: { clientId } }) => {
-            this.performConditionalSignIn(
-                () => this.hubChannel.can("kick_users"),
-                async () => await window.APP.hubChannel.kick(clientId),
-                SignInMessages.kickUser
-            );
+            if (window.APP.objectHelper.can("kick_users")) {
+                window.APP.hubChannel.kick(clientId);
+            }
         });
 
         this.scene.addEventListener("action_mute_client", ({ detail: { clientId } }) => {
-            this.performConditionalSignIn(
-                () => this.hubChannel.can("mute_users"),
-                () => window.APP.hubChannel.mute(clientId),
-                SignInMessages.muteUser
-            );
+            if (window.APP.objectHelper.can("mute_users")) {
+                window.APP.hubChannel.mute(clientId);
+            }
         });
-
-        if (!qsTruthy("newLoader")) {
-            document.addEventListener("paste", e => {
-                if (
-                    (e.target.matches("input, textarea") || e.target.contentEditable === "true") &&
-                    document.activeElement === e.target
-                )
-                    return;
-
-                // Never paste into scene if dialog is open
-                const uiRoot = document.querySelector(".ui-root");
-                if (uiRoot && uiRoot.classList.contains("in-modal-or-overlay")) return;
-
-                const url = e.clipboardData.getData("text");
-                const files = e.clipboardData.files && e.clipboardData.files;
-                if (url) {
-                    spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
-                } else {
-                    for (const file of files) {
-                        spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.CLIPBOARD);
-                    }
-                }
-            });
-
-            let lastDebugScene;
-            document.addEventListener("drop", e => {
-                e.preventDefault();
-
-                if (qsTruthy("debugLocalScene")) {
-                    URL.revokeObjectURL(lastDebugScene);
-                    const url = URL.createObjectURL(e.dataTransfer.files[0]);
-                    this.hubChannel.updateScene(url);
-                    lastDebugScene = url;
-                    return;
-                }
-
-                let url = e.dataTransfer.getData("url");
-
-                if (!url) {
-                    // Sometimes dataTransfer text contains a valid URL, so try for that.
-                    try {
-                        url = new URL(e.dataTransfer.getData("text")).href;
-                    } catch (e) {
-                        // Nope, not this time.
-                    }
-                }
-
-                const files = e.dataTransfer.files;
-
-                if (url) {
-                    spawnMediaInfrontOfPlayer(url, ObjectContentOrigins.URL);
-                } else {
-                    for (const file of files) {
-                        spawnMediaInfrontOfPlayer(file, ObjectContentOrigins.FILE);
-                    }
-                }
-            });
-        }
 
         document.addEventListener("dragover", e => e.preventDefault());
 
@@ -305,19 +266,14 @@ export default class SceneEntryManager {
             isHandlingVideoShare = false;
 
             if (isVideoTrackAdded) {
-                if (target === "avatar") {
-                    this.avatarRig.setAttribute("player-info", { isSharingAvatarCamera: true });
-                } else {
-                    currentVideoShareEntity = spawnMediaInfrontOfPlayer(
-                        this.mediaDevicesManager.mediaStream,
-                        undefined
-                    );
-                    // Wire up custom removal event which will stop the stream.
-                    currentVideoShareEntity.setAttribute(
-                        "emit-scene-event-on-remove",
-                        `event:${MediaDevicesEvents.VIDEO_SHARE_ENDED}`
-                    );
-                }
+                currentVideoShareEntity = spawnMediaInfrontOfPlayer(this.mediaDevicesManager.mediaStream, undefined);
+                // Wire up custom removal event which will stop the stream.
+                /*
+                currentVideoShareEntity.setAttribute(
+                    "emit-scene-event-on-remove",
+                    `event:${MediaDevicesEvents.VIDEO_SHARE_ENDED}`
+                );
+                */
 
                 this.scene.emit("share_video_enabled", {
                     source: isDisplayMedia ? MediaDevices.SCREEN : MediaDevices.CAMERA

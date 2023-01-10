@@ -117,6 +117,33 @@ export function getBox(entity, boxRoot, worldSpace) {
   return box;
 }
 
+export function getBoxForObject3D(object, boxRoot, worldSpace) {
+  const box = new THREE.Box3();
+
+  rotation.copy(object.rotation);
+  object.rotation.set(0, 0, 0);
+
+  object.updateMatrices(true, true);
+  boxRoot.updateMatrices(true, true);
+  boxRoot.updateMatrixWorld(true);
+
+  computeObjectAABB(boxRoot, box, false);
+
+  if (!box.isEmpty()) {
+    if (!worldSpace) {
+      object.worldToLocal(box.min);
+      object.worldToLocal(box.max);
+    }
+    object.rotation.copy(rotation);
+    object.matrixNeedsUpdate = true;
+  }
+
+  boxRoot.matrixWorldNeedsUpdate = true;
+  boxRoot.updateMatrices();
+
+  return box;
+}
+
 export function getScaleCoefficient(length, box) {
   if (box.isEmpty()) return 1.0;
 

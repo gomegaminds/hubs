@@ -1,7 +1,7 @@
 // https://dev.reticulum.io/scenes/7vGnzkM/outdoor-meetup
 // A scene with media-frames
 
-import { addEntity, defineQuery, entityExists, hasComponent, removeEntity } from "bitecs";
+import { addEntity, defineQuery, enterQuery, exitQuery, entityExists, hasComponent, removeEntity } from "bitecs";
 import {
     AEntity,
     Held,
@@ -10,19 +10,22 @@ import {
     Networked,
     NetworkedMediaFrame,
     Owned,
-    Rigidbody,
+    Rigidbody
 } from "../bit-components";
 import { addObject3DComponent } from "../utils/jsx-entity";
 import { updateMaterials } from "../utils/material-utils";
 import { MediaType } from "../utils/media-utils";
 import { cloneObject3D, setMatrixWorld } from "../utils/three-utils";
-import { takeOwnership } from "./netcode";
+import { takeOwnership } from "../utils/take-ownership";
+import { takeOwnershipWithTime } from "../utils/take-ownership-with-time";
 
 const EMPTY_COLOR = 0x6fc0fd;
 const HOVER_COLOR = 0x2f80ed;
 const FULL_COLOR = 0x808080;
 
 const mediaFramesQuery = defineQuery([MediaFrame]);
+const enteredMediaFramesQuery = enterQuery(mediaFramesQuery);
+const exitedMediaFramesQuery = exitQuery(mediaFramesQuery);
 
 // TODO currently only aframe entiteis can be placed in media frames
 function mediaTypeMaskFor(world, eid) {
@@ -44,6 +47,17 @@ function isAncestor(a, b) {
         ancestor = ancestor.parent;
     }
     return false;
+}
+
+function isOwnedByRet(world, eid) {
+    if (hasComponent(world, AEntity, eid)) {
+        const networkedEl = world.eid2obj.get(eid).el;
+        const owner = NAF.utils.getNetworkOwner(networkedEl);
+        // Legacy networked objects don't set "reticulum" as the owner
+        return owner === "scene";
+    } else {
+        return Networked.owner[eid] === APP.getSid("reticulum");
+    }
 }
 
 function inOtherFrame(world, ignoredFrame, eid) {
@@ -129,14 +143,7 @@ function setMatrixScale(obj, scaleArray) {
     const m4 = new THREE.Matrix4();
     obj.updateMatrices();
     obj.matrixWorld.decompose(position, quaternion, scale);
-    setMatrixWorld(
-        obj,
-        m4.compose(
-            position,
-            quaternion,
-            scale.fromArray(scaleArray)
-        )
-    );
+    setMatrixWorld(obj, m4.compose(position, quaternion, scale.fromArray(scaleArray)));
 }
 
 function cloneForPreview(world, eid) {
@@ -144,8 +151,8 @@ function cloneForPreview(world, eid) {
     const el = world.eid2obj.get(eid).el;
     const mesh = el.getObject3D("mesh");
     const meshClone = cloneObject3D(mesh, false);
-    meshClone.traverse((node) => {
-        updateMaterials(node, function(srcMat) {
+    meshClone.traverse(node => {
+        updateMaterials(node, function (srcMat) {
             const mat = srcMat.clone();
             mat.transparent = true;
             mat.opacity = 0.5;
@@ -225,73 +232,94 @@ function mediaTypesOf(world, entities) {
     return mask;
 }
 
+const takeOwnershipOnTimeout = new Map();
 const heldQuery = defineQuery([Held]);
 // const droppedQuery = exitQuery(heldQuery);
 export function mediaFramesSystem(world) {
+    enteredMediaFramesQuery(world).forEach(eid => {
+        if (Networked.owner[eid] === APP.getSid("reticulum")) {
+            takeOwnershipOnTimeout.set(
+                eid,
+                setTimeout(() => {
+                    if (Networked.owner[eid] === APP.getSid("reticulum")) {
+                        takeOwnershipWithTime(world, eid, Networked.timestamp[eid]);
+                    }
+                    takeOwnershipOnTimeout.delete(eid);
+                }, 10000)
+            );
+        }
+    });
+
+    exitedMediaFramesQuery(world).forEach(eid => {
+        const timeout = takeOwnershipOnTimeout.get(eid);
+        if (timeout) {
+            clearTimeout(timeout);
+            takeOwnershipOnTimeout.delete(eid);
+        }
+    });
+
     const physicsSystem = AFRAME.scenes[0].systems["hubs-systems"].physicsSystem;
     const heldMediaTypes = mediaTypesOf(world, heldQuery(world));
     // const droppedEntities = droppedQuery(world).filter(eid => entityExists(world, eid));
     const mediaFrames = mediaFramesQuery(world);
 
     for (let i = 0; i < mediaFrames.length; i++) {
-        const frame = world.eid2obj.get(mediaFrames[i]).visible = false;
+        const frame = mediaFrames[i];
+
+        const captured = world.nid2eid.get(MediaFrame.capturedNid[frame]) || 0;
+        const colliding = captured && isColliding(world, frame, captured);
+
+        if (captured && hasComponent(world, Owned, captured) && !hasComponent(world, Held, captured) && colliding) {
+            snapToFrame(world, frame, captured);
+            physicsSystem.updateBodyOptions(Rigidbody.bodyId[captured], { type: "kinematic" });
+        } else if (
+            (hasComponent(world, Owned, frame) &&
+                MediaFrame.capturedNid[frame] &&
+                world.deletedNids.has(MediaFrame.capturedNid[frame])) ||
+            (captured && hasComponent(world, Owned, captured) && !colliding)
+        ) {
+            takeOwnership(world, frame);
+            NetworkedMediaFrame.capturedNid[frame] = 0;
+            NetworkedMediaFrame.scale[frame].set(zero);
+            // TODO BUG: If an entity I do not own is captured by the media frame,
+            //           and then I take ownership of the entity (by grabbing it),
+            //           the physics system does not immediately notice the entity colliding with the frame,
+            //           so I immediately think the frame should be emptied.
+        } else if (!NetworkedMediaFrame.capturedNid[frame]) {
+            const capturable = getCapturableEntity(world, frame);
+            if (
+                capturable &&
+                (hasComponent(world, Owned, capturable) ||
+                    (isOwnedByRet(world, capturable) && hasComponent(world, Owned, frame))) &&
+                !hasComponent(world, Held, capturable) &&
+                !inOtherFrame(world, frame, capturable)
+            ) {
+                takeOwnership(world, frame);
+                takeOwnership(world, capturable);
+                NetworkedMediaFrame.capturedNid[frame] = Networked.id[capturable];
+                const obj = world.eid2obj.get(capturable);
+                obj.updateMatrices();
+                tmpVec3.setFromMatrixScale(obj.matrixWorld).toArray(NetworkedMediaFrame.scale[frame]);
+                snapToFrame(world, frame, capturable);
+                physicsSystem.updateBodyOptions(Rigidbody.bodyId[capturable], { type: "kinematic" });
+            }
+        }
+
+        if (
+            NetworkedMediaFrame.capturedNid[frame] !== MediaFrame.capturedNid[frame] &&
+            captured &&
+            entityExists(world, captured) &&
+            hasComponent(world, Owned, captured)
+        ) {
+            // TODO: If you are resetting scale because you lost a race for the frame,
+            //       you should probably also move the object away from the frame.
+            setMatrixScale(world.eid2obj.get(captured), MediaFrame.scale[frame]);
+            physicsSystem.updateBodyOptions(Rigidbody.bodyId[captured], { type: "dynamic" });
+        }
+
+        MediaFrame.capturedNid[frame] = NetworkedMediaFrame.capturedNid[frame];
+        MediaFrame.scale[frame].set(NetworkedMediaFrame.scale[frame]);
+
+        display(world, frame, heldMediaTypes);
     }
-
-    /*
-  for (let i = 0; i < mediaFrames.length; i++) {
-    const frame = mediaFrames[i];
-
-    const captured = world.nid2eid.get(MediaFrame.capturedNid[frame]) || 0;
-    const colliding = captured && isColliding(world, frame, captured);
-
-    if (captured && hasComponent(world, Owned, captured) && !hasComponent(world, Held, captured) && colliding) {
-      snapToFrame(world, frame, captured);
-      physicsSystem.updateBodyOptions(Rigidbody.bodyId[captured], { type: "kinematic" });
-    } else if (
-      (hasComponent(world, Owned, frame) &&
-        MediaFrame.capturedNid[frame] &&
-        world.deletedNids.has(MediaFrame.capturedNid[frame])) ||
-      (captured && hasComponent(world, Owned, captured) && !colliding)
-    ) {
-      takeOwnership(world, frame);
-      NetworkedMediaFrame.capturedNid[frame] = 0;
-      NetworkedMediaFrame.scale[frame].set(zero);
-      // TODO BUG: If an entity I do not own is captured by the media frame,
-      //           and then I take ownership of the entity (by grabbing it),
-      //           the physics system does not immediately notice the entity colliding with the frame,
-      //           so I immediately think the frame should be emptied.
-    } else if (!NetworkedMediaFrame.capturedNid[frame]) {
-      const capturable = getCapturableEntity(world, frame);
-      if (
-        capturable &&
-        hasComponent(world, Owned, capturable) &&
-        !hasComponent(world, Held, capturable) &&
-        !inOtherFrame(world, frame, capturable)
-      ) {
-        takeOwnership(world, frame);
-        NetworkedMediaFrame.capturedNid[frame] = Networked.id[capturable];
-        const obj = world.eid2obj.get(capturable);
-        obj.updateMatrices();
-        tmpVec3.setFromMatrixScale(obj.matrixWorld).toArray(NetworkedMediaFrame.scale[frame]);
-        snapToFrame(world, frame, capturable);
-        physicsSystem.updateBodyOptions(Rigidbody.bodyId[capturable], { type: "kinematic" });
-      }
-    }
-
-    if (
-      NetworkedMediaFrame.capturedNid[frame] !== MediaFrame.capturedNid[frame] &&
-      (captured && entityExists(world, captured) && hasComponent(world, Owned, captured))
-    ) {
-      // TODO: If you are resetting scale because you lost a race for the frame,
-      //       you should probably also move the object away from the frame.
-      setMatrixScale(world.eid2obj.get(captured), MediaFrame.scale[frame]);
-      physicsSystem.updateBodyOptions(Rigidbody.bodyId[captured], { type: "dynamic" });
-    }
-
-    MediaFrame.capturedNid[frame] = NetworkedMediaFrame.capturedNid[frame];
-    MediaFrame.scale[frame].set(NetworkedMediaFrame.scale[frame]);
-
-    display(world, frame, heldMediaTypes);
-  }
-    */
 }

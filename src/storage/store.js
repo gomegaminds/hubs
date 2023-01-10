@@ -36,6 +36,10 @@ const defaultMaterialQuality = (function () {
     return "high";
 })();
 
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+}
+
 // WebAudio on Android devices (only non-VR devices?) seems to have
 // a bug and audio can be broken if there are many people in a room.
 // We have reported the problem to the Android devs. We found that
@@ -63,7 +67,7 @@ export const SCHEMA = {
             additionalProperties: false,
             properties: {
                 displayName: { type: "string", pattern: "^[A-Za-z0-9_~ -øæåØÆÅ]{3,32}$" },
-                avatarId: { type: "string" },
+                avatarId: { type: "number" },
                 // personalAvatarId is obsolete, but we need it here for backwards compatibility.
                 personalAvatarId: { type: "string" }
             }
@@ -74,6 +78,7 @@ export const SCHEMA = {
             additionalProperties: false,
             properties: {
                 token: { type: ["null", "string"] },
+                auth_token: { type: ["null", "string"] },
                 email: { type: ["null", "string"] }
             }
         },
@@ -275,38 +280,10 @@ export default class Store extends EventTarget {
 
         this._shouldResetAvatarOnInit = false;
 
-        this._signOutOnExpiredAuthToken();
+        if (!isNumber(this.state.profile.avatarId)) {
+            document.location = `/#/entry/?destination=${encodeURIComponent(document.location.toString())}`;
+        }
     }
-
-    _signOutOnExpiredAuthToken = () => {
-        if (!this.state.credentials.token) return;
-
-        const expiry = jwtDecode(this.state.credentials.token).exp * 1000;
-        if (expiry <= Date.now()) {
-            this.update({ credentials: { token: null, email: null } });
-        }
-    };
-
-    initProfile = async () => {
-        if (this._shouldResetAvatarOnInit) {
-            await this.resetToRandomDefaultAvatar();
-        } else {
-            this.update({
-                profile: { avatarId: await fetchRandomDefaultAvatarId(), ...(this.state.profile || {}) }
-            });
-        }
-
-        // Regenerate name to encourage users to change it.
-        if (!this.state.activity.hasChangedName) {
-            this.update({ profile: { displayName: generateRandomName() } });
-        }
-    };
-
-    resetToRandomDefaultAvatar = async () => {
-        this.update({
-            profile: { ...(this.state.profile || {}), avatarId: await fetchRandomDefaultAvatarId() }
-        });
-    };
 
     get state() {
         if (!this.hasOwnProperty(STORE_STATE_CACHE_KEY)) {
