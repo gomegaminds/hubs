@@ -515,7 +515,7 @@ export function createVideoOrAudioEl(type) {
     el.setAttribute("playsinline", "");
     el.setAttribute("webkit-playsinline", "");
     // iOS Safari requires the autoplay attribute, or it won't play the video at all.
-    el.autoplay = true;
+    el.autoplay = false;
     // iOS Safari will not play videos without user interaction. We mute the video so that it can autoplay and then
     // allow the user to unmute it with an interaction in the unmute-video-button component.
     el.muted = isIOS;

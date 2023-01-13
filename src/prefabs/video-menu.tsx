@@ -9,6 +9,7 @@ import { textureLoader } from "../utils/media-utils";
 import playImageUrl from "../assets/images/sprites/notice/play.png";
 import pauseImageUrl from "../assets/images/sprites/notice/pause.png";
 import { TextureCache } from "../utils/texture-cache";
+import { Button3D, BUTTON_TYPES } from "../prefabs/button3D";
 
 const playTexture = textureLoader.load(playImageUrl);
 const pauseTexture = textureLoader.load(pauseImageUrl);
@@ -42,7 +43,7 @@ function Slider({ trackRef, headRef, ...props }: any) {
 }
 
 export function VideoMenuPrefab() {
-    const uiZ = 0.001;
+    const uiZ = 0.002;
     const timeLabelRef = createRef();
     const headRef = createRef();
     const trackRef = createRef();
@@ -60,30 +61,28 @@ export function VideoMenuPrefab() {
                 position={[0.5 - 0.02, halfHeight - 0.02, uiZ]}
             />
             <Slider trackRef={trackRef} headRef={headRef} position={[0, -halfHeight + 0.025, uiZ]} />
-            <entity
+            <Button3D
                 ref={playIndicatorRef}
-                position={[0, 0, uiZ]}
+                videoMenuItem
+                type={0}
                 scale={[0.25, 0.25, 0.25]}
-                image={{
-                    texture: playTexture,
-                    ratio: 1,
-                    projection: ProjectionMode.FLAT,
-                    alphaMode: AlphaMode.Blend,
-                    cacheKey: TextureCache.key(playImageUrl, 1)
-                }}
-                visible={false}
+                position={[0, 0, uiZ]}
+                width={0.6}
+                userData={{ way: "play" }}
+                height={0.4}
+                text={"Play"}
+                visible={true}
             />
-            <entity
+            <Button3D
                 ref={pauseIndicatorRef}
-                position={[0, 0, uiZ]}
+                type={0}
+                videoMenuItem
                 scale={[0.25, 0.25, 0.25]}
-                image={{
-                    texture: pauseTexture,
-                    ratio: 1,
-                    projection: ProjectionMode.FLAT,
-                    alphaMode: AlphaMode.Blend,
-                    cacheKey: TextureCache.key(pauseImageUrl, 1)
-                }}
+                position={[0, 0, uiZ]}
+                width={0.6}
+                userData={{ way: "pause" }}
+                height={0.4}
+                text={"Pause"}
                 visible={false}
             />
         </entity>

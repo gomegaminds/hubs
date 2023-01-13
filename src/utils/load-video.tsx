@@ -13,13 +13,11 @@ export function* loadVideo(world: HubsWorld, url: string) {
         world,
         <entity
             name="Video"
-            networked
-            networkedVideo
             grabbable={{ cursor: true, hand: false }}
             video={{
                 texture,
                 ratio,
-                autoPlay: true,
+                autoPlay: false,
                 projection: ProjectionMode.FLAT
             }}
         ></entity>

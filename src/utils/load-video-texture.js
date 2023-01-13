@@ -38,6 +38,8 @@ export async function loadVideoTexture(src) {
             if (isReady()) {
                 videoEl.onerror = null;
 
+                console.log("Got video ready", videoEl.autoplay);
+
                 const height = texture.image.videoHeight || texture.image.height;
                 const width = texture.image.videoWidth || texture.image.width;
                 if (src && src.startsWith("hubs://")) {
