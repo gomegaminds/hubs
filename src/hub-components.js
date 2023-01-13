@@ -3,7 +3,6 @@ import "./components/mute-mic";
 import "./components/bone-mute-state-indicator";
 import "./components/bone-visibility";
 import "./components/fader";
-import "./components/emoji";
 import "./components/virtual-gamepad-controls";
 import "./components/ik-controller";
 import "./components/hand-controls2";
@@ -33,7 +32,7 @@ import "./mega-src/systems/tip-system";
 
 import "./components/networked-avatar";
 import "./components/media-video";
-import "./components/media-pdf";
+// import "./components/media-pdf";
 import "./components/media-image";
 import "./components/pinch-to-move";
 import "./components/pitch-yaw-rotator";
@@ -42,7 +41,6 @@ import "./components/pinnable";
 
 import "./components/unmute-video-button";
 import "./components/visible-to-owner";
-import "./components/action-to-remove";
 
 import "./components/emit-scene-event-on-remove";
 import "./components/follow-in-fov";
