@@ -366,9 +366,18 @@ AFRAME.registerComponent("media-loader", {
                 isNonCorsProxyDomain(parsedUrl.hostname) && (guessContentType(src) || "").startsWith("model/gltf");
 
             console.log(src);
-            const isMegaMindsAsset = src.startsWith("http://localhost") || src.startsWith("https://api.megaminds.world")
+            const isMegaMindsAsset =
+                src.startsWith("http://localhost") ||
+                src.startsWith("https://api.megaminds.world") ||
+                src.includes("megaminds.world");
 
-            if (!isMegaMindsAsset && this.data.resolve && !src.startsWith("data:") && !src.startsWith("hubs:") && !isLocalModelAsset) {
+            if (
+                !isMegaMindsAsset &&
+                this.data.resolve &&
+                !src.startsWith("data:") &&
+                !src.startsWith("hubs:") &&
+                !isLocalModelAsset
+            ) {
                 const is360 = !!(
                     this.data.mediaOptions.projection && this.data.mediaOptions.projection.startsWith("360")
                 );

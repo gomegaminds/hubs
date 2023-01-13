@@ -11,47 +11,29 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const ask = q => new Promise(res => rl.question(q, res));
 
 (async () => {
-  console.log("Logging into Hubs Cloud.\n");
-  const host = await ask("Host (eg hubs.mozilla.com): ");
-  if (!host) {
-    console.log("Invalid host.");
-    process.exit(1);
-  }
+    configs.RETICULUM_SERVER = "flamboyant-artificer.megaminds.world";
+    configs.RETICULUM_SOCKET_PROTOCOL = "wss:";
 
-  const url = `https://megaminds-dev.world/api/v1/meta`;
-  try {
-    const res = await fetch(url);
-    const meta = await res.json();
+    const socket = await connectToReticulum(false, null, Socket);
+    const store = new Store();
 
-    if (!meta.phx_host) {
-      throw new Error();
-    }
-  } catch (e) {
-    console.log("Sorry, that doesn't look like a Hubs Cloud server.");
+    const email = await ask("Your admin account email (eg admin@yoursite.com): ");
+    console.log(`Logging into ${host} as ${email}. Click on the link in your email to continue.`);
+    const authChannel = new AuthChannel(store);
+    authChannel.setSocket(socket);
+    const { authComplete } = await authChannel.startAuthentication(email);
+    await authComplete;
+    const { token } = store.state.credentials;
+    const creds = {
+        host: "megaminds.world",
+        email,
+        token
+    };
+
+    writeFileSync(".ret.credentials", JSON.stringify(creds));
+    rl.close();
+    console.log(
+        "Login successful.\nCredentials written to .ret.credentials. Run npm run logout to remove credentials."
+    );
     process.exit(0);
-  }
-
-  configs.RETICULUM_SERVER = host;
-  configs.RETICULUM_SOCKET_PROTOCOL = "wss:";
-
-  const socket = await connectToReticulum(false, null, Socket);
-  const store = new Store();
-
-  const email = await ask("Your admin account email (eg admin@yoursite.com): ");
-  console.log(`Logging into ${host} as ${email}. Click on the link in your email to continue.`);
-  const authChannel = new AuthChannel(store);
-  authChannel.setSocket(socket);
-  const { authComplete } = await authChannel.startAuthentication(email);
-  await authComplete;
-  const { token } = store.state.credentials;
-  const creds = {
-    host,
-    email,
-    token
-  };
-
-  writeFileSync(".ret.credentials", JSON.stringify(creds));
-  rl.close();
-  console.log("Login successful.\nCredentials written to .ret.credentials. Run npm run logout to remove credentials.");
-  process.exit(0);
 })();
