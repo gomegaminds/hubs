@@ -156,9 +156,7 @@ AFRAME.registerComponent("media-loader", {
     onError() {
         this.el.removeAttribute("gltf-model-plus");
         this.el.removeAttribute("media-pager");
-        this.el.removeAttribute("media-video");
         this.el.removeAttribute("audio-zone-source");
-        this.el.setAttribute("media-image", { src: "error" });
         this.clearLoadingTimeout();
     },
 
@@ -331,9 +329,7 @@ AFRAME.registerComponent("media-loader", {
         if (forceLocalRefresh) {
             this.el.removeAttribute("gltf-model-plus");
             this.el.removeAttribute("media-pager");
-            this.el.removeAttribute("media-video");
             this.el.removeAttribute("audio-zone-source");
-            this.el.removeAttribute("media-image");
         }
 
         try {
@@ -428,19 +424,11 @@ AFRAME.registerComponent("media-loader", {
                 AFRAME.utils.material.isHLS(canonicalUrl, contentType)
             ) {
                 let linkedVideoTexture, linkedAudioSource, linkedMediaElementAudioSource;
-                if (this.data.linkedEl) {
-                    const linkedMediaVideo = this.data.linkedEl.components["media-video"];
-
-                    linkedVideoTexture = linkedMediaVideo.videoTexture;
-                    linkedAudioSource = linkedMediaVideo.audioSource;
-                    linkedMediaElementAudioSource = linkedMediaVideo.mediaElementAudioSource;
-                }
 
                 const qsTime = parseInt(parsedUrl.searchParams.get("t"));
                 const hashTime = parseInt(new URLSearchParams(parsedUrl.hash.substring(1)).get("t"));
                 const startTime = hashTime || qsTime || 0;
                 this.el.removeAttribute("gltf-model-plus");
-                this.el.removeAttribute("media-image");
                 this.el.setAttribute("floaty-object", { reduceAngularFloat: true, releaseGravity: -1 });
                 this.el.addEventListener(
                     "video-loaded",
@@ -448,18 +436,6 @@ AFRAME.registerComponent("media-loader", {
                         this.onMediaLoaded(e.detail.projection === "flat" ? SHAPE.BOX : null);
                     },
                     { once: true }
-                );
-                this.el.setAttribute(
-                    "media-video",
-                    Object.assign({}, this.data.mediaOptions, {
-                        src: accessibleUrl,
-                        audioSrc: canonicalAudioUrl ? proxiedUrlFor(canonicalAudioUrl) : null,
-                        time: startTime,
-                        contentType,
-                        linkedVideoTexture,
-                        linkedAudioSource,
-                        linkedMediaElementAudioSource
-                    })
                 );
                 this.el.setAttribute("audio-zone-source", {});
                 if (this.el.components["position-at-border__freeze"]) {
@@ -470,34 +446,16 @@ AFRAME.registerComponent("media-loader", {
                 }
             } else if (contentType.startsWith("image/")) {
                 this.el.removeAttribute("gltf-model-plus");
-                this.el.removeAttribute("media-video");
                 this.el.removeAttribute("audio-zone-source");
                 this.el.removeAttribute("media-pager");
                 this.el.addEventListener(
                     "image-loaded",
                     e => {
                         this.onMediaLoaded(e.detail.projection === "flat" ? SHAPE.BOX : null);
-
-                        if (contentSubtype === "photo-camera") {
-                            this.el.setAttribute("hover-menu__photo", {
-                                template: "#photo-hover-menu",
-                                isFlat: true
-                            });
-                        } else if (this.data.mediaOptions.href) {
-                            this.el.setAttribute("hover-menu__link", { template: "#link-hover-menu", isFlat: true });
-                        }
                     },
                     { once: true }
                 );
                 this.el.setAttribute("floaty-object", { reduceAngularFloat: true, releaseGravity: -1 });
-                this.el.setAttribute(
-                    "media-image",
-                    Object.assign({}, this.data.mediaOptions, {
-                        src: accessibleUrl,
-                        version,
-                        contentType
-                    })
-                );
 
                 if (this.el.components["position-at-border__freeze"]) {
                     this.el.setAttribute("position-at-border__freeze", { isFlat: true });
@@ -507,9 +465,7 @@ AFRAME.registerComponent("media-loader", {
                 }
             } else if (contentType.startsWith("application/pdf")) {
                 this.el.removeAttribute("gltf-model-plus");
-                this.el.removeAttribute("media-video");
                 this.el.removeAttribute("audio-zone-source");
-                this.el.removeAttribute("media-image");
                 this.el.setAttribute("media-pager", {});
                 this.el.setAttribute("floaty-object", { reduceAngularFloat: true, releaseGravity: -1 });
                 this.el.addEventListener(
@@ -532,8 +488,6 @@ AFRAME.registerComponent("media-loader", {
                 contentType.includes("x-zip-compressed") ||
                 contentType.startsWith("model/gltf")
             ) {
-                this.el.removeAttribute("media-image");
-                this.el.removeAttribute("media-video");
                 this.el.removeAttribute("audio-zone-source");
                 this.el.removeAttribute("media-pager");
 
@@ -564,26 +518,16 @@ AFRAME.registerComponent("media-loader", {
                 );
             } else if (contentType.startsWith("text/html")) {
                 this.el.removeAttribute("gltf-model-plus");
-                this.el.removeAttribute("media-video");
                 this.el.removeAttribute("audio-zone-source");
                 this.el.removeAttribute("media-pager");
                 this.el.addEventListener(
                     "image-loaded",
                     async () => {
-                        this.el.setAttribute("hover-menu__link", { template: "#link-hover-menu", isFlat: true });
                         this.onMediaLoaded(SHAPE.BOX);
                     },
                     { once: true }
                 );
                 this.el.setAttribute("floaty-object", { reduceAngularFloat: true, releaseGravity: -1 });
-                this.el.setAttribute(
-                    "media-image",
-                    Object.assign({}, this.data.mediaOptions, {
-                        src: thumbnail,
-                        version,
-                        contentType: guessContentType(thumbnail) || "image/png"
-                    })
-                );
                 if (this.el.components["position-at-border__freeze"]) {
                     this.el.setAttribute("position-at-border__freeze", { isFlat: true });
                 }

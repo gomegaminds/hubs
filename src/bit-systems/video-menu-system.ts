@@ -13,13 +13,24 @@ import {
     VideoMenu,
     VideoMenuItem
 } from "../bit-components";
-import { timeFmt } from "../components/media-video";
 import { takeOwnership } from "../utils/take-ownership";
 import { paths } from "../systems/userinput/paths";
 import { animate } from "../utils/animate";
 import { coroutine } from "../utils/coroutine";
 import { easeOutQuadratic } from "../utils/easing";
 import { isFacingCamera } from "../utils/three-utils";
+
+export function timeFmt(t: any) {
+    let s: any = Math.floor(t),
+        h: any = Math.floor(s / 3600);
+    s -= h * 3600;
+    let m: any = Math.floor(s / 60);
+    s -= m * 60;
+    if (h < 10) h = `0${h}`;
+    if (m < 10) m = `0${m}`;
+    if (s < 10) s = `0${s}`;
+    return h === "00" ? `${m}:${s}` : `${h}:${m}:${s}`;
+}
 
 const videoMenuQuery = defineQuery([VideoMenu]);
 const hoverRightVideoQuery = defineQuery([HoveredRemoteRight, MediaVideo]);

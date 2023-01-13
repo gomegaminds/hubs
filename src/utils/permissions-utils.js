@@ -3,21 +3,6 @@
 import { hasComponent } from "bitecs";
 import { HoldableButton, Locked, Owner, StudentsCanMove } from "../bit-components";
 
-// https://github.com/mozilla/hubs/wiki/Hubs-authorization
-export function showHoverEffect(el) {
-    const isFrozen = el.sceneEl.is("frozen");
-    const isPinned = el.components.pinnable && el.components.pinnable.data.pinned;
-    const isSpawner = !!el.components["super-spawner"];
-    const isEmojiSpawner = isSpawner && el.components["super-spawner"].data.template === "#interactable-emoji";
-    const isEmoji = !!el.components.emoji;
-    const canMove =
-        (isEmoji || isEmojiSpawner
-            ? window.APP.hubChannel.can("spawn_emoji")
-            : window.APP.hubChannel.can("spawn_and_move_media")) &&
-        (!isPinned || window.APP.hubChannel.can("pin_objects"));
-    return (isSpawner || !isPinned || isFrozen) && canMove;
-}
-
 export function canMove(eid) {
     if (hasComponent(APP.world, Locked, eid) && Locked.toggled[eid] === 1) {
         console.log("Trying to move locked component");
@@ -119,8 +104,7 @@ function getPendingOrExistingEntityMetadata(networkId) {
 
         const { template, creator } = pendingData;
         const schema = NAF.schemas.schemaDict[template];
-        const pinnableComponent = pendingData.components[indexForComponent("pinnable", schema)];
-        const isPinned = pinnableComponent && pinnableComponent.pinned;
+        const isPinned = false
         return { template, creator, isPinned };
     }
 
@@ -128,7 +112,7 @@ function getPendingOrExistingEntityMetadata(networkId) {
     if (!entity) return null;
 
     const { template, creator } = entity.components.networked.data;
-    const isPinned = entity.components.pinnable && entity.components.pinnable.data.pinned;
+    const isPinned = false;
     return { template, creator, isPinned };
 }
 

@@ -152,9 +152,6 @@ AFRAME.registerComponent("player-info", {
 
     if (!e || e.target === modelEl) {
       const uniforms = injectCustomShaderChunks(this.el.object3D);
-      this.el.querySelectorAll("[hover-visuals]").forEach(el => {
-        el.components["hover-visuals"].uniforms = uniforms;
-      });
     }
 
     const videoTextureTargets = modelEl.querySelectorAll("[video-texture-target]");

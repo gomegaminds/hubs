@@ -4,7 +4,6 @@ import { ObjectContentOrigins } from "../object-types";
 import mediaHighlightFrag from "./media-highlight-frag.glsl";
 import { updateMaterials } from "./material-utils";
 import HubsTextureLoader from "../loaders/HubsTextureLoader";
-import { validMaterials } from "../components/hoverable-visuals";
 import { isNonCorsProxyDomain, proxiedUrlFor, guessContentType } from "../utils/media-url-utils";
 import { isIOS as detectIOS } from "./is-mobile";
 import Linkify from "linkify-it";
@@ -12,6 +11,8 @@ import tlds from "tlds";
 import { mediaTypeFor } from "./media-type";
 
 import anime from "animejs";
+
+export const validMaterials = ["MeshStandardMaterial", "MeshBasicMaterial", "MeshPhongMaterial"];
 
 export const MediaType = {
     MODEL: 1 << 0,
