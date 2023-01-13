@@ -7,6 +7,7 @@ import {
     Pinned,
     HoveredRemoteRight,
     HeldRemoteRight,
+    VideoMenuItem,
     HoveredRemoteLeft,
     HeldRemoteLeft,
     HoveredHandRight,
@@ -44,7 +45,11 @@ function drop(world, userinput, queryHeld, held, dropPath) {
         // TODO: Drop on ownership lost
         removeComponent(world, held, heldEid);
 
-        window.APP.objectHelper.change(heldEid);
+        if (hasComponent(world, VideoMenuItem, heldEid)) {
+            // Do not save when dragging and dropping video buttons
+        } else {
+            window.APP.objectHelper.change(heldEid);
+        }
 
         if (
             !hasComponent(world, HeldRemoteRight, heldEid) &&
