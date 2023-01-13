@@ -5,13 +5,12 @@ import { ProjectionMode } from "../utils/projection-mode";
 import { MediaVideo } from "../bit-components";
 
 export function inflateVideo(world, eid, { texture, ratio, projection, autoPlay }) {
-    console.log("Got inflatevideo", texture);
     const mesh =
         projection === ProjectionMode.SPHERE_EQUIRECTANGULAR
             ? create360ImageMesh(texture, ratio)
             : createImageMesh(texture, ratio);
     addObject3DComponent(world, eid, mesh);
     addComponent(world, MediaVideo, eid);
-    MediaVideo.autoPlay[eid] = autoPlay ? 1 : 0;
+    MediaVideo.autoPlay[eid] = false; // For now, todo: reimplement autoplay
     return eid;
 }

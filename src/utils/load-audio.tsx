@@ -10,12 +10,11 @@ import { Texture } from "three";
 import { audioTexture } from "./audio-texture";
 import { loadTextureCancellable } from "./load-texture";
 import { createVideoOrAudioEl } from "../utils/media-utils";
-import { Button3D, BUTTON_TYPES } from "../prefabs//button3D";
+import { Button3D, BUTTON_TYPES } from "../prefabs/button3D";
 
 import errorImageSrc from "../assets/images/media-error.png";
 
 export function* loadAudio(world: HubsWorld, url: string) {
-    console.log("Loading audio from", url);
     const playRef = createRef();
     const pauseRef = createRef();
     const stopRef = createRef();

@@ -81,26 +81,16 @@ export function videoMenuSystem(world: HubsWorld, userinput: any) {
         if (!videoEid) return;
         const menuObj = world.eid2obj.get(eid)!;
         const video = (world.eid2obj.get(videoEid) as any).material.map.image as HTMLVideoElement;
-        const togglePlayVideo = userinput.get(paths.actions.cursor.right.togglePlayVideo);
-        if (togglePlayVideo) {
-            if (hasComponent(world, NetworkedVideo, videoEid)) {
-                takeOwnership(world, videoEid);
-            }
 
-            const playIndicatorObj = world.eid2obj.get(VideoMenu.playIndicatorRef[eid])!;
-            const pauseIndicatorObj = world.eid2obj.get(VideoMenu.pauseIndicatorRef[eid])!;
+        const playIndicatorObj = world.eid2obj.get(VideoMenu.playIndicatorRef[eid])!;
+        const pauseIndicatorObj = world.eid2obj.get(VideoMenu.pauseIndicatorRef[eid])!;
 
-            if (video.paused) {
-                video.play();
-                playIndicatorObj.visible = true;
-                pauseIndicatorObj.visible = false;
-                rightMenuIndicatorCoroutine = coroutine(animateIndicator(world, VideoMenu.playIndicatorRef[eid]));
-            } else {
-                video.pause();
-                playIndicatorObj.visible = false;
-                pauseIndicatorObj.visible = true;
-                rightMenuIndicatorCoroutine = coroutine(animateIndicator(world, VideoMenu.pauseIndicatorRef[eid]));
-            }
+        if (video.paused) {
+            playIndicatorObj.visible = true;
+            pauseIndicatorObj.visible = false;
+        } else {
+            playIndicatorObj.visible = false;
+            pauseIndicatorObj.visible = true;
         }
 
         const videoIsFacingCamera = isFacingCamera(world.eid2obj.get(videoEid)!);

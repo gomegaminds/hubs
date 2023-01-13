@@ -26,6 +26,7 @@ export interface Button3DParams extends Attrs {
     type: ButtonType;
     labelRef?: Ref;
     userData?: any;
+    videoMenuItem?: any;
 }
 
 export function Button3D({

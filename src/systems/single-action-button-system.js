@@ -6,6 +6,7 @@ import {
     Link,
     MediaPDF,
     MediaAudio,
+    MediaVideo,
     HoveredHandRight,
     HoveredRemoteLeft,
     HoveredRemoteRight,
@@ -33,15 +34,25 @@ function interact(world, entities, path, interactor) {
                     obj.parent.children[0].pause();
                 }
                 if (obj.name === "stop") {
-                    obj.parent.children[0].stop();
+                    if (obj.parent.children[0].source) {
+                        obj.parent.children[0].stop();
+                    } else {
+                        console.error("Tried to stop an object without source");
+                    }
+                }
+            }
+
+            if (obj.parent && obj.parent.parent && hasComponent(world, MediaVideo, obj.parent.parent.eid)) {
+                const videoObject = obj.parent.parent.material.map.image;
+
+                if (obj.name === "play") {
+                    videoObject.play();
+                } else if (obj.name === "pause") {
+                    videoObject.pause();
                 }
             }
 
             if (obj.parent && hasComponent(world, MediaPDF, obj.parent.eid)) {
-                // let url = APP.getString(Link.url[obj.parent.eid]);
-                console.log("Current index is", MediaPDF.index[obj.parent.eid]);
-                console.log("Current max index is", MediaPDF.pageCount[obj.parent.eid]);
-
                 if (obj.name === "next") {
                     const newIndex = MediaPDF.index[obj.parent.eid] + 1;
 
@@ -49,9 +60,6 @@ function interact(world, entities, path, interactor) {
                         addComponent(world, PDFSettingsChanged, obj.parent.eid);
                         PDFSettingsChanged.newIndex[obj.parent.eid] = newIndex;
                         MediaPDF.index[obj.parent.eid] = newIndex;
-                        console.log("Going next to index ", newIndex);
-                    } else {
-                        console.log("Next denied", newIndex, " is not a valid, out of reach");
                     }
                 }
                 if (obj.name === "prev") {
@@ -60,16 +68,12 @@ function interact(world, entities, path, interactor) {
                         addComponent(world, PDFSettingsChanged, obj.parent.eid);
                         PDFSettingsChanged.newIndex[obj.parent.eid] = newIndex;
                         MediaPDF.index[obj.parent.eid] = newIndex;
-                        console.log("Going prev to index ", newIndex);
-                    } else {
-                        console.log("prev denied", newIndex, " is not a valid, out of reach");
                     }
                 }
             }
 
             if (obj.parent && hasComponent(world, Link, obj.parent.eid)) {
                 let url = APP.getString(Link.url[obj.parent.eid]);
-                console.log("Clicked a link!!", url);
                 if (!/^https?:\/\//i.test(url)) {
                     url = "https://" + url;
                 }
