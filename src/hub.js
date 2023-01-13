@@ -7,6 +7,10 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && !isNaN(n - 0);
+}
+
 import ReactGA from "react-ga4";
 
 const dev = process.env.NODE_ENV === "development" || window.location.hostname === "megaminds-dev.world";
@@ -438,6 +442,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!store.state.profile?.displayName) {
         redirectToEntryFlow();
     }
+    if (!isNumber(store.state.profile.avatarId)) {
+        document.location = `/#/entry/?destination=${encodeURIComponent(document.location.toString())}`;
+    }
     root = ReactDOM.createRoot(document.getElementById("Root"));
 
     let classroom = null;
@@ -469,8 +476,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.APP.classroom = data;
         });
 
-    console.log(classroom);
-
     ReactGA.initialize("G-GCVLB2BSYP");
     ReactGA.send({ hitType: "pageview", page: hubId });
 
@@ -478,6 +483,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.APP.scene = scene;
 
     const authChannel = new AuthChannel(store);
+    window.APP.authChannel = authChannel;
     const hubChannel = new HubChannel(store, hubId);
     window.APP.hubChannel = hubChannel;
 

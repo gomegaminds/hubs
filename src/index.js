@@ -24,7 +24,7 @@ function Root() {
             <HashRouter>
                 <Routes>
                     <Route exact path="/" element={<HomeRoot />}></Route>
-                    <Route path="/entry" element={<FirstTimeFlow />}></Route>
+                    <Route exact path="/entry" element={<FirstTimeFlow />}></Route>
                 </Routes>
             </HashRouter>
         </Auth0Provider>

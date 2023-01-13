@@ -55,7 +55,6 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     const key = `${url}_${version}`;
     if (!bustCache && resolveUrlCache.has(key)) return resolveUrlCache.get(key);
 
-
     const resultPromise = fetch(mediaAPIEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -196,7 +195,6 @@ export const addMedia = (
     parentEl = null,
     linkedEl = null
 ) => {
-
     console.error("GOT ADDMEDIA; this should not be happening with the new system");
     const scene = AFRAME.scenes[0];
 
@@ -269,7 +267,7 @@ export const addMedia = (
                     entity.setAttribute("media-loader", {
                         resolve: false,
                         src: response.file,
-                        fileId: response.id,
+                        fileId: response.id
                     });
                 }
             })
@@ -645,19 +643,26 @@ export async function resolveMediaInfo(urlString) {
     let contentType;
     let thumbnail;
 
-
-
     // We want to resolve and proxy some hubs urls, like rooms and scene links,
     // but want to avoid proxying assets in order for this to work in dev environments
     const isLocalModelAsset =
         isNonCorsProxyDomain(url.hostname) && (guessContentType(url.href) || "").startsWith("model/gltf");
 
-    const isMegaMindsAsset = (url.hostname == "localhost" || url.hostname === "megaminds-dev.world" || url.hostname === "megaminds.world");
+    const isMegaMindsAsset =
+        url.hostname == "localhost" ||
+        url.hostname === "megaminds-dev.world" ||
+        url.hostname === "megaminds.world" ||
+        url.hostname.endsWith("megaminds.world");
 
-    const shouldBeProxied = url.hostname === "sketchfab.com"
-    
+    const shouldBeProxied = url.hostname === "sketchfab.com";
 
-    if (!isMegaMindsAsset && url.protocol != "data:" && url.protocol != "hubs:" && !isLocalModelAsset && shouldBeProxied) {
+    if (
+        !isMegaMindsAsset &&
+        url.protocol != "data:" &&
+        url.protocol != "hubs:" &&
+        !isLocalModelAsset &&
+        shouldBeProxied
+    ) {
         const response = await resolveUrl(url.href);
         canonicalUrl = response.origin;
         if (canonicalUrl.startsWith("//")) {

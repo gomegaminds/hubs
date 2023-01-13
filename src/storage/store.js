@@ -36,9 +36,6 @@ const defaultMaterialQuality = (function () {
     return "high";
 })();
 
-function isNumber(n) {
-    return !isNaN(parseFloat(n)) && !isNaN(n - 0);
-}
 
 // WebAudio on Android devices (only non-VR devices?) seems to have
 // a bug and audio can be broken if there are many people in a room.
@@ -280,9 +277,6 @@ export default class Store extends EventTarget {
 
         this._shouldResetAvatarOnInit = false;
 
-        if (!isNumber(this.state.profile.avatarId)) {
-            document.location = `/#/entry/?destination=${encodeURIComponent(document.location.toString())}`;
-        }
     }
 
     get state() {
