@@ -88,7 +88,7 @@ export default class SceneEntryManager {
 
         this._spawnAvatar();
 
-        // this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
+        this.scene.systems["hubs-systems"].soundEffectsSystem.playSoundOneShot(SOUND_ENTER_SCENE);
 
         this.scene.classList.remove("hand-cursor");
         this.scene.classList.add("no-cursor");
