@@ -301,7 +301,7 @@ export class CharacterControllerSystem {
                 const triedToMove = this.relativeMotion.lengthSq() > 0.000001;
 
                 if (triedToMove) {
-                    const speedModifier = preferences.movementSpeedModifier;
+                    const speedModifier = !!AFRAME.utils.device.isMobile() ? 0.68 : 1;
                     calculateDisplacementToDesiredPOV(
                         snapRotatedPOV,
                         this.fly || !navMeshExists,
