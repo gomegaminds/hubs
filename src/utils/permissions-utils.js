@@ -1,9 +1,23 @@
 // Brief overview of client authorization can be found in the wiki:
 
 import { hasComponent } from "bitecs";
-import { HoldableButton, Locked, Owner, StudentsCanMove } from "../bit-components";
+import { MediaVideo, Locked, Owner, StudentsCanMove } from "../bit-components";
 
 export function canMove(eid) {
+    if (hasComponent(APP.world, MediaVideo, eid)) {
+        // Due to video menus being a child of video and requires grabbable / holdable, we have to check the parent locked instead.
+        const parentEid = APP.world.eid2obj.get(eid).parent.eid;
+
+        if (hasComponent(APP.world, Locked, parentEid) && Locked.toggled[parentEid] === 1) {
+            console.log("Trying to move locked video");
+            return false;
+        }
+        // check if parent has allowed students to move this
+        if (hasComponent(APP.world, StudentsCanMove, parentEid) && StudentsCanMove.toggled[parentEid] === 1) {
+            return true;
+        }
+    }
+
     if (hasComponent(APP.world, Locked, eid) && Locked.toggled[eid] === 1) {
         console.log("Trying to move locked component");
         return false;
@@ -104,7 +118,7 @@ function getPendingOrExistingEntityMetadata(networkId) {
 
         const { template, creator } = pendingData;
         const schema = NAF.schemas.schemaDict[template];
-        const isPinned = false
+        const isPinned = false;
         return { template, creator, isPinned };
     }
 

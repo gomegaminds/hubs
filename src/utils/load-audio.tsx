@@ -30,7 +30,6 @@ export function* loadAudio(world: HubsWorld, url: string) {
                 networked
                 networkedAudio
                 audio={{ url: url, autoPlay: false, audioEl: audioEl }}
-                grabbable={{ cursor: true, hand: false }}
             >
                 <Button3D
                     ref={playRef}
