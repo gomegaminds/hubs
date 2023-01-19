@@ -31,7 +31,7 @@ export function* loadPDF(world: HubsWorld, url: string, index: number) {
             <Button3D
                 ref={nextRef}
                 type={0}
-                scale={[0.4, 0.4, 0.4]}
+                scale={[0.2, 0.2, 0.2]}
                 position={[0.4, 0.1, 0.1]}
                 width={0.6}
                 height={0.4}
@@ -41,7 +41,7 @@ export function* loadPDF(world: HubsWorld, url: string, index: number) {
             <Button3D
                 ref={prevRef}
                 type={0}
-                scale={[0.4, 0.4, 0.4]}
+                scale={[0.2, 0.2, 0.2]}
                 position={[-0.4, 0.1, 0.1]}
                 width={0.6}
                 height={0.4}

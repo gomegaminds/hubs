@@ -2,7 +2,7 @@ import { create360ImageMesh, createImageMesh } from "../utils/create-image-mesh"
 import { addComponent } from "bitecs";
 import { addObject3DComponent } from "../utils/jsx-entity";
 import { ProjectionMode } from "../utils/projection-mode";
-import { MediaVideo } from "../bit-components";
+import { MediaVideo, CursorRaycastable, Holdable, RemoteHoverTarget, OffersRemoteConstraint } from "../bit-components";
 
 export function inflateVideo(world, eid, { texture, ratio, projection, autoPlay }) {
     const mesh =
@@ -11,6 +11,7 @@ export function inflateVideo(world, eid, { texture, ratio, projection, autoPlay 
             : createImageMesh(texture, ratio);
     addObject3DComponent(world, eid, mesh);
     addComponent(world, MediaVideo, eid);
+    
     MediaVideo.autoPlay[eid] = false; // For now, todo: reimplement autoplay
     return eid;
 }

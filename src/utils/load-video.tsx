@@ -13,6 +13,7 @@ export function* loadVideo(world: HubsWorld, url: string) {
         world,
         <entity
             name="Video"
+            grabbable={{ cursor: true, hand: false }}
             video={{
                 texture,
                 ratio,

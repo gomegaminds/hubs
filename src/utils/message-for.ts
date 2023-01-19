@@ -104,7 +104,6 @@ export function messageForStorage(world: HubsWorld, created: EntityID[], updated
     };
 
     created.forEach(eid => {
-        console.log("getting for eid", eid, createMessageDatas);
         const { prefabName, initialData } = createMessageDatas.get(eid)!;
         message.creates.push([APP.getString(Networked.id[eid])!, prefabName, initialData]);
     });
@@ -136,7 +135,6 @@ export function messageForStorage(world: HubsWorld, created: EntityID[], updated
         message.deletes.push(APP.getString(nid)!);
     });
 
-    console.log("Created final message to be sent", message);
     // This is all good, the update message is contained here.
 
     if (message.creates.length || message.updates.length || message.deletes.length) {
@@ -212,7 +210,6 @@ export function messageForLegacyRoomObjects(objects: LegacyRoomObject[]) {
         const createMessage: CreateMessage = [nid, "media", initialData];
         message.creates.push(createMessage);
 
-        console.log("Trying to load legacy obj", obj);
         const updateMessage: StorableUpdateMessage = {
             data: {
                 "networked-transform": {
