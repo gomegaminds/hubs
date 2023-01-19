@@ -21,7 +21,6 @@ export function* loadPDF(world: HubsWorld, url: string, index: number) {
         <entity
             name="PDF"
             networked
-            grabbable={{ cursor: true, hand: false }}
             pdf={{
                 texture,
                 ratio,
