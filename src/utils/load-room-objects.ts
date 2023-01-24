@@ -32,12 +32,10 @@ async function fetchStoredRoomMessages(hubId: string) {
 
 export async function loadStoredRoomData(hubId: string) {
     const messages = await fetchStoredRoomMessages(hubId);
-    console.log(messages);
     if (hubId === APP.hub!.hub_id) {
         if (!localClientID) {
             throw new Error("Cannot apply stored messages without a local client ID");
         }
-        console.log("Got following from server that are valid messages", messages);
         messages.forEach(m => {
             m.fromClientId = "reticulum";
             m.hubId = hubId;

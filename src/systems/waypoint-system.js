@@ -415,7 +415,6 @@ AFRAME.registerComponent("waypoint", {
     init() {
         this.system = this.el.sceneEl.systems["hubs-systems"].waypointSystem;
         this.didRegisterWithSystem = false;
-        console.log("Adding waypoint component");
         addComponent(APP.world, Waypoint, this.el.object3D.eid);
         addComponent(APP.world, NetworkedWaypoint, this.el.object3D.eid);
     },

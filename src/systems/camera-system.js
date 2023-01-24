@@ -336,17 +336,24 @@ export class CameraSystem {
         const translation = new THREE.Matrix4();
         let uiRoot;
         return function tick(scene, dt) {
-            this.viewingCamera.matrixNeedsUpdate = true;
-            this.viewingCamera.updateMatrix();
-            this.viewingCamera.updateMatrixWorld();
 
             const entered = scene.is("entered");
+            if(!entered) {
+                return;
+            }
+
             uiRoot = uiRoot || document.getElementById("ui-root");
 
             if (!this.enteredScene && entered) {
                 this.enteredScene = true;
                 this.mode = CAMERA_MODE_FIRST_PERSON;
             }
+
+            this.viewingCamera.matrixNeedsUpdate = true;
+            this.viewingCamera.updateMatrix();
+            console.log("TICK");
+            this.viewingCamera.updateMatrixWorld();
+
             this.avatarPOVRotator = this.avatarPOVRotator || this.avatarPOV.components["pitch-yaw-rotator"];
             this.viewingCameraRotator =
                 this.viewingCameraRotator || this.viewingCamera.el.components["pitch-yaw-rotator"];
