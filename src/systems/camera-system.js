@@ -351,7 +351,6 @@ export class CameraSystem {
 
             this.viewingCamera.matrixNeedsUpdate = true;
             this.viewingCamera.updateMatrix();
-            console.log("TICK");
             this.viewingCamera.updateMatrixWorld();
 
             this.avatarPOVRotator = this.avatarPOVRotator || this.avatarPOV.components["pitch-yaw-rotator"];
