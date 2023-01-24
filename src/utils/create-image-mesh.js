@@ -54,6 +54,9 @@ export function create360ImageMesh(texture) {
 }
 
 export function createImageMesh(texture, ratio, alphaMode = AlphaMode.Opaque, alphaCutoff = 0.5) {
+    if (!texture) {
+        texture = errorTexture;
+    }
     const width = Math.min(1.0, 1.0 / ratio);
     const height = Math.min(1.0, ratio);
     const geometry = createPlaneBufferGeometry(width, height, 1, 1, texture.flipY);

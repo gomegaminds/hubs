@@ -34,6 +34,7 @@ import {
     NetworkedVideo,
     NetworkedAudio,
     VideoMenu,
+    Equirectangular,
     VideoMenuItem,
     NotRemoteHoverTarget,
     Deletable,
@@ -249,6 +250,7 @@ export interface JSXComponentData extends ComponentData {
         autoPlay: boolean;
         audioEl: any;
     };
+    equirectangular?: any;
     networkedVideo?: true;
     networkedAudio?: true;
     videoMenu?: {
@@ -413,6 +415,7 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     image: inflateImage,
     pdf: inflatePDF,
     question: inflateQuestion,
+    equirectangular: createDefaultInflator(Equirectangular),
     link: inflateLink,
     youtube: inflateYouTube,
     video: inflateVideo,

@@ -1,12 +1,10 @@
 import { addComponent } from "bitecs";
-import { MediaImage } from "../bit-components";
+import { MediaImage, Equirectangular } from "../bit-components";
 import { addObject3DComponent } from "../utils/jsx-entity";
 import { create360ImageMesh, createImageMesh } from "../utils/create-image-mesh";
 import { ProjectionMode } from "../utils/projection-mode";
 
 export function inflateImage(world, eid, { texture, ratio, projection, alphaMode, cacheKey }) {
-
-    console.log(texture, alphaMode);
 
     const mesh =
         projection === ProjectionMode.SPHERE_EQUIRECTANGULAR
