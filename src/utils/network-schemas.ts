@@ -9,6 +9,7 @@ import {
     NetworkedAudio,
     Billboard,
     Locked,
+    Equirectangular,
     StudentsCanMove,
     Description,
     SpinningAnimation
@@ -26,6 +27,7 @@ import { SpinningAnimationSchema } from "../mega-src/bit-schemas/spinning-animat
 import { LockedSchema } from "../mega-src/bit-schemas/locked-schema";
 import { StudentsCanMoveSchema } from "../mega-src/bit-schemas/students-can-move-schema";
 import { DescriptionSchema } from "../mega-src/bit-schemas/description-schema";
+import { EquirectangularSchema } from "../mega-src/bit-schemas/equirectangular-schema";
 
 export interface StoredComponent {
     version: number;
@@ -54,6 +56,7 @@ schemas.set(NetworkedAudio, NetworkedAudioSchema);
 schemas.set(NetworkedWaypoint, NetworkedWaypointSchema);
 schemas.set(Billboard, BillboardSchema);
 schemas.set(Locked, LockedSchema);
+schemas.set(Equirectangular, EquirectangularSchema);
 schemas.set(StudentsCanMove, StudentsCanMoveSchema);
 schemas.set(Description, DescriptionSchema);
 schemas.set(SpinningAnimation, SpinningAnimationSchema);

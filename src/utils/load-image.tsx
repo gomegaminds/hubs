@@ -10,6 +10,8 @@ import { AlphaMode } from "./create-image-mesh";
 export function* loadImage(world: HubsWorld, url: string, contentType: string) {
     const { texture, ratio, cacheKey }: { texture: Texture; ratio: number; cacheKey: string } =
         yield loadTextureCancellable(url, 1, contentType);
+
+
     return renderAsEntity(
         world,
         <entity

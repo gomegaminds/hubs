@@ -15,6 +15,7 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
             locked
             description
             studentsCanMove
+            equirectangular
             mediaLoader={params}
             deletable
             grabbable={{ cursor: true, hand: true }}

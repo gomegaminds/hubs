@@ -250,6 +250,12 @@ export const Billboard = defineComponent({
     toggled: Types.ui8
 });
 
+export const Equirectangular = defineComponent({
+    toggled: Types.ui8,
+    original: Types.ui32
+});
+Equirectangular.original[$isStringType] = true;
+
 export const Question = defineComponent({
     obj2d: Types.ui32
 });
