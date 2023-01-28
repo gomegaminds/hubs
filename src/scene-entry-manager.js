@@ -257,7 +257,27 @@ export default class SceneEntryManager {
             }
         });
 
-        document.addEventListener("dragover", e => e.preventDefault());
+        document.addEventListener("dragenter", e => {
+            e.preventDefault();
+            document.getElementById("dragoverContainer").style.display = "flex";
+        });
+
+        document.addEventListener("dragleave", e => {
+            e.preventDefault();
+            document.getElementById("dragoverContainer").style.display = "none";
+        });
+        
+        document.addEventListener("drop", e => {
+            e.preventDefault();
+            document.getElementById("dragoverContainer").style.display = "none";
+        });
+
+
+        document.addEventListener("dragover", e => {
+            e.preventDefault();
+            console.log("DragOver");
+        });
+
 
         let currentVideoShareEntity;
         let isHandlingVideoShare = false;

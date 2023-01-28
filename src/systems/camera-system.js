@@ -243,6 +243,7 @@ export class CameraSystem {
     }
 
     inspect(el, distanceMod, fireChangeEvent = true) {
+        this.uninspect();
         // const { inspectable, pivot } = getInspectableAndPivot(el);
         // Inspectable is an object3d
         // Pivor is also object3d if no child elements
@@ -277,7 +278,7 @@ export class CameraSystem {
         if (this.snapshot.audio) {
             this.snapshot.audio.updateMatrices();
             this.snapshot.audioTransform.copy(this.snapshot.audio.matrixWorld);
-            scene.audioListener.updateMatrices();
+            this.scene.audioListener.updateMatrices();
             this.audioSourceTargetTransform
                 .makeTranslation(0, 0, -0.25)
                 .premultiply(this.scene.audioListener.matrixWorld);

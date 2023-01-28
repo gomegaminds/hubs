@@ -9,6 +9,7 @@ import {
     Question,
     Link,
     Description,
+    Nickname,
     StudentsCanMove,
     SpinningAnimation,
     ParticleEmitter,
@@ -289,6 +290,7 @@ export interface JSXComponentData extends ComponentData {
     youtube?: any;
     spinningAnimation?: any;
     description?: any;
+    nickname?: any;
     studentsCanMove?: any;
     objectMenu?: {
         pinButtonRef: Ref;
@@ -389,6 +391,7 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     billboard: createDefaultInflator(Billboard),
     spinningAnimation: createDefaultInflator(SpinningAnimation),
     description: createDefaultInflator(Description),
+    nickname: createDefaultInflator(Nickname),
     studentsCanMove: createDefaultInflator(StudentsCanMove),
     networked: createDefaultInflator(Networked),
     objectMenu: createDefaultInflator(ObjectMenu),

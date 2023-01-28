@@ -14,6 +14,7 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
             billboard
             locked
             description
+            nickname
             studentsCanMove
             equirectangular
             mediaLoader={params}

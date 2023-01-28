@@ -13,6 +13,7 @@ export function MegaTextPrefab(params: any): EntityDef {
             billboard
             locked
             text={params}
+            nickname
             description
             studentsCanMove
             deletable

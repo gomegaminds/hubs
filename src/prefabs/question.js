@@ -15,6 +15,7 @@ export function QuestionPrefab({ src, recenter, resize, questions }) {
             networkedTransform
             billboard
             locked
+            nickname
             description
             studentsCanMove
             mediaLoader={{ src, recenter, resize }}
