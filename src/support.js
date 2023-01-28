@@ -87,6 +87,16 @@ class Support extends React.Component {
 
         const detectedOS = detectOS(navigator.userAgent);
 
+        try {
+            document.getElementById("root-scene").remove();
+            document.getElementById("css2drenderer").remove();
+            document.getElementById("css3drenderer").remove();
+            document.getElementById("Root").remove();
+        } catch {
+            console.log("Already removed scenes");
+        }
+
+
         if (inapp.isInApp) {
             return (
                 <div className="container">
@@ -158,7 +168,11 @@ class Support extends React.Component {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const root = ReactDOM.createRoot(document.getElementById("support-root"));
-    root.render(<Support />);
-});
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        const root = ReactDOM.createRoot(document.getElementById("support-root"));
+        root.render(<Support />);
+    },
+    { once: true }
+);

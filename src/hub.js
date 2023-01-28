@@ -439,6 +439,10 @@ function redirectToEntryFlow() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    if (platformUnsupported()) {
+        return;
+    }
+
     if (!store.state.profile?.displayName) {
         redirectToEntryFlow();
     }
@@ -450,10 +454,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let classroom = null;
     const canvas = document.querySelector(".a-canvas");
     canvas.classList.add("a-hidden");
-
-    if (platformUnsupported()) {
-        return;
-    }
 
     const detectedOS = detectOS(navigator.userAgent);
     const browser = detect();
