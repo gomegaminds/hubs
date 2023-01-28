@@ -247,7 +247,6 @@ export class CameraSystem {
         // const { inspectable, pivot } = getInspectableAndPivot(el);
         // Inspectable is an object3d
         // Pivor is also object3d if no child elements
-        console.log("Got inspect for el", el);
         const inspectable = el;
         const pivot = el;
 
