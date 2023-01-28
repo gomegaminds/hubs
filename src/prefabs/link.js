@@ -24,6 +24,7 @@ export function LinkPrefab({ url }) {
             link={{ link: url }}
             networkedTransform
             billboard
+            nickname
             locked
             description
             studentsCanMove

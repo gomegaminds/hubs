@@ -276,6 +276,11 @@ export const Description = defineComponent({
 });
 Description.value[$isStringType] = true;
 
+export const Nickname = defineComponent({
+    value: Types.ui32
+});
+Nickname.value[$isStringType] = true;
+
 export const Reaction = defineComponent();
 export const ParticleEmitter = defineComponent({
     src: Types.ui32

@@ -14,6 +14,7 @@ export function YouTubePrefab({ src, recenter, resize, link }) {
             youtube={{ link: link }}
             networkedTransform
             billboard
+            nickname
             locked
             description
             studentsCanMove

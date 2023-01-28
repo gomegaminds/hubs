@@ -9,12 +9,7 @@ import { Vector3 } from "three";
 import { toast } from "react-hot-toast";
 import qsTruthy from "./utils/qs_truthy";
 
-type UploadResponse = {
-    file: string;
-    id?: number;
-};
-
-export function spawnFromUrl(text: string) {
+export function spawnFromUrl(text) {
     if (!text) {
         return;
     }
@@ -27,8 +22,8 @@ export function spawnFromUrl(text: string) {
         recenter: true,
         resize: true
     });
-    const avatarPov = (document.querySelector("#avatar-pov-node")! as AElement).object3D;
-    const obj = APP.world.eid2obj.get(eid)!;
+    const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+    const obj = APP.world.eid2obj.get(eid);
     obj.position.copy(avatarPov.localToWorld(new Vector3(0, 0, -1.5)));
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
 
@@ -38,11 +33,11 @@ export function spawnFromUrl(text: string) {
     return obj;
 }
 
-export async function spawnFromFileList(files: FileList) {
+export async function spawnFromFileList(files) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
         const { src, id } = await upload(file, desiredContentType)
-            .then(function (response: UploadResponse) {
+            .then(function (response) {
                 console.log(response.id);
                 if (response.file.startsWith("/")) {
                     return { src: "http://localhost:8000" + response.file, id: response.id };
@@ -63,8 +58,8 @@ export async function spawnFromFileList(files: FileList) {
             });
 
         const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
-        const avatarPov = (document.querySelector("#avatar-pov-node")! as AElement).object3D;
-        const obj = APP.world.eid2obj.get(eid)!;
+        const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+        const obj = APP.world.eid2obj.get(eid);
         obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
         obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
         obj.updateMatrix();
@@ -76,8 +71,8 @@ export async function spawnFromFileList(files: FileList) {
     }
 }
 
-async function onPaste(e: ClipboardEvent) {
-    if (!(AFRAME as any).scenes[0].is("entered")) {
+async function onPaste(e) {
+    if (!AFRAME.scenes[0].is("entered")) {
         return;
     }
 
@@ -90,7 +85,7 @@ async function onPaste(e: ClipboardEvent) {
     }
 
     const isPastedInChat =
-        ((e.target! as Element).matches("input, textarea") || (e.target! as HTMLElement).contentEditable === "true") &&
+        (e.target.matches("input, textarea") || e.target.contentEditable === "true") &&
         document.activeElement === e.target;
     if (isPastedInChat) {
         return;
@@ -106,8 +101,8 @@ async function onPaste(e: ClipboardEvent) {
     spawnFromUrl(text);
 }
 
-function onDrop(e: DragEvent) {
-    if (!(AFRAME as any).scenes[0].is("entered")) {
+function onDrop(e) {
+    if (!AFRAME.scenes[0].is("entered")) {
         return;
     }
 
@@ -126,12 +121,20 @@ function onDrop(e: DragEvent) {
     const files = e.dataTransfer?.files;
     if (files && files.length) {
         e.preventDefault();
-        return spawnFromFileList(files);
+        return toast.promise(spawnFromFileList(files), {
+            loading: "Uploading...",
+            success: "Uploaded",
+            error: "An error occurred while uploading"
+        });
     }
     const url = e.dataTransfer?.getData("url") || e.dataTransfer?.getData("text");
     if (url) {
         e.preventDefault();
-        return spawnFromUrl(url);
+        return toast.promise(spawnFromUrl(url), {
+            loading: "Uploading...",
+            success: "Uploaded",
+            error: "An error occurred while uploading"
+        });
     }
 }
 

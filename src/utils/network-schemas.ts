@@ -2,6 +2,7 @@ import { Component } from "bitecs";
 import { HubsWorld } from "../app";
 import {
     $isStringType,
+    Nickname,
     NetworkedMediaFrame,
     NetworkedTransform,
     NetworkedVideo,
@@ -28,6 +29,7 @@ import { LockedSchema } from "../mega-src/bit-schemas/locked-schema";
 import { StudentsCanMoveSchema } from "../mega-src/bit-schemas/students-can-move-schema";
 import { DescriptionSchema } from "../mega-src/bit-schemas/description-schema";
 import { EquirectangularSchema } from "../mega-src/bit-schemas/equirectangular-schema";
+import { NicknameSchema } from "../mega-src/bit-schemas/nickname-schema";
 
 export interface StoredComponent {
     version: number;
@@ -59,6 +61,7 @@ schemas.set(Locked, LockedSchema);
 schemas.set(Equirectangular, EquirectangularSchema);
 schemas.set(StudentsCanMove, StudentsCanMoveSchema);
 schemas.set(Description, DescriptionSchema);
+schemas.set(Nickname, NicknameSchema);
 schemas.set(SpinningAnimation, SpinningAnimationSchema);
 
 // TODO: Write rest of schema for waypoints
