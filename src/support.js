@@ -12,6 +12,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import copy from "copy-to-clipboard";
 import { detectOS } from "detect-browser";
+import InApp from "detect-inapp";
+const inapp = new InApp(navigator.userAgent || navigator.vendor || window.opera);
 
 const SHORTHAND_INITIALIZER = "var foo = 'bar'; var baz = { foo };";
 const SPREAD_SYNTAX = "var foo = {}; var baz = { ...foo };";
@@ -53,7 +55,9 @@ function isInAppBrowser() {
     // Mozilla/5.0 (Linux; Android 9; SM-G950U1 Build/PPR1.180610.011; wv) AppleWebKit/537.36 (KHTML, like Gecko)
     // Version/4.0 Chrome/80.0.3987.149 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/262.0.0.34.117;]
     const detectedOS = detectOS(navigator.userAgent);
-    return (detectedOS === "iOS" && !navigator.mediaDevices) || /\bfb_iab\b/i.test(navigator.userAgent);
+    return (
+        inapp.isInApp || (detectedOS === "iOS" && !navigator.mediaDevices) || /\bfb_iab\b/i.test(navigator.userAgent)
+    );
 }
 
 export function platformUnsupported() {
@@ -82,6 +86,20 @@ class Support extends React.Component {
         if (allSupported && !inAppBrowser) return null;
 
         const detectedOS = detectOS(navigator.userAgent);
+
+        if (inapp.isInApp) {
+            return (
+                <div className="container">
+                    <h1>Unsupported Browser</h1>
+                    <p>It appears you are trying to access MegaMinds from within another app.</p>
+                    <p>
+                        Accessing the MegaMinds platform is not supported through preview and in-app browsers through
+                        Facebook, Line, Twitter, etc.
+                    </p>
+                    <p>Please open the website in an updated and full browser such as Chrome, Firefox or Safari.</p>
+                </div>
+            );
+        }
 
         return (
             <div>

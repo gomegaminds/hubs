@@ -81,6 +81,7 @@
     "dashjs": "^4.5.0",
     "deepmerge": "^4.2.2",
     "detect-browser": "^5.3.0",
+    "detect-inapp": "^1.4.0",
     "downshift": "^6.1.12",
     "esm": "^3.2.25",
     "event-target-shim": "^5.0.1",
