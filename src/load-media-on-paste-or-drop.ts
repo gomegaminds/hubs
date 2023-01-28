@@ -6,6 +6,7 @@ import { upload, parseURL } from "./utils/media-utils";
 import { guessContentType } from "./utils/media-url-utils";
 import { AElement } from "aframe";
 import { Vector3 } from "three";
+import { toast } from "react-hot-toast";
 import qsTruthy from "./utils/qs_truthy";
 
 type UploadResponse = {
@@ -79,6 +80,15 @@ async function onPaste(e: ClipboardEvent) {
     if (!(AFRAME as any).scenes[0].is("entered")) {
         return;
     }
+
+    if (!window.APP.objectHelper) {
+        return;
+    }
+
+    if (!window.APP.objectHelper.can("can_create")) {
+        return;
+    }
+
     const isPastedInChat =
         ((e.target! as Element).matches("input, textarea") || (e.target! as HTMLElement).contentEditable === "true") &&
         document.activeElement === e.target;
@@ -100,6 +110,19 @@ function onDrop(e: DragEvent) {
     if (!(AFRAME as any).scenes[0].is("entered")) {
         return;
     }
+
+    if (!window.APP.objectHelper) {
+        e.preventDefault();
+        toast.error("We could not load the permissions for this room yet.");
+        return;
+    }
+
+    if (!window.APP.objectHelper.can("can_create")) {
+        e.preventDefault();
+        toast.error("You do not have permission to upload content to this room.");
+        return;
+    }
+
     const files = e.dataTransfer?.files;
     if (files && files.length) {
         e.preventDefault();
