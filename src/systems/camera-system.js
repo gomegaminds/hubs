@@ -132,7 +132,7 @@ const moveRigSoCameraLooksAtPivot = (function () {
         decompose(camera.matrixWorld, cwp, cwq);
         rig.getWorldQuaternion(cwq);
 
-        const box = getBoxForObject3D(inspectable, inspectable.children[0]);
+        const box = getBoxForObject3D(inspectable.parent, inspectable);
 
         if (box.min.x === Infinity) {
             // fix edgecase where inspectable object has no mesh / dimensions
