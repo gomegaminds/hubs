@@ -13,25 +13,8 @@ import ReactDOM from "react-dom/client";
 import copy from "copy-to-clipboard";
 import { detectOS } from "detect-browser";
 import InApp from "detect-inapp";
-import * as Sentry from "@sentry/browser";
 const inapp = new InApp(navigator.userAgent || navigator.vendor || window.opera);
 
-const dev = process.env.NODE_ENV === "development" || window.location.hostname === "megaminds-dev.world";
-
-if (!dev) {
-    Sentry.init({
-        dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
-        integrations: [new BrowserTracing()],
-
-        release: "2.0.1",
-        environment: dev ? "dev" : "prod",
-        // We recommend adjusting this value in production, or using tracesSampler
-        // for finer control
-        tracesSampleRate: 1.0
-    });
-} else {
-    console.log("Development environment found. Skipping sentry initialization");
-}
 
 const SHORTHAND_INITIALIZER = "var foo = 'bar'; var baz = { foo };";
 const SPREAD_SYNTAX = "var foo = {}; var baz = { ...foo };";
@@ -114,8 +97,6 @@ class Support extends React.Component {
             console.log("Already removed scenes");
         }
 
-
-        Sentry.captureMessage("Unsupported browser: " + inapp.browser);
 
         if (inapp.isInApp) {
             return (
