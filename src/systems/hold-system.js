@@ -6,6 +6,7 @@ import {
     Locked,
     Pinned,
     HoveredRemoteRight,
+    LiveFeed,
     HeldRemoteRight,
     VideoMenuItem,
     HoveredRemoteLeft,
@@ -45,8 +46,12 @@ function drop(world, userinput, queryHeld, held, dropPath) {
         // TODO: Drop on ownership lost
         removeComponent(world, held, heldEid);
 
+        const obj = world.eid2obj.get(heldEid);
+
         if (hasComponent(world, VideoMenuItem, heldEid)) {
             // Do not save when dragging and dropping video buttons
+        } else if (obj.name === "Video" && hasComponent(world, LiveFeed, obj.parent?.eid)) {
+            // Do not save when dragging and dropping screenshare and webcam objects
         } else {
             window.APP.objectHelper.change(heldEid);
         }

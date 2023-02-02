@@ -101,11 +101,9 @@ function* moveToSpawnPointJob(world: HubsWorld, characterController: CharacterCo
     if (yield* trySpawnIntoOccupiable(world, characterController)) return;
 
     const spawnPoints = nonOccupiableSpawnPoints(world);
-    console.log("Moving to spawn point", spawnPoints);
     if (spawnPoints.length) {
         const waypoint = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
         moveToWaypoint(world, waypoint, characterController, true);
-        console.log("Moving to way point", waypoint);
     } else {
         console.warn("Could not find any available spawn points, spawning at the origin.");
         characterController.enqueueWaypointTravelTo(new Matrix4().identity(), true, {

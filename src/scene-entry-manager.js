@@ -15,7 +15,7 @@ import { getAvatarSrc, getAvatarType } from "./utils/avatar-utils";
 import { SOUND_ENTER_SCENE } from "./systems/sound-effects-system";
 import { MediaDevices, MediaDevicesEvents } from "./utils/media-devices-utils";
 import { addComponent, removeEntity } from "bitecs";
-import { MyCameraTool } from "./bit-components";
+import { MyCameraTool, LiveFeed } from "./bit-components";
 import { anyEntityWith } from "./utils/bit-utils";
 import { moveToSpawnPoint } from "./bit-systems/waypoint";
 
@@ -55,7 +55,6 @@ export default class SceneEntryManager {
     };
 
     enterScene = async (enterInVR, muteOnEntry) => {
-        console.log("Entering scene...");
         document.getElementById("viewing-camera").removeAttribute("scene-preview-camera");
 
         if (isDebug && NAF.connection.adapter.session) {
@@ -118,10 +117,8 @@ export default class SceneEntryManager {
 
     whenSceneLoaded = callback => {
         if (this.scene.hasLoaded) {
-            console.log("Scene already loaded so callback invoked directly");
             callback();
         } else {
-            console.log("Scene not yet loaded so callback is deferred");
             this.scene.addEventListener("loaded", callback);
         }
     };
@@ -141,7 +138,7 @@ export default class SceneEntryManager {
         if (this.scene.renderer) {
             this.scene.renderer.setAnimationLoop(null); // Stop animation loop, TODO A-Frame should do this
         }
-        this.scene.parentNode.removeChild(this.scene);
+        // this.scene.parentNode.removeChild(this.scene);
     };
 
     _setupPlayerRig = () => {
@@ -165,7 +162,6 @@ export default class SceneEntryManager {
         await fetch(window.APP.endpoint + "/api/avatars/" + avatarId)
             .then(resp => resp.json())
             .then(data => {
-                console.log(data, "from avatar api");
                 if (data.glb.startsWith("/")) {
                     this.avatarRig.setAttribute("player-info", { avatarSrc: "http://localhost:8000" + data.glb });
                 } else {
@@ -207,7 +203,6 @@ export default class SceneEntryManager {
     _setupMedia = () => {
         const offset = { x: 0, y: 0, z: -1.5 };
         const spawnMediaInfrontOfPlayer = (src, contentOrigin) => {
-
             if (src instanceof MediaStream) {
                 if (!window.APP.objectHelper.can("can_share_video")) return;
                 const eid = createNetworkedEntity(APP.world, "media", {
@@ -215,6 +210,7 @@ export default class SceneEntryManager {
                     recenter: true,
                     resize: true
                 });
+                addComponent(APP.world, LiveFeed, eid);
                 const avatarPov = document.querySelector("#avatar-pov-node").object3D;
                 const obj = APP.world.eid2obj.get(eid);
                 obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
@@ -266,18 +262,15 @@ export default class SceneEntryManager {
             e.preventDefault();
             document.getElementById("dragoverContainer").style.display = "none";
         });
-        
+
         document.addEventListener("drop", e => {
             e.preventDefault();
             document.getElementById("dragoverContainer").style.display = "none";
         });
 
-
         document.addEventListener("dragover", e => {
             e.preventDefault();
-            console.log("DragOver");
         });
-
 
         let currentVideoShareEntity;
         let isHandlingVideoShare = false;

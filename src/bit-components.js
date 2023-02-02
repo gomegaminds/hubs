@@ -302,3 +302,5 @@ export const Owner = defineComponent({
 Owner.value[$isStringType] = true;
 
 export const MegaText = defineComponent();
+
+export const LiveFeed = defineComponent();
