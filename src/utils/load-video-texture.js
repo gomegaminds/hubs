@@ -1,6 +1,5 @@
 import { createVideoOrAudioEl } from "../utils/media-utils";
 export async function loadVideoTexture(src) {
-    console.log("videotexture src", src);
     const videoEl = createVideoOrAudioEl(src.endsWith("mp3") ? "audio" : "video");
     const texture = new THREE.VideoTexture(videoEl);
     texture.minFilter = THREE.LinearFilter;
@@ -38,14 +37,12 @@ export async function loadVideoTexture(src) {
             if (isReady()) {
                 videoEl.onerror = null;
 
-                console.log("Got video ready", videoEl.autoplay);
-
                 const height = texture.image.videoHeight || texture.image.height;
                 const width = texture.image.videoWidth || texture.image.width;
                 if (src && src.startsWith("hubs://")) {
-                    resolve({ texture, audioSourceEl: null, ratio: height / width });
+                    resolve({ texture, audioSourceEl: null, ratio: height / width, live: true });
                 } else {
-                    resolve({ texture, audioSourceEl: texture.image, ratio: height / width });
+                    resolve({ texture, audioSourceEl: texture.image, ratio: height / width, live: false });
                 }
             } else {
                 pollTimeout = setTimeout(poll, 500);

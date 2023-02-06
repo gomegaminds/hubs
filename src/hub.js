@@ -108,7 +108,7 @@ import { loadEntityMessages, loadStoredRoomData, loadLegacyRoomObjects } from ".
 
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
-renderAsEntity(APP.world, VideoMenuPrefab());
+// renderAsEntity(APP.world, VideoMenuPrefab());
 
 if (window.location.hostname === "localhost") {
     window.APP.endpoint = "http://localhost:8000";

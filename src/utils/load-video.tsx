@@ -7,7 +7,9 @@ import { loadVideoTexture } from "../utils/load-video-texture";
 import { HubsWorld } from "../app";
 
 export function* loadVideo(world: HubsWorld, url: string) {
-    const { texture, ratio }: { texture: VideoTexture; ratio: number } = yield loadVideoTexture(url);
+    const { texture, ratio, live }: { texture: VideoTexture; ratio: number; live: boolean } = yield loadVideoTexture(url);
+
+    console.log("Live", live);
 
     return renderAsEntity(
         world,
@@ -18,7 +20,8 @@ export function* loadVideo(world: HubsWorld, url: string) {
                 texture,
                 ratio,
                 autoPlay: false,
-                projection: ProjectionMode.FLAT
+                projection: ProjectionMode.FLAT,
+                live: live
             }}
         ></entity>
     );

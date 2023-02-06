@@ -195,7 +195,8 @@ export const VideoMenu = defineComponent({
     trackRef: Types.eid,
     headRef: Types.eid,
     playIndicatorRef: Types.eid,
-    pauseIndicatorRef: Types.eid
+    pauseIndicatorRef: Types.eid,
+    liveStopIndicatorRef: Types.eid
 });
 
 export const AudioEmitter = defineComponent();

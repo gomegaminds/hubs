@@ -70,6 +70,7 @@ export function videoMenuSystem(world: HubsWorld, userinput: any) {
             (!hoverRightVideoQuery(world).length &&
                 !hoverRightMenuItemQuery(world).length &&
                 !hasComponent(world, Held, VideoMenu.trackRef[rightVideoMenu])));
+
     if (shouldHideVideoMenu) {
         const menu = rightVideoMenu;
         const menuObj = world.eid2obj.get(menu)!;
@@ -112,8 +113,21 @@ export function videoMenuSystem(world: HubsWorld, userinput: any) {
         }
 
         const headObj = world.eid2obj.get(VideoMenu.headRef[eid])!;
+        const trackObj = world.eid2obj.get(VideoMenu.trackRef[eid])!;
+        const liveStopIndicator = world.eid2obj.get(VideoMenu.liveStopIndicatorRef[eid])!;
+
+        if (video.duration === Infinity) {
+            // Hide stuff on live video
+            headObj.visible = false;
+            trackObj.visible = false;
+            liveStopIndicator.visible = true;
+        } else {
+            headObj.visible = true;
+            trackObj.visible = true;
+            liveStopIndicator.visible = false;
+        }
+
         if (hasComponent(world, HeldRemoteRight, VideoMenu.trackRef[eid])) {
-            const trackObj = world.eid2obj.get(VideoMenu.trackRef[eid])!;
             intersectInThePlaneOf(trackObj, userinput.get(paths.actions.cursor.right.pose), intersectionPoint);
             if (intersectionPoint) {
                 const newPosition = headObj.parent!.worldToLocal(intersectionPoint);
@@ -134,8 +148,13 @@ export function videoMenuSystem(world: HubsWorld, userinput: any) {
         headObj.matrixNeedsUpdate = true;
 
         const timeLabelRef = world.eid2obj.get(VideoMenu.timeLabelRef[eid])! as TroikaText;
-        timeLabelRef.text = `${timeFmt(video.currentTime)} / ${timeFmt(video.duration)}`;
-        timeLabelRef.sync();
+        if (video.duration !== Infinity) {
+            timeLabelRef.text = `${timeFmt(video.currentTime)} / ${timeFmt(video.duration)}`;
+            timeLabelRef.sync();
+        } else {
+            timeLabelRef.text = "Live";
+            timeLabelRef.sync();
+        }
 
         if (rightMenuIndicatorCoroutine && rightMenuIndicatorCoroutine().done) {
             rightMenuIndicatorCoroutine = null;

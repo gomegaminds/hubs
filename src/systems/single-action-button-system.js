@@ -1,4 +1,4 @@
-import { addComponent, removeComponent, defineQuery, hasComponent } from "bitecs";
+import { addComponent, removeComponent, removeEntity, defineQuery, hasComponent } from "bitecs";
 import {
     HoverButton,
     HoveredHandLeft,
@@ -33,13 +33,6 @@ function interact(world, entities, path, interactor) {
                 if (obj.name === "pause") {
                     obj.parent.children[0].pause();
                 }
-                if (obj.name === "stop") {
-                    if (obj.parent.children[0].source) {
-                        obj.parent.children[0].stop();
-                    } else {
-                        console.error("Tried to stop an object without source");
-                    }
-                }
             }
 
             if (obj.parent && obj.parent.parent && hasComponent(world, MediaVideo, obj.parent.parent.eid)) {
@@ -49,6 +42,11 @@ function interact(world, entities, path, interactor) {
                     videoObject.play();
                 } else if (obj.name === "pause") {
                     videoObject.pause();
+                }
+                if (obj.name === "stopSharing") {
+                    console.log("STOP SHARING", obj);
+                    removeEntity(world, obj.parent.parent.eid);
+                    window.APP.scene.emit("video_share_ended");
                 }
             }
 

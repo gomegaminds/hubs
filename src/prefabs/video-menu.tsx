@@ -49,10 +49,14 @@ export function VideoMenuPrefab() {
     const trackRef = createRef();
     const playIndicatorRef = createRef();
     const pauseIndicatorRef = createRef();
+    const liveStopIndicatorRef = createRef();
     const halfHeight = 9 / 16 / 2;
 
     return (
-        <entity name="Video Menu" videoMenu={{ timeLabelRef, headRef, trackRef, playIndicatorRef, pauseIndicatorRef }}>
+        <entity
+            name="Video Menu"
+            videoMenu={{ timeLabelRef, headRef, trackRef, playIndicatorRef, pauseIndicatorRef, liveStopIndicatorRef }}
+        >
             <Label
                 name="Time Label"
                 text={{ anchorY: "top", anchorX: "right" }}
@@ -84,6 +88,18 @@ export function VideoMenuPrefab() {
                 height={0.4}
                 text={"Pause"}
                 visible={false}
+            />
+            <Button3D
+                ref={liveStopIndicatorRef}
+                videoMenuItem
+                type={0}
+                scale={[0.25, 0.25, 0.25]}
+                position={[0, -0.15, uiZ]}
+                width={0.6}
+                userData={{ way: "stopSharing" }}
+                height={0.4}
+                text={"Stop Sharing"}
+                visible={true}
             />
         </entity>
     );

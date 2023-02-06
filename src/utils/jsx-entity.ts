@@ -245,6 +245,7 @@ export interface JSXComponentData extends ComponentData {
         ratio: number;
         projection: ProjectionMode;
         autoPlay: boolean;
+        live: boolean;
     };
     audio?: {
         url: string;
@@ -260,6 +261,7 @@ export interface JSXComponentData extends ComponentData {
         headRef: Ref;
         playIndicatorRef: Ref;
         pauseIndicatorRef: Ref;
+        liveStopIndicatorRef: Ref;
     };
     videoMenuItem?: true;
     cursorRaycastable?: true;
