@@ -100,6 +100,7 @@ import { App } from "./app";
 import MediaDevicesManager from "./utils/media-devices-manager";
 import { platformUnsupported } from "./support";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
+import CommandHelper from "./mega-src/react-components/editor/command-helpers";
 import { renderAsEntity } from "./utils/jsx-entity";
 import { VideoMenuPrefab } from "./prefabs/video-menu";
 
@@ -481,6 +482,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const scene = document.querySelector("a-scene");
     window.APP.scene = scene;
+
+    window.APP.commandHelper = new CommandHelper();
 
     const authChannel = new AuthChannel(store);
     window.APP.authChannel = authChannel;

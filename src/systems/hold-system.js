@@ -37,6 +37,8 @@ function grab(world, userinput, queryHovered, held, grabPath) {
     if (hovered && userinput.get(grabPath) && hasPermissionToGrab(world, hovered)) {
         addComponent(world, held, hovered);
         addComponent(world, Held, hovered);
+        const obj = world.eid2obj.get(hovered);
+        obj.userData.oldPosition = new THREE.Vector3(obj.position.x, obj.position.y, obj.position.z);
     }
 }
 
@@ -55,6 +57,26 @@ function drop(world, userinput, queryHeld, held, dropPath) {
         } else {
             window.APP.objectHelper.change(heldEid);
         }
+
+        const newPos = new THREE.Vector3(obj.position.x, obj.position.y, obj.position.z);
+        const oldPos = new THREE.Vector3(obj.userData.oldPosition.x, obj.userData.oldPosition.y, obj.userData.oldPosition.z);
+
+        const command = {
+            type: "move",
+            eid: heldEid,
+            undo: () => {
+                console.log("Undoing move, setting position to old: ", oldPos);
+                obj.position.set(oldPos.x, oldPos.y, oldPos.z);
+                obj.updateMatrix();
+            },
+            redo: () => {
+                console.log("Redoing move, setting position to new", newPos);
+                obj.position.set(newPos.x, newPos.y, newPos.z);
+                obj.updateMatrix();
+            }
+        };
+
+        window.APP.commandHelper.add(command);
 
         if (
             !hasComponent(world, HeldRemoteRight, heldEid) &&

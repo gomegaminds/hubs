@@ -1,6 +1,7 @@
 import { addComponent } from "bitecs";
 import { takeOwnership } from "./utils/take-ownership";
 import { createNetworkedEntity } from "./utils/create-networked-entity";
+import youtube_model from "./assets/models/youtube.glb";
 import { NetworkedTransform, Owned } from "./bit-components";
 import { upload, parseURL } from "./utils/media-utils";
 import { guessContentType } from "./utils/media-url-utils";
@@ -98,7 +99,47 @@ async function onPaste(e) {
         return spawnFromFileList(e.clipboardData.files);
     }
     const text = e.clipboardData.getData("text");
-    spawnFromUrl(text);
+
+    const isYoutube = text.includes("youtube.com");
+    if (isYoutube) {
+        const eid = createNetworkedEntity(APP.world, "youtube", {
+            src: youtube_model,
+            recenter: true,
+            resize: true,
+            link: text
+        });
+
+        const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+        const obj = APP.world.eid2obj.get(eid);
+        obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+        obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+
+        setTimeout(() => {
+            window.APP.objectHelper.save(eid);
+        }, 1000);
+    } else {
+        try {
+            url = new URL(string);
+            spawnFromUrl(url);
+        } catch {
+            const eid = createNetworkedEntity(APP.world, "megaText", {
+                value: text,
+                fontSize: 0.2,
+                maxWidth: 3,
+                textAlign: "left",
+                color: "#ffffff"
+            });
+
+            const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+            const obj = APP.world.eid2obj.get(eid);
+            obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+            obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+
+            setTimeout(() => {
+                window.APP.objectHelper.save(eid);
+            }, 1000);
+        }
+    }
 }
 
 function onDrop(e) {

@@ -6,7 +6,7 @@ AFRAME.registerSystem("ui-hotkeys", {
         this.mediaSearchStore = window.APP.mediaSearchStore;
     },
 
-    tick: function() {
+    tick: function () {
         if (!this.userinput) {
             this.userinput = this.el.systems.userinput;
         }
@@ -15,8 +15,22 @@ AFRAME.registerSystem("ui-hotkeys", {
             window.dispatchEvent(new CustomEvent("focus_chat", { detail: { prefix: "" } }));
         }
 
+        document.addEventListener("keydown", function (event) {
+            if (event.ctrlKey && event.key === "z") {
+                alert("Undo!");
+                window.APP.commandHelper.undo();
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.shiftKey && event.ctrlKey && event.key === "z") {
+                alert("redo!");
+                window.APP.commandHelper.redo();
+            }
+        });
+
         if (this.userinput.get(paths.actions.focusChatCommand)) {
             window.dispatchEvent(new CustomEvent("focus_chat", { detail: { prefix: "/" } }));
         }
-    },
+    }
 });
