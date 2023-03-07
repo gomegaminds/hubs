@@ -6,6 +6,7 @@ import configs from "./utils/configs";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { loadSavedEntityStates } from "./utils/entity-state-utils";
 
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && !isNaN(n - 0);
@@ -104,7 +105,7 @@ import CommandHelper from "./mega-src/react-components/editor/command-helpers";
 import { renderAsEntity } from "./utils/jsx-entity";
 import { VideoMenuPrefab } from "./prefabs/video-menu";
 
-import { loadEntityMessages, loadStoredRoomData, loadLegacyRoomObjects } from "./utils/load-room-objects";
+import { loadStoredRoomData, loadLegacyRoomObjects } from "./utils/load-room-objects";
 
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
@@ -372,6 +373,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
         "didConnectToNetworkedScene",
         () => {
             loadStoredRoomData(hub.hub_id);
+            // loadSavedEntityStates(APP.hubChannel);
 
             /*
             // Append objects once we are in the NAF room since ownership may be taken.

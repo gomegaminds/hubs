@@ -29,7 +29,7 @@ function numberOrPercent(defaultValue) {
   };
 }
 
-AFRAME.registerComponent("text", {
+AFRAME.registerComponent("troika-text", {
   schema: {
     textAlign: { type: "string", default: "left", oneOf: ["left", "right", "center", "justify"] },
     anchorX: { default: "center", oneOf: ["left", "right", "center"] },

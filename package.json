@@ -65,6 +65,7 @@
     "@types/node": "^18.11.9",
     "accurate-profanity-filter": "^5.0.2",
     "aframe": "github:mozillareality/aframe#hubs/master",
+    "aframe-inspector": "^1.4.1",
     "ammo-debug-drawer": "^1.0.1",
     "ammo.js": "github:mozillareality/ammo.js#hubs/master",
     "animejs": "github:mozillareality/anime#hubs/master",

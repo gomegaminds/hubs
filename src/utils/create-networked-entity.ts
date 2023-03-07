@@ -10,6 +10,8 @@ import { setNetworkedDataWithRoot } from "./assign-network-ids";
 import type { ClientID, InitialData, NetworkID } from "./networking-types";
 
 export function createNetworkedEntity(world: HubsWorld, prefabName: PrefabName, initialData: InitialData) {
+    if (!hasPermissionToSpawn(NAF.clientId, prefabName))
+        throw new Error(`You do not have permission to spawn ${prefabName}`);
     const nid = NAF.utils.createNetworkId();
     const entity = renderAsNetworkedEntity(world, prefabName, initialData, nid, NAF.clientId);
     takeOwnership(world, entity);
