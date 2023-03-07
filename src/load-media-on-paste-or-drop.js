@@ -29,46 +29,64 @@ export function spawnFromUrl(text) {
     obj.lookAt(avatarPov.getWorldPosition(new Vector3()));
 
     setTimeout(() => {
-        window.APP.objectHelper.save(eid);
+        window.APP.objectHelper.save(eid, null, text, text);
     }, 1000);
     return obj;
 }
 
 export async function spawnFromFileList(files) {
     for (const file of files) {
+        console.log(file);
         const desiredContentType = file.type || guessContentType(file.name);
-        const { src, id } = await upload(file, desiredContentType)
-            .then(function (response) {
-                console.log(response.id);
-                if (response.file.startsWith("/")) {
-                    return { src: "http://localhost:8000" + response.file, id: response.id };
-                } else {
-                    return { src: response.file, id: response.id };
-                }
-            })
-            .catch(e => {
-                console.error("Media upload failed", e);
-                return {
-                    src: "error",
-                    id: null,
-                    recenter: true,
-                    resize: true,
-                    animateLoad: true,
-                    isObjectMenuTarget: true
-                };
-            });
+        const unsupportedFiles = [
+            "undefined",
+            "video/x-ms-wmv",
+            "video/x-msvideo",
+            "video/3gpp",
+            "",
+            null,
+            undefined,
+            "audio/ac3",
+            "audio/x-realaudio",
+            "audio/x-ms-wma",
+            "image/tiff"
+        ];
+        if (unsupportedFiles.includes(desiredContentType)) {
+            throw "Unsupported filetype";
+        } else {
+            const { src, id } = await upload(file, desiredContentType)
+                .then(function (response) {
+                    if (response.file.startsWith("/")) {
+                        return { src: "http://localhost:8000" + response.file, id: response.id };
+                    } else {
+                        return { src: response.file, id: response.id };
+                    }
+                })
+                .catch(e => {
+                    console.error("Media upload failed", e);
+                    return {
+                        src: "error",
+                        id: null,
+                        recenter: true,
+                        resize: true,
+                        animateLoad: true,
+                        isObjectMenuTarget: true
+                    };
+                });
 
-        const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
-        const avatarPov = document.querySelector("#avatar-pov-node").object3D;
-        const obj = APP.world.eid2obj.get(eid);
-        obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
-        obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
-        obj.updateMatrix();
-        obj.matrixNeedsUpdate = true;
+            const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
+            const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+            const obj = APP.world.eid2obj.get(eid);
+            obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+            obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+            obj.updateMatrix();
+            obj.matrixNeedsUpdate = true;
 
-        setTimeout(() => {
-            window.APP.objectHelper.save(eid, id);
-        }, 1000);
+            setTimeout(() => {
+                window.APP.objectHelper.save(eid, id, file.name);
+                window.APP.scene.emit("new_asset");
+            }, 1000);
+        }
     }
 }
 
@@ -165,7 +183,7 @@ function onDrop(e) {
         return toast.promise(spawnFromFileList(files), {
             loading: "Uploading...",
             success: "Uploaded",
-            error: "An error occurred while uploading"
+            error: err => err.toString()
         });
     }
     const url = e.dataTransfer?.getData("url") || e.dataTransfer?.getData("text");

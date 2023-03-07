@@ -225,7 +225,7 @@ export default class SceneEntryManager {
                 obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
                 setTimeout(() => {
-                    window.APP.objectHelper.save(eid);
+                    window.APP.objectHelper.save(eid, null, src, src);
                 }, 1000);
                 return eid;
             }
