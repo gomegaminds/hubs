@@ -12,15 +12,10 @@ const enableThirdPersonMode = qsTruthy("thirdPerson");
 import { Layers } from "../components/layers";
 
 import { defineQuery } from "bitecs";
-import {
-    Held,
-    Holdable,
-    HeldRemoteLeft,
-    HeldRemoteRight,
-    HoveredRemoteRight,
-} from "../bit-components";
+import { Held, Holdable, HeldRemoteLeft, HeldRemoteRight, HoveredRemoteLeft, HoveredRemoteRight } from "../bit-components";
 
 const queryHeld = defineQuery([HoveredRemoteRight]);
+const queryHeldLeft = defineQuery([HoveredRemoteRight]);
 
 function getInspectableInHierarchy(el) {
     let inspectable = el;
@@ -142,13 +137,7 @@ const moveRigSoCameraLooksAtPivot = (function () {
         box.getCenter(center);
         const vrMode = false;
         const dist =
-            calculateViewingDistance(
-                80,
-                window.APP.scene.sceneEl.camera.aspect,
-                box,
-                center,
-                vrMode
-            ) * distanceMod;
+            calculateViewingDistance(80, window.APP.scene.sceneEl.camera.aspect, box, center, vrMode) * distanceMod;
         target.position.addVectors(
             owp,
             oForw
@@ -286,7 +275,6 @@ export class CameraSystem {
 
         this.ensureListenerIsParentedCorrectly(this.scene);
 
-
         moveRigSoCameraLooksAtPivot(
             this.viewingRig.object3D,
             this.viewingCamera,
@@ -338,9 +326,8 @@ export class CameraSystem {
         const translation = new THREE.Matrix4();
         let uiRoot;
         return function tick(scene, dt) {
-
             const entered = scene.is("entered");
-            if(!entered) {
+            if (!entered) {
                 return;
             }
 
@@ -368,8 +355,15 @@ export class CameraSystem {
                 this.uninspect();
             }
 
-            if (this.userinput.get(paths.actions.startInspecting)) {
-                const hoverEl = queryHeld(APP.world)[0]
+
+            if (
+                this.userinput.get(paths.actions.startInspecting) ||
+                this.userinput.get(paths.actions.cursor.right.click)
+            ) {
+                const hoverEl = queryHeldLeft(APP.world)[0];
+
+
+                console.log("Got click", hoverEl);
 
                 // If we are starting edit of what we are already editing, close the menu
                 if (hoverEl === this.isInsideMenu) {
@@ -380,7 +374,7 @@ export class CameraSystem {
                     // If already selected another object, reset their arrow
 
                     // if (this.isInsideMenu !== null) {
-                        //this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    //this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
                     // }
                     scene.emit("right_menu_changed", hoverEl);
                     // if (!hoverEl.components["avatar-inspect-collider"]) {
