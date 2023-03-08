@@ -286,6 +286,7 @@ export class CameraSystem {
 
         this.ensureListenerIsParentedCorrectly(this.scene);
 
+
         moveRigSoCameraLooksAtPivot(
             this.viewingRig.object3D,
             this.viewingCamera,
@@ -315,6 +316,7 @@ export class CameraSystem {
         }
         this.snapshot.mode = null;
         this.tick(this.scene);
+        this.scene.emit("right_menu_changed", null);
     }
 
     ensureListenerIsParentedCorrectly(scene) {
