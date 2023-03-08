@@ -133,7 +133,7 @@ if (isEmbed && !qs.get("embed_token")) {
     throw new Error("no embed token");
 }
 
-// import registerNetworkSchemas from "./network-schemas";
+import registerNetworkSchemas from "./network-schemas";
 
 import detectConcurrentLoad from "./utils/concurrent-load-detector";
 
@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.dispatchEvent(new CustomEvent("hub_channel_ready"));
 
-    // registerNetworkSchemas();
+    registerNetworkSchemas();
 
     remountUI({
         hubChannel,

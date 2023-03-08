@@ -166,7 +166,7 @@ export class App {
             event.preventDefault();
         });
 
-        const enablePostEffects = this.store.state.preferences.enablePostEffects;
+        const enablePostEffects = false //this.store.state.preferences.enablePostEffects;
 
         const renderer = new WebGLRenderer({
             alpha: true,

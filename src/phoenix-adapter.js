@@ -193,8 +193,6 @@ export default class PhoenixAdapter {
 
         message.source = source;
 
-        console.log(message);
-
         this.nafMessageReceived(message.from_session_id, message.dataType, message.data, message.source);
     };
 
