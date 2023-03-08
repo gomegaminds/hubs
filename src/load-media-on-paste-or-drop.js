@@ -2,7 +2,7 @@ import { addComponent } from "bitecs";
 import { takeOwnership } from "./utils/take-ownership";
 import { createNetworkedEntity } from "./utils/create-networked-entity";
 import youtube_model from "./assets/models/youtube.glb";
-import { NetworkedTransform, Owned } from "./bit-components";
+import { NetworkedTransform, Owned, Nickname } from "./bit-components";
 import { upload, parseURL } from "./utils/media-utils";
 import { guessContentType } from "./utils/media-url-utils";
 import { AElement } from "aframe";
@@ -36,7 +36,6 @@ export function spawnFromUrl(text) {
 
 export async function spawnFromFileList(files) {
     for (const file of files) {
-        console.log(file);
         const desiredContentType = file.type || guessContentType(file.name);
         const unsupportedFiles = [
             "undefined",
@@ -75,12 +74,17 @@ export async function spawnFromFileList(files) {
                 });
 
             const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
+            addComponent(APP.world, Nickname, eid);
             const avatarPov = document.querySelector("#avatar-pov-node").object3D;
             const obj = APP.world.eid2obj.get(eid);
             obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
             obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
             obj.updateMatrix();
             obj.matrixNeedsUpdate = true;
+
+            Nickname.value[eid] = APP.getSid(file.name);
+            console.log(APP.getSid(file.name));
+            console.log(APP.getString(Nickname.value[eid]));
 
             setTimeout(() => {
                 window.APP.objectHelper.save(eid, id, file.name);
