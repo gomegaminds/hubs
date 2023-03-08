@@ -86,25 +86,14 @@ export const xforms = {
                 grab = true;
             }
 
-            // Figure out if user is moving within the grabDelay
-            console.log("isMoving: ", isMoving);
-
-            // If mouse delta is 0,0 its a click
-            // Instead of button time, check if delta moves
-
-            // Always start with grab, check if buttonDownTime is higher than threshold, return
             if (held && !grab) {
-                console.log("Button down");
                 state.buttonDownTime = performance.now();
             } else if (released) {
-                console.log("Button up");
                 state.buttonDownTime = 0;
                 if (state.grabbed && isMoving) {
-                    console.log("Was grabbed, now dropped");
                     state.grabbed = false;
                     drop = true;
                 } else {
-                    console.log("Is a click");
                     click = true;
                 }
             } else {
@@ -114,7 +103,6 @@ export const xforms = {
                     !state.grabbed &&
                     (isMoving || performance.now() - state.buttonDownTime > grabDelayMs)
                 ) {
-                    console.log("Is grabbed");
                     state.grabbed = true;
                     grab = true;
                 }
