@@ -9,12 +9,8 @@ export interface CreateMessageData {
 export type ClientID = string;
 export type NetworkID = string;
 export type StringID = number;
-export type CreateMessage = {
-    version: 1;
-    networkId: NetworkID;
-    prefabName: PrefabName;
-    initialData: InitialData;
-};
+export type CreateMessage = [networkId: NetworkID, prefabName: PrefabName, initialData: InitialData];
+
 export interface CursorBuffer extends Array<any> {
     cursor?: number;
 }
@@ -24,6 +20,7 @@ export interface UpdateMessageBase {
     lastOwnerTime: number;
     timestamp: number;
     owner: ClientID;
+    creator: ClientID;
 }
 export interface CursorBufferUpdateMessage extends UpdateMessageBase {
     componentIds: number[];
