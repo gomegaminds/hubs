@@ -250,7 +250,6 @@ export class CameraSystem {
             // addObject3DComponent(window.APP.world, eid, this.transformControls);
 
             // console.log(eid);
-
         });
     }
 
@@ -383,7 +382,7 @@ export class CameraSystem {
             }
 
             // if (this.transformControls.object) {
-              //  this.transformControls.updateMatrix();
+            //  this.transformControls.updateMatrix();
             //}
 
             if (
@@ -410,6 +409,7 @@ export class CameraSystem {
                         window.APP.scene.object3D.remove(this.helper);
                     }
                     this.helper = new THREE.BoxHelper(hoverObj, 0xffff00);
+                    console.log(this.helper);
                     window.APP.scene.object3D.add(this.helper);
 
                     scene.emit("right_menu_changed", hoverEl);
