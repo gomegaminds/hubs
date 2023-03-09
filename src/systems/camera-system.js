@@ -1,4 +1,6 @@
 import { waitForDOMContentLoaded } from "../utils/async-utils";
+import { addComponent, removeComponent, addEntity } from "bitecs";
+import { SpinningAnimation } from "../bit-components";
 import { childMatch, setMatrixWorld, calculateViewingDistance } from "../utils/three-utils";
 import { paths } from "./userinput/paths";
 import { getBoxForObject3D } from "../utils/auto-box-collider";
@@ -6,13 +8,22 @@ import qsTruthy from "../utils/qs_truthy";
 import { isTagged } from "../components/tags";
 import { qsGet } from "../utils/qs_truthy";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { addObject3DComponent, renderAsEntity } from "../utils/jsx-entity";
 import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 const customFOV = qsGet("fov");
 const enableThirdPersonMode = qsTruthy("thirdPerson");
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import { Layers } from "../components/layers";
 
 import { defineQuery } from "bitecs";
-import { Held, Holdable, HeldRemoteLeft, HeldRemoteRight, HoveredRemoteLeft, HoveredRemoteRight } from "../bit-components";
+import {
+    Held,
+    Holdable,
+    HeldRemoteLeft,
+    HeldRemoteRight,
+    HoveredRemoteLeft,
+    HoveredRemoteRight
+} from "../bit-components";
 
 const queryHeld = defineQuery([HoveredRemoteRight]);
 const queryHeldLeft = defineQuery([HoveredRemoteRight]);
@@ -201,6 +212,7 @@ export class CameraSystem {
         this.viewingCamera = camera;
         this.worldBuildingControls = undefined;
         this.lightsEnabled = true;
+        this.helper = null;
         this.verticalDelta = 0;
         this.horizontalDelta = 0;
         this.inspectZoom = 0;
@@ -215,6 +227,7 @@ export class CameraSystem {
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_VIDEO_TEXTURE_TARGET);
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_UI);
+        this.viewingCamera.layers.enableAll();
 
         waitForDOMContentLoaded().then(() => {
             this.scene = AFRAME.scenes[0];
@@ -228,6 +241,16 @@ export class CameraSystem {
             );
             bg.layers.set(Layers.CAMERA_LAYER_INSPECT);
             this.viewingRig.object3D.add(bg);
+
+            // this.transformControls = new TransformControls(this.viewingCamera, this.scene.renderer.domElement);
+            // this.transformControls.name = "TransformControls";
+            // this.scene.object3D.add(this.transformControls);
+
+            // const eid = addComponent(window.APP.world);
+            // addObject3DComponent(window.APP.world, eid, this.transformControls);
+
+            // console.log(eid);
+
         });
     }
 
@@ -355,6 +378,13 @@ export class CameraSystem {
                 this.uninspect();
             }
 
+            if (this.helper) {
+                this.helper.update();
+            }
+
+            // if (this.transformControls.object) {
+              //  this.transformControls.updateMatrix();
+            //}
 
             if (
                 this.userinput.get(paths.actions.startInspecting) ||
@@ -362,25 +392,28 @@ export class CameraSystem {
             ) {
                 const hoverEl = queryHeldLeft(APP.world)[0];
 
+                // const arrowObj = APP.world.eid2obj.get(APP.arrowIndicator);
+                const hoverObj = APP.world.eid2obj.get(hoverEl);
 
-                console.log("Got click", hoverEl);
+                // console.log(this.transformControls);
 
                 // If we are starting edit of what we are already editing, close the menu
                 if (hoverEl === this.isInsideMenu) {
-                    // this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
+                    if (this.helper) {
+                        window.APP.scene.object3D.remove(this.helper);
+                    }
                     scene.emit("right_menu_changed", null);
                     this.isInsideMenu = null;
                 } else if (hoverEl) {
-                    // If already selected another object, reset their arrow
+                    // Reset if moving directly from one to the next
+                    if (this.helper) {
+                        window.APP.scene.object3D.remove(this.helper);
+                    }
+                    this.helper = new THREE.BoxHelper(hoverObj, 0xffff00);
+                    window.APP.scene.object3D.add(this.helper);
 
-                    // if (this.isInsideMenu !== null) {
-                    //this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    // }
                     scene.emit("right_menu_changed", hoverEl);
-                    // if (!hoverEl.components["avatar-inspect-collider"]) {
                     this.isInsideMenu = hoverEl;
-                    //    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
-                    //}
                 }
             }
 

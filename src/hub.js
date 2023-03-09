@@ -103,11 +103,13 @@ import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import CommandHelper from "./mega-src/react-components/editor/command-helpers";
 import { renderAsEntity } from "./utils/jsx-entity";
 import { VideoMenuPrefab } from "./prefabs/video-menu";
+import { ArrowIndicatorPrefab } from "./mega-src/prefabs/arrow-indicator";
 
 import { loadStoredRoomData, loadLegacyRoomObjects } from "./utils/load-room-objects";
 
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
+
 // renderAsEntity(APP.world, VideoMenuPrefab());
 
 if (window.location.hostname === "localhost") {
@@ -117,7 +119,6 @@ if (window.location.hostname === "localhost") {
 } else {
     window.APP.endpoint = "https://api.megaminds.world";
 }
-
 
 const store = window.APP.store;
 store.update({ preferences: { shouldPromptForRefresh: false } }); // Clear flag that prompts for refresh from preference screen
@@ -844,4 +845,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     authChannel.setSocket(socket);
+
 });

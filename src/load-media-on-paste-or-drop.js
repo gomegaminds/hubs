@@ -2,7 +2,7 @@ import { addComponent } from "bitecs";
 import { takeOwnership } from "./utils/take-ownership";
 import { createNetworkedEntity } from "./utils/create-networked-entity";
 import youtube_model from "./assets/models/youtube.glb";
-import { NetworkedTransform, Owned, Nickname } from "./bit-components";
+import { NetworkedTransform, Owned, Nickname, StickyNote } from "./bit-components";
 import { upload, parseURL } from "./utils/media-utils";
 import { guessContentType } from "./utils/media-url-utils";
 import { AElement } from "aframe";
@@ -34,7 +34,7 @@ export function spawnFromUrl(text) {
     return obj;
 }
 
-export async function spawnFromFileList(files) {
+export async function spawnFromFileList(files, isStickyNote = false) {
     for (const file of files) {
         const desiredContentType = file.type || guessContentType(file.name);
         const unsupportedFiles = [
@@ -75,6 +75,10 @@ export async function spawnFromFileList(files) {
 
             const eid = createNetworkedEntity(APP.world, "media", { src: src, recenter: true, resize: true });
             addComponent(APP.world, Nickname, eid);
+            if (isStickyNote) {
+                addComponent(APP.world, StickyNote, eid);
+            }
+            addComponent(APP.world, Nickname, eid);
             const avatarPov = document.querySelector("#avatar-pov-node").object3D;
             const obj = APP.world.eid2obj.get(eid);
             obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
@@ -87,7 +91,7 @@ export async function spawnFromFileList(files) {
             console.log(APP.getString(Nickname.value[eid]));
 
             setTimeout(() => {
-                window.APP.objectHelper.save(eid, id, file.name);
+                window.APP.objectHelper.save(eid, id, file.name, null, isStickyNote ? "stickynote" : null);
                 window.APP.scene.emit("new_asset");
             }, 1000);
         }

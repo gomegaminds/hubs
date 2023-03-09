@@ -816,6 +816,7 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
 }
 
 export function cloneModelFromCache(src) {
+    console.log(gltfCache);
     if (gltfCache.has(src)) {
         gltfCache.retain(src);
         return cloneGltf(gltfCache.get(src).gltf);
@@ -824,7 +825,15 @@ export function cloneModelFromCache(src) {
     }
 }
 
+/**
+ * @param {string} src
+ * @param {string|null} [contentType]
+ * @param {boolean} [useCache]
+ * @param {null|(json:any)=>any} [jsonPreprocessor]
+ */
 export async function loadModel(src, contentType = null, useCache = false, jsonPreprocessor = null) {
+    console.log(`Loading model ${src}`);
+    console.log(gltfCache);
     if (useCache) {
         if (gltfCache.has(src)) {
             gltfCache.retain(src);

@@ -8,6 +8,7 @@ import {
     NetworkedVideo,
     NetworkedWaypoint,
     NetworkedAudio,
+    StickyNote,
     Billboard,
     Locked,
     Equirectangular,
@@ -24,6 +25,7 @@ import type { CursorBuffer, EntityID } from "./networking-types";
 
 // Megaminds Components
 import { BillboardSchema } from "../mega-src/bit-schemas/billboard-schema";
+import { StickyNoteSchema } from "../mega-src/bit-schemas/stickynote-schema";
 import { SpinningAnimationSchema } from "../mega-src/bit-schemas/spinning-animation-schema";
 import { LockedSchema } from "../mega-src/bit-schemas/locked-schema";
 import { StudentsCanMoveSchema } from "../mega-src/bit-schemas/students-can-move-schema";
@@ -57,6 +59,7 @@ schemas.set(NetworkedVideo, NetworkedVideoSchema);
 schemas.set(NetworkedAudio, NetworkedAudioSchema);
 schemas.set(NetworkedWaypoint, NetworkedWaypointSchema);
 schemas.set(Billboard, BillboardSchema);
+schemas.set(StickyNote, StickyNoteSchema);
 schemas.set(Locked, LockedSchema);
 schemas.set(Equirectangular, EquirectangularSchema);
 schemas.set(StudentsCanMove, StudentsCanMoveSchema);

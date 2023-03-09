@@ -3,6 +3,7 @@ import { ParticleEmitterParams } from "../inflators/reaction";
 import { CameraPrefab, CubeMediaFramePrefab } from "./camera-tool";
 import { MediaPrefab } from "./media";
 import { ReactionPrefab } from "./reaction";
+import { ArrowIndicatorPrefab } from "../mega-src/prefabs/arrow-indicator";
 import { QuestionPrefab } from "./question";
 import { YouTubePrefab } from "./youtube";
 import { LinkPrefab } from "./link";
@@ -21,11 +22,12 @@ export type PrefabDefinition = {
     template: CameraPrefabT | CubeMediaPrefabT | MediaPrefabT | ReactionPrefabT | QuestionPrefabT;
 };
 
-export type PrefabName = "camera" | "cube" | "media" | "reaction" | "question" | "youtube" | "link" | "megaText";
+export type PrefabName = "camera" | "cube" | "media" | "arrow" | "reaction" | "question" | "youtube" | "link" | "megaText";
 
 export const prefabs = new Map<PrefabName, PrefabDefinition>();
 
 prefabs.set("camera", { permission: "spawn_camera", template: CameraPrefab });
+prefabs.set("arrow", { template: ArrowIndicatorPrefab });
 prefabs.set("cube", { template: CubeMediaFramePrefab });
 prefabs.set("media", { template: MediaPrefab });
 prefabs.set("reaction", { template: ReactionPrefab });

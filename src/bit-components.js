@@ -243,6 +243,10 @@ export const StudentsCanMove = defineComponent({
     toggled: Types.ui8
 });
 
+export const StickyNote = defineComponent({
+    toggled: Types.ui8
+});
+
 export const Locked = defineComponent({
     toggled: Types.ui8
 });
@@ -250,6 +254,7 @@ export const Locked = defineComponent({
 export const Billboard = defineComponent({
     toggled: Types.ui8
 });
+export const MaterialTag = defineComponent();
 
 export const Equirectangular = defineComponent({
     toggled: Types.ui8,
@@ -305,3 +310,4 @@ Owner.value[$isStringType] = true;
 export const MegaText = defineComponent();
 
 export const LiveFeed = defineComponent();
+export const ArrowIndicator = defineComponent();

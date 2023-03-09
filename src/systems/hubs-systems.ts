@@ -235,7 +235,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     youtubeSystem(world);
     billboardSystem(world, APP.scene);
     particleEmitterSystem(world, dt);
-    spinningAnimationSystem(world);
+    // spinningAnimationSystem(world);
     mediaFramesSystem(world);
     hubsSystems.audioZonesSystem.tick(hubsSystems.el);
     hubsSystems.gainSystem.tick();

@@ -14,6 +14,7 @@ import {
     SpinningAnimation,
     ParticleEmitter,
     CursorRaycastable,
+    ArrowIndicator,
     DestroyAtExtremeDistance,
     FloatyObject,
     HandCollisionTarget,
@@ -36,6 +37,7 @@ import {
     NetworkedAudio,
     VideoMenu,
     Equirectangular,
+    StickyNote,
     VideoMenuItem,
     NotRemoteHoverTarget,
     Deletable,
@@ -43,6 +45,7 @@ import {
     NavMesh,
     SceneRoot,
     NetworkDebug,
+    MaterialTag,
     WaypointPreview
 } from "../bit-components";
 import { inflateMediaLoader } from "../inflators/media-loader";
@@ -68,7 +71,7 @@ import { inflateEnvironmentSettings } from "../inflators/environment-settings";
 import { inflateWaypoint, WaypointParams } from "../inflators/waypoint";
 import { inflateReflectionProbe, ReflectionProbeParams } from "../inflators/reflection-probe";
 import { HubsWorld } from "../app";
-import { Group, Object3D, Texture, VideoTexture } from "three";
+import { Material, Group, Object3D, Texture, VideoTexture } from "three";
 import { AlphaMode } from "./create-image-mesh";
 import { MediaLoaderParams } from "../inflators/media-loader";
 import { preload } from "./preload";
@@ -126,6 +129,7 @@ function isReservedAttr(attr: string): attr is keyof Attrs {
 }
 
 type ComponentFn = string | ((attrs: Attrs & JSXComponentData, children?: EntityDef[]) => EntityDef);
+
 export function createElementEntity(
     tag: "entity" | ComponentFn,
     attrs: Attrs & JSXComponentData,
@@ -169,6 +173,16 @@ export function addObject3DComponent(world: HubsWorld, eid: number, obj: Object3
     addComponent(world, Object3DTag, eid);
     world.eid2obj.set(eid, obj);
     obj.eid = eid;
+    return eid;
+}
+
+export function addMaterialComponent(world: HubsWorld, eid: number, mat: Material) {
+    if (hasComponent(world, MaterialTag, eid)) {
+        throw new Error("Tried to add an Material tag to an entity that already has one");
+    }
+    addComponent(world, MaterialTag, eid);
+    world.eid2mat.set(eid, mat);
+    mat.eid = eid;
     return eid;
 }
 
@@ -253,6 +267,7 @@ export interface JSXComponentData extends ComponentData {
         audioEl: any;
     };
     equirectangular?: any;
+    stickynote?: any;
     networkedVideo?: true;
     networkedAudio?: true;
     videoMenu?: {
@@ -397,6 +412,7 @@ const jsxInflators: Required<{ [K in keyof JSXComponentData]: InflatorFn }> = {
     studentsCanMove: createDefaultInflator(StudentsCanMove),
     networked: createDefaultInflator(Networked),
     objectMenu: createDefaultInflator(ObjectMenu),
+    stickynote: createDefaultInflator(StickyNote),
     cameraTool: createDefaultInflator(CameraTool, { captureDurIdx: 1 }),
     animationMixer: createDefaultInflator(AnimationMixer),
     networkedVideo: createDefaultInflator(NetworkedVideo),

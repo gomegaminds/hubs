@@ -8,7 +8,6 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
     return (
         <entity
             name="Interactable Media"
-            spinningAnimation
             networked
             networkedTransform
             billboard
@@ -16,6 +15,7 @@ export function MediaPrefab(params: MediaLoaderParams): EntityDef {
             description
             nickname
             studentsCanMove
+            stickynote={{ toggled: false }}
             equirectangular
             mediaLoader={params}
             deletable

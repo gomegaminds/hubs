@@ -6,5 +6,6 @@ export function waitForPreloads() {
 }
 
 export function preload<T>(p: Promise<T>) {
+    console.log("Preloading", p);
     preloads.push(p);
 }
