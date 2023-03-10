@@ -805,6 +805,7 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
         if (useRangeRequests) {
             GLBRangeRequests.load(gltfUrl, gltfLoader, onLoad, onProgress, reject);
         } else {
+            console.log("Loading", gltfUrl);
             gltfLoader.load(gltfUrl, onLoad, onProgress, reject);
         }
     }).finally(() => {
@@ -816,7 +817,6 @@ export async function loadGLTF(src, contentType, onProgress, jsonPreprocessor) {
 }
 
 export function cloneModelFromCache(src) {
-    console.log(gltfCache);
     if (gltfCache.has(src)) {
         gltfCache.retain(src);
         return cloneGltf(gltfCache.get(src).gltf);
@@ -833,7 +833,6 @@ export function cloneModelFromCache(src) {
  */
 export async function loadModel(src, contentType = null, useCache = false, jsonPreprocessor = null) {
     console.log(`Loading model ${src}`);
-    console.log(gltfCache);
     if (useCache) {
         if (gltfCache.has(src)) {
             gltfCache.retain(src);
