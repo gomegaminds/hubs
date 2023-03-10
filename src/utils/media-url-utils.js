@@ -12,8 +12,8 @@ const commonKnownContentTypes = {
     glb: "model/gltf-binary",
     png: "image/png",
     jpg: "image/jpeg",
-    svg: "image/svg+xml",
     bmp: "image/bmp",
+    svg: "image/svg+xml",
     jpeg: "image/jpeg",
     gif: "image/gif",
     aac: "audio/aac",
@@ -169,6 +169,10 @@ export const guessContentType = url => {
         if (matches.length > 0) {
             matches[1];
         }
+    }
+
+    if (url.endsWith(".svg")) {
+        return "image/svg+xml";
     }
     const extension = new URL(url, window.location).pathname.split(".").pop();
     return commonKnownContentTypes[extension];

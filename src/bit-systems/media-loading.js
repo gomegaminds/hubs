@@ -119,10 +119,8 @@ function* loadMedia(world, eid) {
     try {
         const urlData = yield resolveMediaInfo(src);
 
-        console.log("Guessing urldata", urlData);
         const loader = loaderForMediaType[urlData.mediaType];
         if (!loader) {
-            console.log("NO LOADER FOUND");
             throw new UnsupportedMediaTypeError(eid, urlData.mediaType);
         }
         media = yield* loader(world, urlData);
