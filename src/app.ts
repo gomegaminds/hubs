@@ -18,6 +18,7 @@ import {
     PerspectiveCamera,
     PositionalAudio,
     Scene,
+    Material,
     sRGBEncoding,
     WebGLRenderer
 } from "three";
@@ -49,6 +50,7 @@ export interface HubsWorld extends IWorld {
     deletedNids: Set<number>;
     nid2eid: Map<number, number>;
     eid2obj: Map<number, Object3D>;
+    eid2mat: Map<number, Material>;
     time: { delta: number; elapsed: number; tick: number };
 }
 
@@ -114,6 +116,7 @@ export class App {
         this.store = store;
         // TODO: Create accessor / update methods for these maps / set
         this.world.eid2obj = new Map();
+        this.world.eid2mat = new Map();
 
         this.world.nid2eid = new Map();
         this.world.deletedNids = new Set();
@@ -166,7 +169,7 @@ export class App {
             event.preventDefault();
         });
 
-        const enablePostEffects = this.store.state.preferences.enablePostEffects;
+        const enablePostEffects = false //this.store.state.preferences.enablePostEffects;
 
         const renderer = new WebGLRenderer({
             alpha: true,

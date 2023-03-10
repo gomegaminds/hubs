@@ -1,5 +1,4 @@
 import { localClientID, pendingMessages } from "../bit-systems/networking";
-import { messageForLegacyRoomObjects, messageForLegacyRoomObjectsList } from "./message-for";
 import { NetworkID } from "./networking-types";
 import { getReticulumFetchUrl } from "./phoenix-utils";
 import { StorableMessage } from "./store-networked-state";
@@ -38,7 +37,6 @@ export async function loadStoredRoomData(hubId: string) {
         }
         messages.forEach(m => {
             m.fromClientId = "reticulum";
-            m.hubId = hubId;
             m.updates.forEach(update => {
                 update.owner = "reticulum";
             });
@@ -47,16 +45,6 @@ export async function loadStoredRoomData(hubId: string) {
     }
 }
 
-export async function listLegacyRoomObjects(hubId: string) {
-    const objectsUrl = "https://megaminds.world/" + hubId + "/objects.gltf";
-
-    const response = await fetch(objectsUrl);
-    const roomData: StoredRoomData = await response.json();
-    const legacyRoomObjects: LegacyRoomObject[] = roomData.nodes.filter(node => !isStorableMessage(node));
-
-    const message = messageForLegacyRoomObjectsList(legacyRoomObjects);
-    return message;
-}
 export async function loadLegacyRoomObjects(hubId: string) {
     // const objectsUrl = window.APP.endpoint + "/api/inside/" + hubId + "/objects.gltf";
     const objectsUrl = "https://megaminds.world/" + hubId + "/objects.gltf";
@@ -107,7 +95,6 @@ export async function loadEntityMessages(hubId: string) {
         console.log("got messages", messages);
         messages.forEach(m => {
             m.fromClientId = "reticulum";
-            m.hubId = hubId; // TODO: This should be returned with the message
             m.updates.forEach(update => {
                 update.owner = "reticulum";
             });

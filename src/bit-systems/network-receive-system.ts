@@ -5,7 +5,6 @@ import { renderAsNetworkedEntity } from "../utils/create-networked-entity";
 import { networkableComponents, schemas, StoredComponent } from "../utils/network-schemas";
 import type { ClientID, CursorBufferUpdateMessage, EntityID, StringID, UpdateMessage } from "../utils/networking-types";
 import { hasPermissionToSpawn } from "../utils/permissions";
-import { tryUnpin } from "../utils/store-networked-state";
 import { takeOwnershipWithTime } from "../utils/take-ownership-with-time";
 import {
     createMessageDatas,
@@ -37,6 +36,7 @@ function isOutdatedMessage(eid: EntityID, updateMessage: UpdateMessage) {
 
     const messageIsOlder = Networked.lastOwnerTime[eid] > updateMessage.lastOwnerTime;
     const messageLosesTie = updateMessage.owner !== breakTie(APP.getString(Networked.owner[eid])!, updateMessage.owner);
+    console.log("Outdated message", messageIsOlder, messageLosesTie);
     return messageIsOlder || messageLosesTie;
 }
 
@@ -79,7 +79,6 @@ export function networkReceiveSystem(world: HubsWorld) {
                     // We only expect this to happen if the client who sent the delete
                     // didn't know it was pinned yet.
                     console.warn("Told to delete a pinned entity. Unpinning it...");
-                    tryUnpin(world, eid, APP.hubChannel!);
                 }
 
                 // TODO Clear out any stored messages for this entity or its children

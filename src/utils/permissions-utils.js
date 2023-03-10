@@ -1,38 +1,54 @@
 // Brief overview of client authorization can be found in the wiki:
 
 import { hasComponent } from "bitecs";
-import { MediaVideo, Locked, Owner, StudentsCanMove } from "../bit-components";
+import { MediaVideo, Locked, Owner, StudentsCanMove, StickyNote, LiveFeed } from "../bit-components";
 
 export function canMove(eid) {
-    if (hasComponent(APP.world, MediaVideo, eid)) {
-        // Due to video menus being a child of video and requires grabbable / holdable, we have to check the parent locked instead.
-        const parentEid = APP.world.eid2obj.get(eid).parent.eid;
+    // If edit mode, you can move anything
 
-        if (hasComponent(APP.world, Locked, parentEid) && Locked.toggled[parentEid] === 1) {
-            console.log("Trying to move locked video");
+    if (window.APP.editMode) {
+        // In edit mode, you can move anything that is not locked to prevent accidental grabbing.
+
+        if (hasComponent(APP.world, MediaVideo, eid)) {
+            // Due to video menus being a child of video and requires grabbable / holdable, we have to check the parent locked instead.
+            const parentEid = APP.world.eid2obj.get(eid).parent.eid;
+
+            if (hasComponent(APP.world, Locked, parentEid) && Locked.toggled[parentEid] === 1) {
+                console.log("Trying to move locked video");
+                return false;
+            }
+        }
+
+        // Disable grabbing accidentally
+        if (hasComponent(APP.world, Locked, eid) && Locked.toggled[eid] === 1) {
+            console.log("Trying to move locked component");
             return false;
         }
-        // check if parent has allowed students to move this
-        if (hasComponent(APP.world, StudentsCanMove, parentEid) && StudentsCanMove.toggled[parentEid] === 1) {
+
+        // Check if they actually has permissions to use Edit Mode
+        if (window.APP.objectHelper.can("can_create")) {
             return true;
         }
-    }
+    } else {
+        // If in normal mode, still allow for student moveable
+        // If in normal mode, still allow for stickynotes that they own
+        // const isOwner =
+        //   hasComponent(APP.world, Owner, eid) && Owner.value[eid] === window.APP.store.state.profile.displayName;
 
-    if (hasComponent(APP.world, Locked, eid) && Locked.toggled[eid] === 1) {
-        console.log("Trying to move locked component");
-        return false;
-    }
+        if (hasComponent(APP.world, StudentsCanMove, eid) && StudentsCanMove.toggled[eid] === 1) {
+            return true;
+        }
 
-    if (window.APP.objectHelper.can("can_change")) {
-        return true;
-    }
+        if (hasComponent(APP.world, StickyNote, eid) && StickyNote.toggled[eid] === 1) {
+            return true;
+        }
 
-    if (hasComponent(APP.world, Owner, eid) && Owner.value[eid] === window.APP.store.state.profile.displayName) {
-        return true;
-    }
+        if (hasComponent(APP.world, LiveFeed, eid)) {
+            return true;
+        }
 
-    if (hasComponent(APP.world, StudentsCanMove, eid) && StudentsCanMove.toggled[eid] === 1) {
-        return true;
+        // if isOwner && isStickyNote = true
+        // if isOwner && isLiveStream = true
     }
 
     return false;

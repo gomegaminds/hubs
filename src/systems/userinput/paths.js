@@ -45,6 +45,7 @@ paths.actions.cursor.right = {};
 paths.actions.cursor.right.pose = "/actions/cursor/right/Pose";
 paths.actions.cursor.right.hideLine = "/actions/cursor/right/HideLine";
 paths.actions.cursor.right.grab = "/actions/cursor/right/Grab";
+paths.actions.cursor.right.click = "/actions/cursor/right/Click";
 paths.actions.cursor.right.drop = "/actions/cursor/right/Drop";
 paths.actions.cursor.right.modDelta = "/actions/cursor/right/ModDelta";
 paths.actions.cursor.right.startDrawing = "/actions/cursor/right/StartDrawing";
@@ -174,189 +175,189 @@ paths.device.hud = {};
 paths.device.hud.penButton = "/device/hud/penButton";
 
 paths.device.keyboard = {
-  map: new Map(),
-  key: function (k) {
-    let path = this.map.get(k);
-    if (path) {
-      return path;
+    map: new Map(),
+    key: function (k) {
+        let path = this.map.get(k);
+        if (path) {
+            return path;
+        }
+        path = `/device/keyboard/${k === " " ? "space" : k.toLowerCase()}`;
+        this.map.set(k, path);
+        return path;
     }
-    path = `/device/keyboard/${k === " " ? "space" : k.toLowerCase()}`;
-    this.map.set(k, path);
-    return path;
-  }
 };
 
 paths.device.gamepad = gamepadIndex => ({
-  button: buttonIndex => ({
-    pressed: `/device/gamepad/${gamepadIndex}/button/${buttonIndex}/pressed`,
-    touched: `/device/gamepad/${gamepadIndex}/button/${buttonIndex}/touched`,
-    value: `/device/gamepad/${gamepadIndex}/button/${buttonIndex}/value`
-  }),
-  axis: axisIndex => `/device/gamepad/${gamepadIndex}/axis/${axisIndex}`
+    button: buttonIndex => ({
+        pressed: `/device/gamepad/${gamepadIndex}/button/${buttonIndex}/pressed`,
+        touched: `/device/gamepad/${gamepadIndex}/button/${buttonIndex}/touched`,
+        value: `/device/gamepad/${gamepadIndex}/button/${buttonIndex}/value`
+    }),
+    axis: axisIndex => `/device/gamepad/${gamepadIndex}/axis/${axisIndex}`
 });
 
 const xbox = "/device/xbox/";
 paths.device.xbox = {
-  v: name => `/vars/xbox/${name}`,
-  button: buttonName => ({
-    pressed: `${xbox}button/${buttonName}/pressed`,
-    touched: `${xbox}button/${buttonName}/touched`,
-    value: `${xbox}button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `${xbox}axis/${axisName}`;
-  },
-  axesSum: `${xbox}axis/sum`
+    v: name => `/vars/xbox/${name}`,
+    button: buttonName => ({
+        pressed: `${xbox}button/${buttonName}/pressed`,
+        touched: `${xbox}button/${buttonName}/touched`,
+        value: `${xbox}button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `${xbox}axis/${axisName}`;
+    },
+    axesSum: `${xbox}axis/sum`
 };
 
 paths.device.oculusgo = {
-  // TODO remove these in favor of the direct accessors
-  button: buttonName => ({
-    pressed: `/device/oculusgo/button/${buttonName}/pressed`,
-    touched: `/device/oculusgo/button/${buttonName}/touched`,
-    value: `/device/oculusgo/button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `/device/oculusgo/axis/${axisName}`;
-  },
-  //
-  trigger: {
-    pressed: "/device/oculusgo/button/trigger/pressed",
-    touched: "/device/oculusgo/button/trigger/touched",
-    value: "/device/oculusgo/button/trigger/value"
-  },
-  touchpad: {
-    pressed: "/device/oculusgo/button/touchpad/pressed",
-    touched: "/device/oculusgo/button/touchpad/touched",
-    value: "/device/oculusgo/button/touchpad/value",
-    axisX: "/device/oculusgo/axis/touchpadX",
-    axisY: "/device/oculusgo/axis/touchpadY"
-  },
-  pose: "/device/oculusgo/pose",
-  matrix: "/device/oculusgo/matrix",
-  v: name => {
-    return `/vars/oculusgo/${name}`;
-  }
+    // TODO remove these in favor of the direct accessors
+    button: buttonName => ({
+        pressed: `/device/oculusgo/button/${buttonName}/pressed`,
+        touched: `/device/oculusgo/button/${buttonName}/touched`,
+        value: `/device/oculusgo/button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `/device/oculusgo/axis/${axisName}`;
+    },
+    //
+    trigger: {
+        pressed: "/device/oculusgo/button/trigger/pressed",
+        touched: "/device/oculusgo/button/trigger/touched",
+        value: "/device/oculusgo/button/trigger/value"
+    },
+    touchpad: {
+        pressed: "/device/oculusgo/button/touchpad/pressed",
+        touched: "/device/oculusgo/button/touchpad/touched",
+        value: "/device/oculusgo/button/touchpad/value",
+        axisX: "/device/oculusgo/axis/touchpadX",
+        axisY: "/device/oculusgo/axis/touchpadY"
+    },
+    pose: "/device/oculusgo/pose",
+    matrix: "/device/oculusgo/matrix",
+    v: name => {
+        return `/vars/oculusgo/${name}`;
+    }
 };
 
 const gearVRController = "/device/gearVRController/";
 paths.device.gearVRController = {
-  button: buttonName => ({
-    pressed: `${gearVRController}button/${buttonName}/pressed`,
-    touched: `${gearVRController}button/${buttonName}/touched`,
-    value: `${gearVRController}button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `${gearVRController}axis/${axisName}`;
-  },
-  pose: `${gearVRController}pose`,
-  matrix: `${gearVRController}matrix`,
-  v: name => {
-    return `/vars/gearVRController/${name}`;
-  }
+    button: buttonName => ({
+        pressed: `${gearVRController}button/${buttonName}/pressed`,
+        touched: `${gearVRController}button/${buttonName}/touched`,
+        value: `${gearVRController}button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `${gearVRController}axis/${axisName}`;
+    },
+    pose: `${gearVRController}pose`,
+    matrix: `${gearVRController}matrix`,
+    v: name => {
+        return `/vars/gearVRController/${name}`;
+    }
 };
 
 const daydream = "/device/daydream/";
 paths.device.daydream = {
-  button: buttonName => ({
-    pressed: `${daydream}button/${buttonName}/pressed`,
-    touched: `${daydream}button/${buttonName}/touched`,
-    value: `${daydream}button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `${daydream}axis/${axisName}`;
-  },
-  pose: `${daydream}pose`,
-  matrix: `${daydream}matrix`
+    button: buttonName => ({
+        pressed: `${daydream}button/${buttonName}/pressed`,
+        touched: `${daydream}button/${buttonName}/touched`,
+        value: `${daydream}button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `${daydream}axis/${axisName}`;
+    },
+    pose: `${daydream}pose`,
+    matrix: `${daydream}matrix`
 };
 
 const rightOculusTouch = "/device/rightOculusTouch/";
 paths.device.rightOculusTouch = {
-  button: buttonName => ({
-    pressed: `${rightOculusTouch}button/${buttonName}/pressed`,
-    touched: `${rightOculusTouch}button/${buttonName}/touched`,
-    value: `${rightOculusTouch}button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `${rightOculusTouch}axis/${axisName}`;
-  },
-  axesSum: `${rightOculusTouch}axis/sum`,
-  pose: `${rightOculusTouch}pose`,
-  matrix: `${rightOculusTouch}matrix`
+    button: buttonName => ({
+        pressed: `${rightOculusTouch}button/${buttonName}/pressed`,
+        touched: `${rightOculusTouch}button/${buttonName}/touched`,
+        value: `${rightOculusTouch}button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `${rightOculusTouch}axis/${axisName}`;
+    },
+    axesSum: `${rightOculusTouch}axis/sum`,
+    pose: `${rightOculusTouch}pose`,
+    matrix: `${rightOculusTouch}matrix`
 };
 
 const leftOculusTouch = "/device/leftOculusTouch/";
 paths.device.leftOculusTouch = {
-  button: buttonName => ({
-    pressed: `${leftOculusTouch}button/${buttonName}/pressed`,
-    touched: `${leftOculusTouch}button/${buttonName}/touched`,
-    value: `${leftOculusTouch}button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `${leftOculusTouch}axis/${axisName}`;
-  },
-  axesSum: `${leftOculusTouch}axis/sum`,
-  pose: `${leftOculusTouch}pose`,
-  matrix: `${leftOculusTouch}matrix`
+    button: buttonName => ({
+        pressed: `${leftOculusTouch}button/${buttonName}/pressed`,
+        touched: `${leftOculusTouch}button/${buttonName}/touched`,
+        value: `${leftOculusTouch}button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `${leftOculusTouch}axis/${axisName}`;
+    },
+    axesSum: `${leftOculusTouch}axis/sum`,
+    pose: `${leftOculusTouch}pose`,
+    matrix: `${leftOculusTouch}matrix`
 };
 
 paths.device.vive = {};
 paths.device.vive.left = {
-  button: buttonName => ({
-    pressed: `/device/vive/left/button/${buttonName}/pressed`,
-    touched: `/device/vive/left/button/${buttonName}/touched`,
-    value: `/device/vive/left/button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `/device/vive/left/axis/${axisName}`;
-  },
-  axesSum: "/device/vive/left/axis/sum",
-  pose: `/device/vive/left/pose`,
-  matrix: `/device/vive/left/matrix`
+    button: buttonName => ({
+        pressed: `/device/vive/left/button/${buttonName}/pressed`,
+        touched: `/device/vive/left/button/${buttonName}/touched`,
+        value: `/device/vive/left/button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `/device/vive/left/axis/${axisName}`;
+    },
+    axesSum: "/device/vive/left/axis/sum",
+    pose: `/device/vive/left/pose`,
+    matrix: `/device/vive/left/matrix`
 };
 paths.device.vive.right = {
-  button: buttonName => ({
-    pressed: `/device/vive/right/button/${buttonName}/pressed`,
-    touched: `/device/vive/right/button/${buttonName}/touched`,
-    value: `/device/vive/right/button/${buttonName}/value`
-  }),
-  axis: axisName => {
-    return `/device/vive/right/axis/${axisName}`;
-  },
-  axesSum: "/device/vive/right/axis/sum",
-  pose: `/device/vive/right/pose`,
-  matrix: `/device/vive/right/matrix`
+    button: buttonName => ({
+        pressed: `/device/vive/right/button/${buttonName}/pressed`,
+        touched: `/device/vive/right/button/${buttonName}/touched`,
+        value: `/device/vive/right/button/${buttonName}/value`
+    }),
+    axis: axisName => {
+        return `/device/vive/right/axis/${axisName}`;
+    },
+    axesSum: "/device/vive/right/axis/sum",
+    pose: `/device/vive/right/pose`,
+    matrix: `/device/vive/right/matrix`
 };
 
 function button(device, side, name) {
-  return {
-    pressed: `${device}${side}/button/${name}/pressed`,
-    touched: `${device}${side}/button/${name}/touched`,
-    value: `${device}${side}/button/${name}/value`
-  };
+    return {
+        pressed: `${device}${side}/button/${name}/pressed`,
+        touched: `${device}${side}/button/${name}/touched`,
+        value: `${device}${side}/button/${name}/value`
+    };
 }
 
 function axes(device, side, name) {
-  return {
-    axisX: `${device}${side}/axis/${name}X`,
-    axisY: `${device}${side}/axis/${name}Y`
-  };
+    return {
+        axisX: `${device}${side}/axis/${name}X`,
+        axisY: `${device}${side}/axis/${name}Y`
+    };
 }
 
 function wmrController(side) {
-  const wmr = "/device/wmr/";
-  return {
-    touchpad: {
-      ...button(wmr, side, "touchpad"),
-      ...axes(wmr, side, "touchpad")
-    },
-    trigger: button(wmr, side, "trigger"),
-    grip: button(wmr, side, "grip"),
-    menu: button(wmr, side, "menu"),
-    joystick: axes(wmr, side, "joystick"),
-    pose: `${wmr}${side}/pose`,
-    matrix: `${wmr}${side}/matrix`
-  };
+    const wmr = "/device/wmr/";
+    return {
+        touchpad: {
+            ...button(wmr, side, "touchpad"),
+            ...axes(wmr, side, "touchpad")
+        },
+        trigger: button(wmr, side, "trigger"),
+        grip: button(wmr, side, "grip"),
+        menu: button(wmr, side, "menu"),
+        joystick: axes(wmr, side, "joystick"),
+        pose: `${wmr}${side}/pose`,
+        matrix: `${wmr}${side}/matrix`
+    };
 }
 paths.device.wmr = {};
 paths.device.wmr.v = name => `/vars/wmr/${name}`;
@@ -367,38 +368,38 @@ paths.device.wmr.right = wmrController("right");
 const webxr = "/device/webxr/";
 paths.device.webxr = {};
 paths.device.webxr.right = {
-  button: {
-    trigger: button(webxr, "right", "trigger"),
-    grip: button(webxr, "right", "grip"),
-    touchpad: button(webxr, "right", "touchpad"),
-    a: button(webxr, "right", "a"),
-    b: button(webxr, "right", "b"),
-    thumbStick: button(webxr, "right", "thumbStick")
-  },
-  axis: {
-    touchpadX: `${webxr}right/axis/touchpadX`,
-    touchpadY: `${webxr}right/axis/touchpadY`,
-    joyX: `${webxr}right/axis/joyX`,
-    joyY: `${webxr}right/axis/joyY`
-  },
-  pose: `${webxr}right/pose`,
-  matrix: `${webxr}right/matrix`
+    button: {
+        trigger: button(webxr, "right", "trigger"),
+        grip: button(webxr, "right", "grip"),
+        touchpad: button(webxr, "right", "touchpad"),
+        a: button(webxr, "right", "a"),
+        b: button(webxr, "right", "b"),
+        thumbStick: button(webxr, "right", "thumbStick")
+    },
+    axis: {
+        touchpadX: `${webxr}right/axis/touchpadX`,
+        touchpadY: `${webxr}right/axis/touchpadY`,
+        joyX: `${webxr}right/axis/joyX`,
+        joyY: `${webxr}right/axis/joyY`
+    },
+    pose: `${webxr}right/pose`,
+    matrix: `${webxr}right/matrix`
 };
 paths.device.webxr.left = {
-  button: {
-    trigger: button(webxr, "left", "trigger"),
-    grip: button(webxr, "left", "grip"),
-    touchpad: button(webxr, "left", "touchpad"),
-    a: button(webxr, "left", "a"),
-    b: button(webxr, "left", "b"),
-    thumbStick: button(webxr, "left", "thumbStick")
-  },
-  axis: {
-    touchpadX: `${webxr}left/axis/touchpadX`,
-    touchpadY: `${webxr}left/axis/touchpadY`,
-    joyX: `${webxr}left/axis/joyX`,
-    joyY: `${webxr}left/axis/joyY`
-  },
-  pose: `${webxr}left/pose`,
-  matrix: `${webxr}left/matrix`
+    button: {
+        trigger: button(webxr, "left", "trigger"),
+        grip: button(webxr, "left", "grip"),
+        touchpad: button(webxr, "left", "touchpad"),
+        a: button(webxr, "left", "a"),
+        b: button(webxr, "left", "b"),
+        thumbStick: button(webxr, "left", "thumbStick")
+    },
+    axis: {
+        touchpadX: `${webxr}left/axis/touchpadX`,
+        touchpadY: `${webxr}left/axis/touchpadY`,
+        joyX: `${webxr}left/axis/joyX`,
+        joyY: `${webxr}left/axis/joyY`
+    },
+    pose: `${webxr}left/pose`,
+    matrix: `${webxr}left/matrix`
 };

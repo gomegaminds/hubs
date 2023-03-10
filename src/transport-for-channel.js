@@ -30,7 +30,7 @@ export function transportForChannel(channel, reliable = true) {
             delete nafrPayload.data.d[i].isFirstSync;
           }
         } else {
-          delete nafrPayload.data.isFirstSync;
+            delete nafrPayload.data.isFirstSync;
         }
 
         channel.push("nafr", { naf: JSON.stringify(nafrPayload) });

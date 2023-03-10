@@ -9,6 +9,18 @@ declare module "three" {
         el?: AElement;
         updateMatrices: (forceLocalUpdate?: boolean, forceWorldUpdate?: boolean, skipParents?: boolean) => void;
     }
+    type GeometryGroup = { start: number; count: number; materialIndex: number };
+    interface Material {
+        eid?: number;
+        onBeforeRender: (
+            renderer: WebGLRenderer,
+            scene: Scene,
+            camera: Camera,
+            geometry: Geometry,
+            obj: Object3D,
+            group: GeometryGroup
+        ) => void;
+    }
     interface Mesh {
         reflectionProbeMode: "static" | "dynamic" | false;
     }

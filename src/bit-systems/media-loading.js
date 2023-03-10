@@ -115,10 +115,10 @@ function* loadMedia(world, eid) {
     yield makeCancelable(() => loadingObjEid && removeEntity(world, loadingObjEid));
     const src = APP.getString(MediaLoader.src[eid]);
 
-
     let media;
     try {
         const urlData = yield resolveMediaInfo(src);
+
         const loader = loaderForMediaType[urlData.mediaType];
         if (!loader) {
             throw new UnsupportedMediaTypeError(eid, urlData.mediaType);

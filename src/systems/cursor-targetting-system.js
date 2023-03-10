@@ -5,6 +5,7 @@ import { waitForDOMContentLoaded } from "../utils/async-utils";
 const noop = function () {};
 AFRAME.registerComponent("overwrite-raycast-as-noop", {
   init() {
+      /*
     this.el.object3D.raycast = noop;
     this.mesh = this.el.getObject3D("mesh");
     if (this.mesh) {
@@ -17,6 +18,7 @@ AFRAME.registerComponent("overwrite-raycast-as-noop", {
         }
       });
     }
+    */
   }
 });
 

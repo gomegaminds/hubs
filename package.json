@@ -1,6 +1,6 @@
 {
   "name": "megaminds",
-  "version": "1.0.1",
+  "version": "3.0.0",
   "description": "MegaMinds Platform",
   "private": true,
   "main": "src/index.js",
@@ -15,6 +15,7 @@
   },
   "scripts": {
     "dev": "webpack serve --mode=development --env remoteDev=1 --progress",
+    "start": "next dev",
     "check": "tsc",
     "build": "npm run check && rimraf ./dist && webpack --mode=production --progress",
     "bundle-analyzer": "webpack serve --mode=production --env dev=1 --env bundleAnalyzer=1",
@@ -64,6 +65,7 @@
     "@types/node": "^18.11.9",
     "accurate-profanity-filter": "^5.0.2",
     "aframe": "github:mozillareality/aframe#hubs/master",
+    "aframe-inspector": "^1.4.1",
     "ammo-debug-drawer": "^1.0.1",
     "ammo.js": "github:mozillareality/ammo.js#hubs/master",
     "animejs": "github:mozillareality/anime#hubs/master",
@@ -99,6 +101,7 @@
     "linkifyjs": "^4.0.2",
     "moving-average": "^1.0.1",
     "networked-aframe": "github:mozillareality/networked-aframe#6093c3a0b2867a9e141cd5c19f7d13dfa7c38479",
+    "next": "^13.1.6",
     "nipplejs": "github:mozillareality/nipplejs#mr-social-client/master",
     "node-ensure": "0.0.0",
     "normalize.css": "^8.0.1",

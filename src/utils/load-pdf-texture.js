@@ -28,13 +28,11 @@ export async function loadPDFTexture(src, index) {
         const promise = await page.render({ canvasContext: canvasContext, viewport }).promise;
 
         const setPage = () => {
-            console.log("Setting canvas to something horrible");
             var ctx = canvas.getContext("2d");
             ctx.fillStyle = "blue";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         };
 
-        console.log("pdf texture image", texture.image);
         resolve({ texture, ratio, page: { pdf, texture, pageCount: pdf._pdfInfo.numPages }, index });
     });
 }

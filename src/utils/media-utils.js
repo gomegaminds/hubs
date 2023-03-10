@@ -78,13 +78,14 @@ export const resolveUrl = async (url, quality = null, version = 1, bustCache) =>
     return resultPromise;
 };
 
-export const upload = (src, title = "", description = "None") => {
+export const upload = (src, contentType, title = "", description = "None") => {
     const formData = new FormData();
+    console.log(src);
     formData.append("file", src);
-    formData.append("title", title ? title : src.name);
+    formData.append("title", src.name ? src.name : title);
     formData.append("description", description);
     formData.append("origin_classroom", window.APP.hub.hub_id);
-    formData.append("media_type", guessContentType(src.name));
+    formData.append("media_type", contentType);
 
     if (!!window.APP.store.state.credentials.auth_token) {
         return fetch(window.APP.endpoint + "/api/assets/", {
@@ -100,6 +101,7 @@ export const upload = (src, title = "", description = "None") => {
             body: formData
         }).then(r => r.json());
     }
+
 };
 
 /*
@@ -258,6 +260,7 @@ export const addMedia = (
 
         upload(src)
             .then(response => {
+                window.APP.scene.emit("new_asset");
                 if (response.file.startsWith("/")) {
                     entity.setAttribute("media-loader", {
                         resolve: false,
@@ -493,6 +496,7 @@ export async function createImageTexture(url, filter) {
         try {
             texture = await textureLoader.loadAsync(url);
         } catch (e) {
+            console.error(e);
             throw new Error(`'${url}' could not be fetched (Error code: ${e.status}; Response: ${e.statusText})`);
         }
     }

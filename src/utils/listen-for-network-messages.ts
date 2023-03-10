@@ -25,6 +25,7 @@ type NafMessage = {
     dataType: string;
     source: string;
 };
+
 function onNaf({ from_session_id, data, dataType }: NafMessage) {
     if (dataType == "nn") {
         (data as Message).fromClientId = from_session_id;
@@ -36,6 +37,7 @@ type NafrMessage = {
     naf: string;
     parsed?: NafMessage;
 };
+
 function onNafr(message: NafrMessage) {
     const { from_session_id, naf: unparsedData } = message;
     // Attach the parsed JSON to the message so that

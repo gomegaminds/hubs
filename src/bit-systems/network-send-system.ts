@@ -3,11 +3,9 @@ import { HubsWorld } from "../app";
 import { Networked, Owned } from "../bit-components";
 import { getServerTime } from "../phoenix-adapter";
 import { messageFor } from "../utils/message-for";
-import type { Message } from "../utils/networking-types";
 import {
     createMessageDatas,
     isCreatedByMe,
-    isOwnedByMe,
     isNetworkInstantiated,
     localClientID,
     networkedQuery,
@@ -23,8 +21,6 @@ const ownedNetworkedQuery = defineQuery([Owned, Networked]);
 const enteredNetworkedQuery = enterQuery(networkedQuery);
 const enteredOwnedNetworkedQuery = enterQuery(ownedNetworkedQuery);
 const exitedNetworkedQuery = exitQuery(networkedQuery);
-
-export const unpinMessages: Message[] = [];
 
 export function networkSendSystem(world: HubsWorld) {
     if (!localClientID) return; // Not connected yet
@@ -49,36 +45,25 @@ export function networkSendSystem(world: HubsWorld) {
         });
     }
 
-    // Tell joining users about entities I network instantiated, and full updates for entities I own
+    // Send newly joined clients creates for entities where I am the creator, and full updates for entities I own
     {
         if (pendingJoins.length) {
             const ownedNetworkedEntities = ownedNetworkedQuery(world);
             const message = messageFor(
                 world,
-                networkedQuery(world).filter(isOwnedByMe),
+                networkedQuery(world).filter(isCreatedByMe),
                 ownedNetworkedEntities,
                 ownedNetworkedEntities,
                 [],
                 false
             );
-            if (message) {
-                pendingJoins.forEach(clientId =>
-                    NAF.connection.sendDataGuaranteed(APP.getString(clientId)!, "nn", message)
-                );
-                console.log(message);
-            }
+            pendingJoins.forEach(clientId => {
+                if (message) {
+                    NAF.connection.sendDataGuaranteed(APP.getString(clientId)!, "nn", message);
+                }
+            });
             pendingJoins.length = 0;
         }
-    }
-
-    // Tell everyone about entities I unpin
-    // TODO: Make reticulum broadcast the actual unpin message, like it does for pin messages.
-    {
-        for (let i = 0; i < unpinMessages.length; i++) {
-            const message = unpinMessages[i];
-            NAF.connection.broadcastDataGuaranteed("nn", message);
-        }
-        unpinMessages.length = 0;
     }
 
     // Tell everyone about entities I created, entities I own, and entities that I deleted
@@ -90,13 +75,13 @@ export function networkSendSystem(world: HubsWorld) {
                 !softRemovedEntities.has(eid) &&
                 // Rebroadcast delete messages of entities I created, in case
                 // a user who just joined missed a delete message I received.
-                (!world.deletedNids.has(Networked.id[eid]) || isOwnedByMe(eid))
+                (!world.deletedNids.has(Networked.id[eid]) || isCreatedByMe(eid))
             );
         });
 
         const message = messageFor(
             world,
-            enteredNetworkedQuery(world).filter(isOwnedByMe),
+            enteredNetworkedQuery(world).filter(isCreatedByMe),
             ownedNetworkedQuery(world),
             enteredOwnedNetworkedQuery(world),
             deletedEntities,
@@ -105,7 +90,6 @@ export function networkSendSystem(world: HubsWorld) {
         if (message) {
             NAF.connection.broadcastDataGuaranteed("nn", message);
         }
-
 
         deletedEntities.forEach(eid => {
             world.deletedNids.add(Networked.id[eid]);

@@ -318,9 +318,16 @@ export default class HubChannel extends EventTarget {
     };
 
     sendMuteRequest = () => {
-        console.log("Sendmuterequest triggered");
+        if (!window.APP.objectHelper.can("kick_users")) return "unauthorized";
         let body = "asd";
         let type = "muteRequest";
+        this.channel.push("message", { body, type });
+    };
+
+    sendKickRequest = () => {
+        if (!window.APP.objectHelper.can("kick_users")) return "unauthorized";
+        let body = "asd";
+        let type = "kickRequest";
         this.channel.push("message", { body, type });
     };
 
@@ -450,9 +457,10 @@ export default class HubChannel extends EventTarget {
     };
 
     mute = sessionId => {
-        this.channel.push("mute", { session_id: sessionId });
+        // this.channel.push("mute", { session_id: sessionId });
         this.sendMuteRequest();
     };
+
     addOwner = sessionId => this.channel.push("add_owner", { session_id: sessionId });
     removeOwner = sessionId => this.channel.push("remove_owner", { session_id: sessionId });
 
@@ -476,7 +484,8 @@ export default class HubChannel extends EventTarget {
 
     kick = async sessionId => {
         APP.dialog.kick(sessionId);
-        this.channel.push("kick", { session_id: sessionId });
+        // this.channel.push("kick", { session_id: sessionId });
+        // this.sendKickRequest();
     };
 
     requestSupport = () => this.channel.push("events:request_support", {});

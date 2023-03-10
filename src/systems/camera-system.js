@@ -1,4 +1,6 @@
 import { waitForDOMContentLoaded } from "../utils/async-utils";
+import { addComponent, removeComponent, addEntity } from "bitecs";
+import { SpinningAnimation } from "../bit-components";
 import { childMatch, setMatrixWorld, calculateViewingDistance } from "../utils/three-utils";
 import { paths } from "./userinput/paths";
 import { getBoxForObject3D } from "../utils/auto-box-collider";
@@ -6,9 +8,11 @@ import qsTruthy from "../utils/qs_truthy";
 import { isTagged } from "../components/tags";
 import { qsGet } from "../utils/qs_truthy";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { addObject3DComponent, renderAsEntity } from "../utils/jsx-entity";
 import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 const customFOV = qsGet("fov");
 const enableThirdPersonMode = qsTruthy("thirdPerson");
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import { Layers } from "../components/layers";
 
 import { defineQuery } from "bitecs";
@@ -17,10 +21,12 @@ import {
     Holdable,
     HeldRemoteLeft,
     HeldRemoteRight,
-    HoveredRemoteRight,
+    HoveredRemoteLeft,
+    HoveredRemoteRight
 } from "../bit-components";
 
 const queryHeld = defineQuery([HoveredRemoteRight]);
+const queryHeldLeft = defineQuery([HoveredRemoteRight]);
 
 function getInspectableInHierarchy(el) {
     let inspectable = el;
@@ -142,13 +148,7 @@ const moveRigSoCameraLooksAtPivot = (function () {
         box.getCenter(center);
         const vrMode = false;
         const dist =
-            calculateViewingDistance(
-                80,
-                window.APP.scene.sceneEl.camera.aspect,
-                box,
-                center,
-                vrMode
-            ) * distanceMod;
+            calculateViewingDistance(80, window.APP.scene.sceneEl.camera.aspect, box, center, vrMode) * distanceMod;
         target.position.addVectors(
             owp,
             oForw
@@ -212,6 +212,7 @@ export class CameraSystem {
         this.viewingCamera = camera;
         this.worldBuildingControls = undefined;
         this.lightsEnabled = true;
+        this.helper = null;
         this.verticalDelta = 0;
         this.horizontalDelta = 0;
         this.inspectZoom = 0;
@@ -239,6 +240,17 @@ export class CameraSystem {
             );
             bg.layers.set(Layers.CAMERA_LAYER_INSPECT);
             this.viewingRig.object3D.add(bg);
+
+            // this.scene.object3D.add(this.helper);
+
+            // this.transformControls = new TransformControls(this.viewingCamera, this.scene.renderer.domElement);
+            // this.transformControls.name = "TransformControls";
+            // this.scene.object3D.add(this.transformControls);
+
+            // const eid = addComponent(window.APP.world);
+            // addObject3DComponent(window.APP.world, eid, this.transformControls);
+
+            // console.log(eid);
         });
     }
 
@@ -315,6 +327,7 @@ export class CameraSystem {
         }
         this.snapshot.mode = null;
         this.tick(this.scene);
+        this.scene.emit("right_menu_changed", null);
     }
 
     ensureListenerIsParentedCorrectly(scene) {
@@ -336,9 +349,8 @@ export class CameraSystem {
         const translation = new THREE.Matrix4();
         let uiRoot;
         return function tick(scene, dt) {
-
             const entered = scene.is("entered");
-            if(!entered) {
+            if (!entered) {
                 return;
             }
 
@@ -366,25 +378,54 @@ export class CameraSystem {
                 this.uninspect();
             }
 
-            if (this.userinput.get(paths.actions.startInspecting)) {
-                const hoverEl = queryHeld(APP.world)[0]
+            if (this.helper) {
+                this.helper.update();
+            }
 
-                // If we are starting edit of what we are already editing, close the menu
-                if (hoverEl === this.isInsideMenu) {
-                    // this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    scene.emit("right_menu_changed", null);
-                    this.isInsideMenu = null;
-                } else if (hoverEl) {
-                    // If already selected another object, reset their arrow
+            // if (this.transformControls.object) {
+            //  this.transformControls.updateMatrix();
+            //}
 
-                    // if (this.isInsideMenu !== null) {
-                        //this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = false;
-                    // }
-                    scene.emit("right_menu_changed", hoverEl);
-                    // if (!hoverEl.components["avatar-inspect-collider"]) {
-                    this.isInsideMenu = hoverEl;
-                    //    this.isInsideMenu.querySelector(".freeze-menu").object3D.visible = true;
-                    //}
+            if (
+                this.userinput.get(paths.actions.startInspecting) ||
+                this.userinput.get(paths.actions.cursor.right.click)
+            ) {
+                const hoverEl = queryHeldLeft(APP.world)[0];
+
+                // const arrowObj = APP.world.eid2obj.get(APP.arrowIndicator);
+                const hoverObj = APP.world.eid2obj.get(hoverEl);
+
+                // Check if its a user instead of object
+                if (hoverObj.el?.components["avatar-inspect-collider"]) {
+                    if (window.APP.objectHelper.can("kick_user")) {
+                        const playerInfo = hoverObj.el.closest("#playerInfoElement").components["player-info"];
+                        scene.emit("right_menu_changed", {
+                            variant: "user_settings",
+                            payload: { id: playerInfo.playerSessionId }
+                        });
+                    }
+                } else {
+                    if (this.helper === null) {
+                        this.helper = new THREE.BoxHelper(hoverObj, 0xffff00);
+                        this.scene.object3D.add(this.helper);
+                    }
+                    // console.log(this.transformControls);
+
+                    // If we are starting edit of what we are already editing, close the menu
+                    if (hoverEl === this.isInsideMenu) {
+                        if (this.helper) {
+                            this.helper.visible = false;
+                        }
+                        scene.emit("right_menu_changed", null);
+                        this.isInsideMenu = null;
+                    } else if (hoverEl) {
+                        // Reset if moving directly from one to the next
+                        this.helper.setFromObject(hoverObj, 0xffff00);
+                        this.helper.visible = true;
+
+                        scene.emit("right_menu_changed", hoverEl);
+                        this.isInsideMenu = hoverEl;
+                    }
                 }
             }
 

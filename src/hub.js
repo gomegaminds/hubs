@@ -20,7 +20,7 @@ if (!dev) {
         dsn: "https://376450af079e417bbe24e8dfc73736c8@o4503923994656768.ingest.sentry.io/4503924045185025",
         integrations: [new BrowserTracing()],
 
-        release: "2.0.1",
+        release: "3.0.0",
         environment: dev ? "dev" : "prod",
         // We recommend adjusting this value in production, or using tracesSampler
         // for finer control
@@ -103,11 +103,13 @@ import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import CommandHelper from "./mega-src/react-components/editor/command-helpers";
 import { renderAsEntity } from "./utils/jsx-entity";
 import { VideoMenuPrefab } from "./prefabs/video-menu";
+import { ArrowIndicatorPrefab } from "./mega-src/prefabs/arrow-indicator";
 
-import { loadEntityMessages, loadStoredRoomData, loadLegacyRoomObjects } from "./utils/load-room-objects";
+import { loadStoredRoomData, loadLegacyRoomObjects } from "./utils/load-room-objects";
 
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
+
 // renderAsEntity(APP.world, VideoMenuPrefab());
 
 if (window.location.hostname === "localhost") {
@@ -117,7 +119,6 @@ if (window.location.hostname === "localhost") {
 } else {
     window.APP.endpoint = "https://api.megaminds.world";
 }
-
 
 const store = window.APP.store;
 store.update({ preferences: { shouldPromptForRefresh: false } }); // Clear flag that prompts for refresh from preference screen
@@ -133,7 +134,7 @@ if (isEmbed && !qs.get("embed_token")) {
     throw new Error("no embed token");
 }
 
-// import registerNetworkSchemas from "./network-schemas";
+import registerNetworkSchemas from "./network-schemas";
 
 import detectConcurrentLoad from "./utils/concurrent-load-detector";
 
@@ -510,7 +511,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.dispatchEvent(new CustomEvent("hub_channel_ready"));
 
-    // registerNetworkSchemas();
+    registerNetworkSchemas();
 
     remountUI({
         hubChannel,

@@ -90,6 +90,7 @@ declare module "aframe" {
         renderStarted: boolean;
         tick(time: number, delta: number): void;
         isPlaying: boolean;
+        hasLoaded: boolean;
         camera: any;
         behaviors: {
             tick: AComponent[];

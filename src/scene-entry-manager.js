@@ -19,6 +19,9 @@ import { MyCameraTool, LiveFeed } from "./bit-components";
 import { anyEntityWith } from "./utils/bit-utils";
 import { moveToSpawnPoint } from "./bit-systems/waypoint";
 
+import { renderAsEntity } from "./utils/jsx-entity";
+import { ArrowIndicatorPrefab } from "./mega-src/prefabs/arrow-indicator";
+
 export default class SceneEntryManager {
     constructor(hubChannel, authChannel, history) {
         this.hubChannel = hubChannel;
@@ -111,6 +114,8 @@ export default class SceneEntryManager {
         setTimeout(() => this.store.bumpEntryCount(), 30000);
 
         this.scene.addState("entered");
+
+        window.APP.arrowIndicator = renderAsEntity(APP.world, ArrowIndicatorPrefab());
 
         APP.mediaDevicesManager.micEnabled = !muteOnEntry;
     };
@@ -225,7 +230,7 @@ export default class SceneEntryManager {
                 obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
 
                 setTimeout(() => {
-                    window.APP.objectHelper.save(eid);
+                    window.APP.objectHelper.save(eid, null, src, src);
                 }, 1000);
                 return eid;
             }

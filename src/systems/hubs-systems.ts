@@ -137,7 +137,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     const hubsSystems = aframeSystems["hubs-systems"];
 
     // TODO does anything actually ever pause the scene?
-    if (!sceneEl.isPlaying && !hubsSystems.DOMContentDidLoad) return;
+    if (!sceneEl.isPlaying && !sceneEl.hasLoaded && !hubsSystems.DOMContentDidLoad) return;
 
     timeSystem(world);
     const t = world.time.elapsed;
@@ -226,7 +226,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     hubsSystems.spriteSystem.tick(t, dt);
     hubsSystems.uvScrollSystem.tick(dt);
     hubsSystems.shadowSystem.tick();
-    objectMenuSystem(world, !!APP.scene && APP.scene.is("frozen"), aframeSystems.userinput, APP.hubChannel!);
+    // objectMenuSystem(world, sceneEl.is("frozen"), APP.hubChannel!);
     videoMenuSystem(world, aframeSystems.userinput);
     videoSystem(world, hubsSystems.audioSystem);
     audioSystem(world, hubsSystems.audioSystem);
@@ -235,7 +235,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
     youtubeSystem(world);
     billboardSystem(world, APP.scene);
     particleEmitterSystem(world, dt);
-    spinningAnimationSystem(world);
+    // spinningAnimationSystem(world);
     mediaFramesSystem(world);
     hubsSystems.audioZonesSystem.tick(hubsSystems.el);
     hubsSystems.gainSystem.tick();

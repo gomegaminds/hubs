@@ -5,7 +5,6 @@ import { HoveredRemoteRight, Interacted, ObjectMenu, ObjectMenuTarget } from "..
 import { anyEntityWith, findAncestorWithComponent } from "../utils/bit-utils";
 import HubChannel from "../utils/hub-channel";
 import type { EntityID } from "../utils/networking-types";
-import { tryPin2, tryPin, tryUnpin, tryUnpin2 } from "../utils/store-networked-state";
 import { setMatrixWorld } from "../utils/three-utils";
 import { isPinned } from "./networking";
 
@@ -34,39 +33,6 @@ function moveToTarget(world: HubsWorld, menu: EntityID) {
 }
 
 function handleClicks(world: HubsWorld, menu: EntityID, hubChannel: HubChannel) {
-    if (clicked(world, ObjectMenu.pinButtonRef[menu])) {
-        console.log("Clicked pin");
-        tryPin2(world, ObjectMenu.targetRef[menu], hubChannel);
-    } else if (clicked(world, ObjectMenu.unpinButtonRef[menu])) {
-        console.log("Clicked unpin");
-
-        tryUnpin2(world, ObjectMenu.targetRef[menu], hubChannel);
-        // tryUnpin(world, ObjectMenu.targetRef[menu], hubChannel);
-    } else if (clicked(world, ObjectMenu.cameraFocusButtonRef[menu])) {
-        console.log("Clicked focus");
-    } else if (clicked(world, ObjectMenu.cameraTrackButtonRef[menu])) {
-        console.log("Clicked track");
-    } else if (clicked(world, ObjectMenu.removeButtonRef[menu])) {
-        console.log("Clicked remove");
-    } else if (clicked(world, ObjectMenu.dropButtonRef[menu])) {
-        console.log("Clicked drop");
-    } else if (clicked(world, ObjectMenu.inspectButtonRef[menu])) {
-        console.log("Clicked inspect");
-    } else if (clicked(world, ObjectMenu.deserializeDrawingButtonRef[menu])) {
-        console.log("Clicked deserialize drawing");
-    } else if (clicked(world, ObjectMenu.openLinkButtonRef[menu])) {
-        console.log("Clicked open link");
-    } else if (clicked(world, ObjectMenu.refreshButtonRef[menu])) {
-        console.log("Clicked refresh");
-    } else if (clicked(world, ObjectMenu.cloneButtonRef[menu])) {
-        console.log("Clicked clone");
-    } else if (clicked(world, ObjectMenu.rotateButtonRef[menu])) {
-        console.log("Clicked rotate");
-    } else if (clicked(world, ObjectMenu.mirrorButtonRef[menu])) {
-        console.log("Clicked mirror");
-    } else if (clicked(world, ObjectMenu.scaleButtonRef[menu])) {
-        console.log("Clicked scale");
-    }
 }
 
 function render(world: HubsWorld, menu: EntityID, frozen: boolean) {

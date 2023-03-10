@@ -10,6 +10,7 @@ export interface ImageLoaderParams {
 }
 
 export function inflateImageLoader(world: HubsWorld, eid: number, params: ImageLoaderParams) {
+
     inflateMediaLoader(world, eid, {
         src: params.src,
         recenter: false,
