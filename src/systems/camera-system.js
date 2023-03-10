@@ -227,7 +227,6 @@ export class CameraSystem {
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_VIDEO_TEXTURE_TARGET);
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_FIRST_PERSON_ONLY);
         this.viewingCamera.layers.enable(Layers.CAMERA_LAYER_UI);
-        this.viewingCamera.layers.enableAll();
 
         waitForDOMContentLoaded().then(() => {
             this.scene = AFRAME.scenes[0];
