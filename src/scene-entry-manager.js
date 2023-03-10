@@ -38,6 +38,7 @@ export default class SceneEntryManager {
 
     init = () => {
         this.whenSceneLoaded(() => {
+            this.scene.renderer.setPixelRatio(1);
             this.rightCursorController.components["cursor-controller"].enabled = false;
             this.leftCursorController.components["cursor-controller"].enabled = false;
             this.mediaDevicesManager = APP.mediaDevicesManager;

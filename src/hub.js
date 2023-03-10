@@ -82,7 +82,7 @@ import "./systems/nav";
 import "./systems/frame-scheduler";
 import "./systems/personal-space-bubble";
 import "./systems/exit-on-blur";
-import "./systems/auto-pixel-ratio";
+// import "./systems/auto-pixel-ratio";
 import "./systems/pen-tools";
 import "./systems/userinput/userinput";
 import "./systems/userinput/userinput-debug";
