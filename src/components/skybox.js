@@ -1,22 +1,22 @@
 import { LightProbeGenerator } from "three/examples/jsm/lights/LightProbeGenerator";
 
 const {
-  AmbientLight,
-  BackSide,
-  BoxBufferGeometry,
-  CubeCamera,
-  LinearFilter,
-  Mesh,
-  Object3D,
-  PMREMGenerator,
-  RGBAFormat,
-  Scene,
-  ShaderMaterial,
-  sRGBEncoding,
-  UniformsLib,
-  UniformsUtils,
-  Vector3,
-  WebGLCubeRenderTarget
+    AmbientLight,
+    BackSide,
+    BoxBufferGeometry,
+    CubeCamera,
+    LinearFilter,
+    Mesh,
+    Object3D,
+    PMREMGenerator,
+    RGBAFormat,
+    Scene,
+    ShaderMaterial,
+    sRGBEncoding,
+    UniformsLib,
+    UniformsUtils,
+    Vector3,
+    WebGLCubeRenderTarget
 } = THREE;
 
 /**
@@ -220,266 +220,265 @@ void main() {
 `;
 
 export default class Sky extends Object3D {
-  static shader = {
-    uniforms: UniformsUtils.merge([
-      UniformsLib.fog,
-      {
-        luminance: { value: 1 },
-        turbidity: { value: 10 },
-        rayleigh: { value: 2 },
-        mieCoefficient: { value: 0.005 },
-        mieDirectionalG: { value: 0.8 },
-        sunPosition: { value: new Vector3() }
-      }
-    ]),
-    vertexShader,
-    fragmentShader
-  };
+    static shader = {
+        uniforms: UniformsUtils.merge([
+            UniformsLib.fog,
+            {
+                luminance: { value: 1 },
+                turbidity: { value: 10 },
+                rayleigh: { value: 2 },
+                mieCoefficient: { value: 0.005 },
+                mieDirectionalG: { value: 0.8 },
+                sunPosition: { value: new Vector3() }
+            }
+        ]),
+        vertexShader,
+        fragmentShader
+    };
 
-  static _geometry = new BoxBufferGeometry(1, 1, 1);
+    static _geometry = new BoxBufferGeometry(1, 1, 1);
 
-  constructor() {
-    super();
+    constructor() {
+        super();
 
-    const material = new ShaderMaterial({
-      fragmentShader: Sky.shader.fragmentShader,
-      vertexShader: Sky.shader.vertexShader,
-      uniforms: UniformsUtils.clone(Sky.shader.uniforms),
-      side: BackSide,
-      fog: true
-    });
+        const material = new ShaderMaterial({
+            fragmentShader: Sky.shader.fragmentShader,
+            vertexShader: Sky.shader.vertexShader,
+            uniforms: UniformsUtils.clone(Sky.shader.uniforms),
+            side: BackSide,
+            fog: true
+        });
 
-    this.sky = new Mesh(Sky._geometry, material);
-    this.sky.name = "Sky";
-    this.add(this.sky);
+        this.sky = new Mesh(Sky._geometry, material);
+        this.sky.name = "Sky";
+        this.add(this.sky);
 
-    this._inclination = 0;
-    this._azimuth = 0.15;
-    this._distance = 8000;
-    this.updateSunPosition();
-  }
-
-  get turbidity() {
-    return this.sky.material.uniforms.turbidity.value;
-  }
-
-  set turbidity(value) {
-    this.sky.material.uniforms.turbidity.value = value;
-  }
-
-  get rayleigh() {
-    return this.sky.material.uniforms.rayleigh.value;
-  }
-
-  set rayleigh(value) {
-    this.sky.material.uniforms.rayleigh.value = value;
-  }
-
-  get luminance() {
-    return this.sky.material.uniforms.luminance.value;
-  }
-
-  set luminance(value) {
-    this.sky.material.uniforms.luminance.value = value;
-  }
-
-  get mieCoefficient() {
-    return this.sky.material.uniforms.mieCoefficient.value;
-  }
-
-  set mieCoefficient(value) {
-    this.sky.material.uniforms.mieCoefficient.value = value;
-  }
-
-  get mieDirectionalG() {
-    return this.sky.material.uniforms.mieDirectionalG.value;
-  }
-
-  set mieDirectionalG(value) {
-    this.sky.material.uniforms.mieDirectionalG.value = value;
-  }
-
-  get inclination() {
-    return this._inclination;
-  }
-
-  set inclination(value) {
-    this._inclination = value;
-    this.updateSunPosition();
-  }
-
-  get azimuth() {
-    return this._azimuth;
-  }
-
-  set azimuth(value) {
-    this._azimuth = value;
-    this.updateSunPosition();
-  }
-
-  get distance() {
-    return this._distance;
-  }
-
-  set distance(value) {
-    this._distance = value;
-    this.updateSunPosition();
-  }
-
-  updateSunPosition() {
-    const theta = Math.PI * (this._inclination - 0.5);
-    const phi = 2 * Math.PI * (this._azimuth - 0.5);
-
-    const distance = Math.min(1000, this._distance);
-
-    const x = distance * Math.cos(phi);
-    const y = distance * Math.sin(phi) * Math.sin(theta);
-    const z = distance * Math.sin(phi) * Math.cos(theta);
-
-    this.sky.material.uniforms.sunPosition.value.set(x, y, z).normalize();
-    this.sky.scale.set(distance, distance, distance);
-  }
-
-  generateEnvironmentMap(renderer) {
-    const skyScene = new Scene();
-    const cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512));
-    skyScene.add(cubeCamera);
-    skyScene.add(this.sky);
-    cubeCamera.update(renderer, skyScene);
-    this.add(this.sky);
-    const vrEnabled = renderer.xr.enabled;
-    renderer.xr.enabled = false;
-    const pmremGenerator = new PMREMGenerator(renderer);
-    const envMap = pmremGenerator.fromCubemap(cubeCamera.renderTarget.texture).texture;
-    renderer.xr.enabled = vrEnabled;
-    pmremGenerator.dispose();
-    cubeCamera.renderTarget.dispose();
-    return envMap;
-  }
-
-  generateLightProbe(renderer) {
-    const skyScene = new Scene();
-    skyScene.add(this.sky);
-
-    const cubeCamera = new CubeCamera(
-      1,
-      100000,
-      new WebGLCubeRenderTarget(512, {
-        format: RGBAFormat,
-        magFilter: LinearFilter,
-        minFilter: LinearFilter,
-        encoding: sRGBEncoding
-      })
-    );
-    skyScene.add(cubeCamera);
-    skyScene.add(this.sky);
-    cubeCamera.update(renderer, skyScene);
-    this.add(this.sky);
-    const lightProbe = LightProbeGenerator.fromCubeRenderTarget(renderer, cubeCamera.renderTarget);
-    cubeCamera.renderTarget.dispose();
-    return lightProbe;
-  }
-
-  copy(source, recursive = true) {
-    if (recursive) {
-      this.remove(this.sky);
+        this._inclination = 0;
+        this._azimuth = 0.15;
+        this._distance = 8000;
+        this.updateSunPosition();
     }
 
-    super.copy(source, recursive);
-
-    if (recursive) {
-      const skyIndex = source.children.indexOf(source.sky);
-
-      if (skyIndex !== -1) {
-        this.sky = this.children[skyIndex];
-      }
+    get turbidity() {
+        return this.sky.material.uniforms.turbidity.value;
     }
 
-    this.turbidity = source.turbidity;
-    this.rayleigh = source.rayleigh;
-    this.luminance = source.luminance;
-    this.mieCoefficient = source.mieCoefficient;
-    this.mieDirectionalG = source.mieDirectionalG;
-    this.inclination = source.inclination;
-    this.azimuth = source.azimuth;
-    this.distance = source.distance;
+    set turbidity(value) {
+        this.sky.material.uniforms.turbidity.value = value;
+    }
 
-    return this;
-  }
+    get rayleigh() {
+        return this.sky.material.uniforms.rayleigh.value;
+    }
+
+    set rayleigh(value) {
+        this.sky.material.uniforms.rayleigh.value = value;
+    }
+
+    get luminance() {
+        return this.sky.material.uniforms.luminance.value;
+    }
+
+    set luminance(value) {
+        this.sky.material.uniforms.luminance.value = value;
+    }
+
+    get mieCoefficient() {
+        return this.sky.material.uniforms.mieCoefficient.value;
+    }
+
+    set mieCoefficient(value) {
+        this.sky.material.uniforms.mieCoefficient.value = value;
+    }
+
+    get mieDirectionalG() {
+        return this.sky.material.uniforms.mieDirectionalG.value;
+    }
+
+    set mieDirectionalG(value) {
+        this.sky.material.uniforms.mieDirectionalG.value = value;
+    }
+
+    get inclination() {
+        return this._inclination;
+    }
+
+    set inclination(value) {
+        this._inclination = value;
+        this.updateSunPosition();
+    }
+
+    get azimuth() {
+        return this._azimuth;
+    }
+
+    set azimuth(value) {
+        this._azimuth = value;
+        this.updateSunPosition();
+    }
+
+    get distance() {
+        return this._distance;
+    }
+
+    set distance(value) {
+        this._distance = value;
+        this.updateSunPosition();
+    }
+
+    updateSunPosition() {
+        const theta = Math.PI * (this._inclination - 0.5);
+        const phi = 2 * Math.PI * (this._azimuth - 0.5);
+
+        const distance = Math.min(1000, this._distance);
+
+        const x = distance * Math.cos(phi);
+        const y = distance * Math.sin(phi) * Math.sin(theta);
+        const z = distance * Math.sin(phi) * Math.cos(theta);
+
+        this.sky.material.uniforms.sunPosition.value.set(x, y, z).normalize();
+        this.sky.scale.set(distance, distance, distance);
+    }
+
+    generateEnvironmentMap(renderer) {
+        const skyScene = new Scene();
+        const cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512));
+        skyScene.add(cubeCamera);
+        skyScene.add(this.sky);
+        cubeCamera.update(renderer, skyScene);
+        this.add(this.sky);
+        const pmremGenerator = new PMREMGenerator(renderer);
+        const envMap = pmremGenerator.fromCubemap(cubeCamera.renderTarget.texture).texture;
+        pmremGenerator.dispose();
+        cubeCamera.renderTarget.dispose();
+
+        console.log("Created enviornmentmap from ", skyScene, envMap);
+        return envMap;
+    }
+
+    generateLightProbe(renderer) {
+        const skyScene = new Scene();
+        skyScene.add(this.sky);
+
+        const cubeCamera = new CubeCamera(
+            1,
+            100000,
+            new WebGLCubeRenderTarget(512, {
+                format: RGBAFormat,
+                magFilter: LinearFilter,
+                minFilter: LinearFilter,
+                encoding: sRGBEncoding
+            })
+        );
+        skyScene.add(cubeCamera);
+        skyScene.add(this.sky);
+        cubeCamera.update(renderer, skyScene);
+        this.add(this.sky);
+        const lightProbe = LightProbeGenerator.fromCubeRenderTarget(renderer, cubeCamera.renderTarget);
+        cubeCamera.renderTarget.dispose();
+        return lightProbe;
+    }
+
+    copy(source, recursive = true) {
+        if (recursive) {
+            this.remove(this.sky);
+        }
+
+        super.copy(source, recursive);
+
+        if (recursive) {
+            const skyIndex = source.children.indexOf(source.sky);
+
+            if (skyIndex !== -1) {
+                this.sky = this.children[skyIndex];
+            }
+        }
+
+        this.turbidity = source.turbidity;
+        this.rayleigh = source.rayleigh;
+        this.luminance = source.luminance;
+        this.mieCoefficient = source.mieCoefficient;
+        this.mieDirectionalG = source.mieDirectionalG;
+        this.inclination = source.inclination;
+        this.azimuth = source.azimuth;
+        this.distance = source.distance;
+
+        return this;
+    }
 }
 
 AFRAME.registerComponent("skybox", {
-  schema: {
-    turbidity: { type: "number", default: 10 },
-    rayleigh: { type: "number", default: 2 },
-    luminance: { type: "number", default: 1 },
-    mieCoefficient: { type: "number", default: 0.005 },
-    mieDirectionalG: { type: "number", default: 0.8 },
-    inclination: { type: "number", default: 0 },
-    azimuth: { type: "number", default: 0.15 },
-    distance: { type: "number", default: 8000 }
-  },
+    schema: {
+        turbidity: { type: "number", default: 10 },
+        rayleigh: { type: "number", default: 2 },
+        luminance: { type: "number", default: 1 },
+        mieCoefficient: { type: "number", default: 0.005 },
+        mieDirectionalG: { type: "number", default: 0.8 },
+        inclination: { type: "number", default: 0 },
+        azimuth: { type: "number", default: 0.15 },
+        distance: { type: "number", default: 8000 }
+    },
 
-  init() {
-    this.sky = new Sky();
-    this.el.setObject3D("mesh", this.sky);
-  },
+    init() {
+        this.sky = new Sky();
+        this.el.setObject3D("mesh", this.sky);
+    },
 
-  update(oldData) {
-    if (this.data.turbidity !== oldData.turbidity) {
-      this.sky.turbidity = this.data.turbidity;
+    update(oldData) {
+        if (this.data.turbidity !== oldData.turbidity) {
+            this.sky.turbidity = this.data.turbidity;
+        }
+
+        if (this.data.rayleigh !== oldData.rayleigh) {
+            this.sky.rayleigh = this.data.rayleigh;
+        }
+
+        if (this.data.luminance !== oldData.luminance) {
+            this.sky.luminance = this.data.luminance;
+        }
+
+        if (this.data.mieCoefficient !== oldData.mieCoefficient) {
+            this.sky.mieCoefficient = this.data.mieCoefficient;
+        }
+
+        if (this.data.mieDirectionalG !== oldData.mieDirectionalG) {
+            this.sky.mieDirectionalG = this.data.mieDirectionalG;
+        }
+
+        if (this.data.inclination !== oldData.inclination) {
+            this.sky.inclination = this.data.inclination;
+            this.el.object3D.matrixNeedsUpdate = true;
+        }
+
+        if (this.data.azimuth !== oldData.azimuth) {
+            this.sky.azimuth = this.data.azimuth;
+            this.el.object3D.matrixNeedsUpdate = true;
+        }
+
+        if (this.data.distance !== oldData.distance) {
+            const distance = this.data.distance;
+
+            // HACK Remove this if condition and always set the scale based on distance when the existing environments
+            // have their sky scales set to 1.
+            this.sky.distance = this.el.object3D.scale.x === 1 ? distance : 1;
+            this.sky.matrixNeedsUpdate = true;
+        }
+
+        // TODO Remove or rework medium quality mode
+        if (window.APP.store.state.preferences.materialQualitySetting === "medium") {
+            // This extra ambient light is here to normalize lighting with the MeshStandardMaterial.
+            // Without it, objects are significantly darker in brighter environments.
+            // It's kept to a low value to not wash out objects in very dark environments.
+            // This is a hack, but the results are much better than they are without it.
+            this.el.setObject3D("ambient-light", new AmbientLight(0xffffff, 0.3));
+            this.el.setObject3D("light-probe", this.sky.generateLightProbe(this.el.sceneEl.renderer));
+        }
+
+        // TODO if we care about dynamic skybox changes we should also update the enviornment map here
+        //
+    },
+
+    remove() {
+        this.el.removeObject3D("mesh");
     }
-
-    if (this.data.rayleigh !== oldData.rayleigh) {
-      this.sky.rayleigh = this.data.rayleigh;
-    }
-
-    if (this.data.luminance !== oldData.luminance) {
-      this.sky.luminance = this.data.luminance;
-    }
-
-    if (this.data.mieCoefficient !== oldData.mieCoefficient) {
-      this.sky.mieCoefficient = this.data.mieCoefficient;
-    }
-
-    if (this.data.mieDirectionalG !== oldData.mieDirectionalG) {
-      this.sky.mieDirectionalG = this.data.mieDirectionalG;
-    }
-
-    if (this.data.inclination !== oldData.inclination) {
-      this.sky.inclination = this.data.inclination;
-      this.el.object3D.matrixNeedsUpdate = true;
-    }
-
-    if (this.data.azimuth !== oldData.azimuth) {
-      this.sky.azimuth = this.data.azimuth;
-      this.el.object3D.matrixNeedsUpdate = true;
-    }
-
-    if (this.data.distance !== oldData.distance) {
-      const distance = this.data.distance;
-
-      // HACK Remove this if condition and always set the scale based on distance when the existing environments
-      // have their sky scales set to 1.
-      this.sky.distance = this.el.object3D.scale.x === 1 ? distance : 1;
-      this.sky.matrixNeedsUpdate = true;
-    }
-
-    // TODO Remove or rework medium quality mode
-    if (window.APP.store.state.preferences.materialQualitySetting === "medium") {
-      // This extra ambient light is here to normalize lighting with the MeshStandardMaterial.
-      // Without it, objects are significantly darker in brighter environments.
-      // It's kept to a low value to not wash out objects in very dark environments.
-      // This is a hack, but the results are much better than they are without it.
-      this.el.setObject3D("ambient-light", new AmbientLight(0xffffff, 0.3));
-      this.el.setObject3D("light-probe", this.sky.generateLightProbe(this.el.sceneEl.renderer));
-    }
-
-    // TODO if we care about dynamic skybox changes we should also update the enviornment map here
-    //
-  },
-
-  remove() {
-    this.el.removeObject3D("mesh");
-  }
 });

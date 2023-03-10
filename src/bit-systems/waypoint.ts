@@ -18,7 +18,7 @@ import { anyEntityWith, findAncestorWithComponent } from "../utils/bit-utils";
 import { coroutine } from "../utils/coroutine";
 import { EntityID } from "../utils/networking-types";
 import { takeOwnership } from "../utils/take-ownership";
-import { takeOwnershipWithTime } from "../utils/take-ownership-with-time";
+import { takeSoftOwnership } from "../utils/take-soft-ownership";
 import { setMatrixWorld } from "../utils/three-utils";
 
 export enum WaypointFlags {
@@ -52,9 +52,9 @@ function occupyWaypoint(world: HubsWorld, eid: EntityID) {
 
 function nonOccupiableSpawnPoints(world: HubsWorld) {
     return waypointQuery(world).filter(eid => {
-        const canBeSpawnPoint = true;
-        const canBeOccupied = true;
-        return canBeSpawnPoint;
+        const canBeSpawnPoint = Waypoint.flags[eid] & WaypointFlags.canBeSpawnPoint;
+        const canBeOccupied = Waypoint.flags[eid] & WaypointFlags.canBeOccupied;
+        return canBeSpawnPoint && !canBeOccupied && findAncestorWithComponent(world, SceneRoot, eid);
     });
 }
 
@@ -73,7 +73,7 @@ function occupiableSpawnPoints(world: HubsWorld) {
 
 function* tryOccupyAndSpawn(world: HubsWorld, characterController: CharacterControllerSystem, spawnPoint: EntityID) {
     moveToWaypoint(world, spawnPoint, characterController, true);
-    takeOwnershipWithTime(world, spawnPoint, Networked.timestamp[spawnPoint] + 1);
+    takeSoftOwnership(world, spawnPoint);
     occupyWaypoint(world, spawnPoint);
     // TODO: We could check if we lost ownership, and not wait as long "lostOwnershipWithTimeout"
     yield sleep(2000);
@@ -171,7 +171,9 @@ export function waypointSystem(
         if (hasComponent(world, Interacted, eid)) {
             if (hasComponent(world, NetworkedWaypoint, eid)) {
                 if (NetworkedWaypoint.occupied[eid]) {
-                    console.warn("Can't travel to occupied waypoint...");
+                    // We don't expect to get here:
+                    // We should be able to interact with an occupied waypoint...
+                    console.error("Interacted with an occupied waypoint. Doing nothing.");
                 } else {
                     takeOwnership(world, eid);
                     occupyWaypoint(world, eid);
@@ -191,12 +193,11 @@ export function waypointSystem(
     });
 
     const hovered = hoveredRightWaypointQuery(world) || hoveredLeftWaypointQuery(world);
-    /* if (!preview) {
+    if (!preview) {
         preview = world.eid2obj.get(anyEntityWith(world, WaypointPreview)!)!;
-        console.log(preview);
+        return;
     }
     preview.visible = !!hovered.length;
-    */
     if (hovered.length) {
         const eid = hovered[0];
         const obj = world.eid2obj.get(eid)!;

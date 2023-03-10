@@ -241,6 +241,7 @@ export async function updateEnvironmentForHub(hub, entryManager, classroom_scene
 
     if (environmentScene.childNodes.length === 0) {
         const environmentEl = document.createElement("a-entity");
+        console.log(environmentEl);
 
         environmentEl.addEventListener(
             "model-loaded",
@@ -269,6 +270,8 @@ export async function updateEnvironmentForHub(hub, entryManager, classroom_scene
     } else {
         // Change environment
         environmentEl = environmentScene.childNodes[0];
+
+        console.log(environmentEl);
 
         // Clear the three.js image cache and load the loading environment before switching to the new one.
         THREE.Cache.clear();

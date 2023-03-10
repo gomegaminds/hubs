@@ -7,10 +7,9 @@ import { loadPDFTexture } from "../utils/load-pdf-texture";
 import { HubsWorld } from "../app";
 import { Button3D, BUTTON_TYPES } from "../prefabs/button3D";
 
-export function* loadPDF(world: HubsWorld, url: string, index: number) {
+export function* loadPDF(world: HubsWorld, url: string) {
     const { texture, ratio, page }: { texture: CanvasTexture; ratio: number; page: any } = yield loadPDFTexture(
         url,
-        index
     );
 
     const nextRef = createRef();

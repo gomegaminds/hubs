@@ -79,7 +79,6 @@ export async function spawnFromFileList(files, isStickyNote = false) {
                 addComponent(APP.world, StickyNote, eid);
                 StickyNote.toggled[eid] = true;
             }
-            addComponent(APP.world, Nickname, eid);
             const avatarPov = document.querySelector("#avatar-pov-node").object3D;
             const obj = APP.world.eid2obj.get(eid);
             obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));

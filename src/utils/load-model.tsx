@@ -4,15 +4,12 @@ import { HubsWorld } from "../app";
 import { loadModel as loadGLTFModel } from "../components/gltf-model-plus";
 import { renderAsEntity } from "../utils/jsx-entity";
 
-export function* loadModel(world: HubsWorld, src: string, useCache: boolean, contentType: any) {
-  // TODO: Write loadGLTFModelCancelable
-  
-  // TODO: Pass contenttype in here
+export function* loadModel(world: HubsWorld, src: string, contentType: string, useCache: boolean) {
+    // TODO: Write loadGLTFModelCancelable
+    const { scene, animations } = yield loadGLTFModel(src, contentType, useCache, null);
 
-  const { scene, animations } = yield loadGLTFModel(src, contentType, useCache, null);
+    scene.animations = animations;
+    scene.mixer = new THREE.AnimationMixer(scene);
 
-  scene.animations = animations;
-  scene.mixer = new THREE.AnimationMixer(scene);
-
-  return renderAsEntity(world, <entity model={{ model: scene }} />);
+    return renderAsEntity(world, <entity model={{ model: scene }} />);
 }

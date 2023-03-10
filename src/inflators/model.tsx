@@ -21,6 +21,7 @@ function inflateComponents(
     components: { [componentName: string]: any },
     idx2eid: Map<number, EntityID>
 ) {
+    console.log("Got inflateComponents");
     Object.keys(components).forEach(name => {
         const inflatorName = camelCase(name);
         if (ignoredComponents.includes(inflatorName)) return;

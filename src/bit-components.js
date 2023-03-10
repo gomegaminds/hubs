@@ -308,6 +308,10 @@ export const Owner = defineComponent({
 Owner.value[$isStringType] = true;
 
 export const MegaText = defineComponent();
+export const MediaLoaded = defineComponent();
 
 export const LiveFeed = defineComponent();
 export const ArrowIndicator = defineComponent();
+
+export const Skybox = defineComponent();
+export const SimpleWater = defineComponent();

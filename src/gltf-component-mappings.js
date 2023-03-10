@@ -588,13 +588,6 @@ AFRAME.GLTFModelPlus.registerComponent("fog", "fog", (el, _componentName, compon
     //   "The `fog` component is deprecated, use the fog properties on the `environment-settings` component instead."
     // );
     // This assumes the fog component is on the root entitycoco
-    el.setAttribute("environment-settings", {
-        fogType: componentData.type,
-        fogColor: new THREE.Color(componentData.color),
-        fogNear: componentData.near,
-        fogFar: componentData.far,
-        fogDensity: componentData.density
-    });
 });
 
 AFRAME.GLTFModelPlus.registerComponent(
@@ -602,6 +595,8 @@ AFRAME.GLTFModelPlus.registerComponent(
     "environment-settings",
     (el, componentName, componentData) => {
         // TODO a bit silly to be storing this as an aframe component. Use a glboal store of some sort
+        //
+        console.log(componentData);
         el.setAttribute(componentName, {
             ...componentData,
             backgroundColor: new THREE.Color(componentData.backgroundColor)
