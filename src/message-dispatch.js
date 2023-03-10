@@ -68,6 +68,11 @@ export default class MessageDispatch extends EventTarget {
             console.log("Mute request received");
             window.APP.mediaDevicesManager.stopMicShare();
         }
+        if (message.type == "kickRequest") {
+            window.APP.dialog.disconnect();
+            NAF.connection.disconnect();
+            window.APP.mediaDevicesManager.stopMicShare();
+        }
         if (message.type == "unMuteRequest") {
             window.APP.mediaDevicesManager.startMicShare({});
         }

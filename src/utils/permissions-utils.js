@@ -25,15 +25,15 @@ export function canMove(eid) {
             return false;
         }
 
-        // Check if they actually has permissions
-        if (window.APP.objectHelper.can("can_change")) {
+        // Check if they actually has permissions to use Edit Mode
+        if (window.APP.objectHelper.can("can_create")) {
             return true;
         }
     } else {
         // If in normal mode, still allow for student moveable
         // If in normal mode, still allow for stickynotes that they own
-        const isOwner =
-            hasComponent(APP.world, Owner, eid) && Owner.value[eid] === window.APP.store.state.profile.displayName;
+        // const isOwner =
+        //   hasComponent(APP.world, Owner, eid) && Owner.value[eid] === window.APP.store.state.profile.displayName;
 
         if (hasComponent(APP.world, StudentsCanMove, eid) && StudentsCanMove.toggled[eid] === 1) {
             return true;

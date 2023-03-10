@@ -242,7 +242,7 @@ export class CameraSystem {
             bg.layers.set(Layers.CAMERA_LAYER_INSPECT);
             this.viewingRig.object3D.add(bg);
 
-            this.scene.object3D.add(this.helper);
+            // this.scene.object3D.add(this.helper);
 
             // this.transformControls = new TransformControls(this.viewingCamera, this.scene.renderer.domElement);
             // this.transformControls.name = "TransformControls";
@@ -396,26 +396,37 @@ export class CameraSystem {
                 // const arrowObj = APP.world.eid2obj.get(APP.arrowIndicator);
                 const hoverObj = APP.world.eid2obj.get(hoverEl);
 
-                if (this.helper === null) {
-                    this.helper = new THREE.BoxHelper(hoverObj, 0xffff00);
-                    this.scene.object3D.add(this.helper);
-                }
-                // console.log(this.transformControls);
-
-                // If we are starting edit of what we are already editing, close the menu
-                if (hoverEl === this.isInsideMenu) {
-                    if (this.helper) {
-                        this.helper.visible = false;
+                // Check if its a user instead of object
+                if (hoverObj.el?.components["avatar-inspect-collider"]) {
+                    if (window.APP.objectHelper.can("kick_user")) {
+                        const playerInfo = hoverObj.el.closest("#playerInfoElement").components["player-info"];
+                        scene.emit("right_menu_changed", {
+                            variant: "user_settings",
+                            payload: { id: playerInfo.playerSessionId }
+                        });
                     }
-                    scene.emit("right_menu_changed", null);
-                    this.isInsideMenu = null;
-                } else if (hoverEl) {
-                    // Reset if moving directly from one to the next
-                    this.helper.setFromObject(hoverObj, 0xffff00);
-                    this.helper.visible = true;
+                } else {
+                    if (this.helper === null) {
+                        this.helper = new THREE.BoxHelper(hoverObj, 0xffff00);
+                        this.scene.object3D.add(this.helper);
+                    }
+                    // console.log(this.transformControls);
 
-                    scene.emit("right_menu_changed", hoverEl);
-                    this.isInsideMenu = hoverEl;
+                    // If we are starting edit of what we are already editing, close the menu
+                    if (hoverEl === this.isInsideMenu) {
+                        if (this.helper) {
+                            this.helper.visible = false;
+                        }
+                        scene.emit("right_menu_changed", null);
+                        this.isInsideMenu = null;
+                    } else if (hoverEl) {
+                        // Reset if moving directly from one to the next
+                        this.helper.setFromObject(hoverObj, 0xffff00);
+                        this.helper.visible = true;
+
+                        scene.emit("right_menu_changed", hoverEl);
+                        this.isInsideMenu = hoverEl;
+                    }
                 }
             }
 

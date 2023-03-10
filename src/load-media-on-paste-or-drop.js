@@ -77,6 +77,7 @@ export async function spawnFromFileList(files, isStickyNote = false) {
             addComponent(APP.world, Nickname, eid);
             if (isStickyNote) {
                 addComponent(APP.world, StickyNote, eid);
+                StickyNote.toggled[eid] = true;
             }
             addComponent(APP.world, Nickname, eid);
             const avatarPov = document.querySelector("#avatar-pov-node").object3D;
@@ -127,6 +128,28 @@ async function onPaste(e) {
     const text = e.clipboardData.getData("text");
 
     const isYoutube = text.includes("youtube.com");
+    if (!isYouTube) {
+        try {
+            const isLink = new URL(text);
+            // Its a link
+            const eid = createNetworkedEntity(APP.world, "link", {
+                url: url.text,
+                recenter: true,
+                resize: true,
+                link: text
+            });
+
+            const avatarPov = document.querySelector("#avatar-pov-node").object3D;
+            const obj = APP.world.eid2obj.get(eid);
+            obj.position.copy(avatarPov.localToWorld(new THREE.Vector3(0, 0, -1.5)));
+            obj.lookAt(avatarPov.getWorldPosition(new THREE.Vector3()));
+
+            setTimeout(() => {
+                window.APP.objectHelper.save(eid);
+            }, 1000);
+        } catch {}
+    }
+
     if (isYoutube) {
         const eid = createNetworkedEntity(APP.world, "youtube", {
             src: youtube_model,
